@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// pagina de login
 func FormularioLogin(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := template.ParseFiles("../templates/index.html")
@@ -23,7 +24,7 @@ func FormularioLogin(w http.ResponseWriter, r *http.Request) {
 		Msg: msg,
 	}
 
-	//executar template
+	// executar template
 
 	err = tmpl.Execute(w, msgPagina)
 	if err != nil {

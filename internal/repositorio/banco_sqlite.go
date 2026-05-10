@@ -11,12 +11,19 @@ type BancoDeDados struct {
 	Conexao *sql.DB
 }
 
-func Conectar() (*sql.DB, error) {
+func Conectar(args ...string) (*sql.DB, error) {
 
+	var caminho string
 	// abrir a conexao
+	if len(args) > 0 {
+		caminho = args[0]
+	} else {
+		caminho = "../database/sqlite.db"
+
+	}
 	var err error
 
-	Conexao, err := sql.Open("sqlite", "./database.db")
+	Conexao, err := sql.Open("sqlite", caminho)
 
 	// 1º verifica se houver erro na conexao
 	if err != nil {

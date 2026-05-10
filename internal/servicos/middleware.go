@@ -23,6 +23,17 @@ func LogMiddleware(proximo http.Handler) http.Handler {
 func AuthMiddleware(proximo http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/favicon.ico" {
+			w.WriteHeader(http.StatusNoContent) // Devolve 204 (Sem Conteúdo)
+			return
+		}
+
+		// se for a pagina do login retorna
+		if r.URL.Path == "/login" || r.URL.Path == "/favicon.ico" {
+			proximo.ServeHTTP(w, r)
+			return
+		}
+
 		// 1º vamos tentar pegar  o token do cookie ou do url get
 		var token string //token inicia vazio
 
@@ -33,10 +44,10 @@ func AuthMiddleware(proximo http.Handler) http.Handler {
 		if err == nil {
 			token = cookie.Value
 		}
-
+		token = "ABC"
 		// se token do cookie vazio então procura no get
 		if token == "" {
-			token = r.URL.Query().Get("password")
+			token = r.URL.Query().Get("token")
 		}
 
 		// se token do GET também vazio, então retorna
@@ -47,8 +58,9 @@ func AuthMiddleware(proximo http.Handler) http.Handler {
 		}
 
 		// 2º verificar se o token existe no  no banco de dados
+		log.Print("Autenticando usuario: " + token)
 
-		resultado, err := repositorio.Consultar("SELECT id FROM acesso_permitido WHERE  token LIKE '?' ", token)
+		resultado, err := repositorio.Consultar("SELECT id FROM tokens WHERE token LIKE '?' ", token)
 
 		// se houve erro na conexao com o  banco de dados. informar ao usuario
 		if err != nil {

@@ -27,9 +27,9 @@ func (s *Roteador) ConfigurarRotas() http.Handler {
 	// PASSA PELO MIDDLEWARE AUTENTICADOR
 	// -- home -
 
-	mux.Handle("GET /", servicos.AuthMiddleware(http.HandlerFunc(controladores.Index)))
+	mux.HandleFunc("GET /", controladores.Index)
 
 	// retornar mux
-	return servicos.LogMiddleware(mux)
+	return servicos.AuthMiddleware(servicos.LogMiddleware(mux))
 
 }
