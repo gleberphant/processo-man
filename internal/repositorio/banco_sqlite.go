@@ -1,0 +1,53 @@
+package repositorio
+
+import (
+	"database/sql"
+	"log"
+
+	_ "modernc.org/sqlite" // Driver SQLite
+)
+
+type BancoDeDados struct {
+	Conexao *sql.DB
+}
+
+func Conectar() (*sql.DB, error) {
+
+	// abrir a conexao
+	var err error
+
+	Conexao, err := sql.Open("sqlite", "./database.db")
+
+	// 1º verifica se houver erro na conexao
+	if err != nil {
+		log.Printf("Erro ao conectar-se ao banco de dados : %v", err)
+		return nil, err
+	}
+
+	// 2º verifica se conexao está ativa
+	if err = Conexao.Ping(); err != nil {
+		return nil, err
+	}
+
+	// retorna a conexao para query
+
+	return Conexao, nil
+}
+
+func Consultar(query string, args ...any) (*sql.Rows, error) {
+	//conectar
+	conn, err := Conectar()
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer conn.Close()
+
+	// fzer consultar
+	res, err := conn.Query(query, args...)
+
+	//retornar resultado
+
+	return res, err
+}
