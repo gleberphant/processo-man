@@ -1,2 +1,2 @@
--- Active: 1778421195751@@127.0.0.1@3306
+-- Active: 1778453038553@@127.0.0.1@3306
 SELECT id FROM tokens WHERE  token LIKE 'ABC' 

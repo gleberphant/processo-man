@@ -23,16 +23,19 @@ func LogMiddleware(proximo http.Handler) http.Handler {
 func AuthMiddleware(proximo http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// fav icon para nao dobrar a requisicao
 		if r.URL.Path == "/favicon.ico" {
 			w.WriteHeader(http.StatusNoContent) // Devolve 204 (Sem Conteúdo)
 			return
 		}
 
-		// se for a pagina do login retorna
-		if r.URL.Path == "/login" || r.URL.Path == "/favicon.ico" {
+		// se for a pagina do login retorna para nao entrar em loop eterno
+		if r.URL.Path == "/login" {
 			proximo.ServeHTTP(w, r)
 			return
 		}
+
+		// senao for a pagina de login então verifica as credenciais
 
 		// 1º vamos tentar pegar  o token do cookie ou do url get
 		var token string //token inicia vazio
@@ -44,28 +47,29 @@ func AuthMiddleware(proximo http.Handler) http.Handler {
 		if err == nil {
 			token = cookie.Value
 		}
-		token = "ABC"
-		// se token do cookie vazio então procura no get
+
+		// se token do cookie é vazio então procura no get
 		if token == "" {
 			token = r.URL.Query().Get("token")
 		}
+		//token = "ABC"
 
-		// se token do GET também vazio, então retorna
+		// se token do GET também está vazio, então retorna com mensagem
 		if token == "" {
-			msg := url.QueryEscape("Token de acesso inválido. Acesso Negado.")
-			http.Redirect(w, r, "/login?msg="+msg, http.StatusSeeOther)
+			rota := "/login?msg=" + url.QueryEscape("Acesso Negado. Forneca um TOKEN de acesso.")
+			http.Redirect(w, r, rota, http.StatusSeeOther)
 			return
 		}
 
 		// 2º verificar se o token existe no  no banco de dados
-		log.Print("Autenticando usuario: " + token)
+		log.Printf("Autenticando usuario com token: [%s] ", token)
 
-		resultado, err := repositorio.Consultar("SELECT id FROM tokens WHERE token LIKE '?' ", token)
+		resultado, err := repositorio.Consultar("SELECT id FROM tokens WHERE token LIKE 'ABC'", token)
 
 		// se houve erro na conexao com o  banco de dados. informar ao usuario
 		if err != nil {
-			msg := url.QueryEscape("Erro no servidor de Banco de Dados. Tente novamente")
-			http.Redirect(w, r, "/login?msg="+msg, http.StatusSeeOther)
+			rota := "/login?msg=" + url.QueryEscape("Erro no servidor de Banco de Dados. Tente novamente")
+			http.Redirect(w, r, rota, http.StatusSeeOther)
 			return
 		}
 
@@ -74,13 +78,14 @@ func AuthMiddleware(proximo http.Handler) http.Handler {
 		var acessoNegado bool = true
 
 		if resultado.Next() {
+			log.Printf("Usuario autenticado com token: %s ", token)
 			acessoNegado = false
 		}
 
 		// Verifica se acesso negado
 		if acessoNegado {
-			msg := url.QueryEscape("Login Inválido. Acesso Negado")
-			http.Redirect(w, r, "/login?msg="+msg, http.StatusSeeOther)
+			rota := "/login?msg=" + url.QueryEscape("Acesso negado. token não encontrado")
+			http.Redirect(w, r, rota, http.StatusSeeOther)
 			return
 		}
 
