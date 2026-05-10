@@ -10,16 +10,39 @@ func TestBancoDeDados(t *testing.T) {
 
 	//dbManager := infraestrutura.BancoDeDados{}
 
-	db, err := repositorio.Conectar()
+	conn, err := repositorio.Conectar("../database/sqlite.db")
 
 	if err != nil {
 		t.Fatalf("Erro crítico ao conectar no SQLite: %v", err)
 	}
+	defer conn.Close()
 
-	// Se chegou aqui, o Ping() passou e o arquivo ./sistema.db foi criado/aberto
-	t.Log("\nConexão com o banco de dados SQLite estabelecida com sucesso!")
+	t.Log("\n LOG :: Conexão com o banco de dados SQLite estabelecida com sucesso!")
 
-	// Fechar a conexão ao encerrar o programa
-	defer db.Close()
+	//testar consulta
+	//token := "ABC"
+
+	rows, err := repositorio.Consultar("SELECT id, token, permissoes FROM tokens")
+
+	if err != nil {
+		t.Fatalf("\n ERRO :: Erro crítico CONSULTAR TABELA: %v", err)
+	}
+
+	defer rows.Close()
+
+	tokens := struct {
+		id         int
+		token      string
+		permissoes string
+	}{}
+
+	if rows.Next() {
+		rows.Scan(&tokens.id, &tokens.token, &tokens.permissoes)
+
+		t.Logf("\n\n [ ID: %d TOKEN: %s PERMISSOES: %s] \n \n", tokens.id, tokens.token, tokens.permissao)
+
+	}
+
+	t.Log("\n LOG :: Consulta realizada com sucesso!")
 
 }
