@@ -39,7 +39,7 @@ func TestBancoDeDados(t *testing.T) {
 	if rows.Next() {
 		rows.Scan(&tokens.id, &tokens.token, &tokens.permissoes)
 
-		t.Logf("\n\n [ ID: %d TOKEN: %s PERMISSOES: %s] \n \n", tokens.id, tokens.token, tokens.permissao)
+		t.Logf("\n\n [ ID: %d TOKEN: %s PERMISSOES: %s] \n \n", tokens.id, tokens.token, tokens.permissoes)
 
 	}
 

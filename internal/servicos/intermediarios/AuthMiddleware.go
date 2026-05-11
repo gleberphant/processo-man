@@ -1,4 +1,4 @@
-package servicos
+package intermediarios
 
 import (
 	"log"
@@ -7,18 +7,6 @@ import (
 
 	"github.com/gleberphant/ProcessoMan/internal/repositorio"
 )
-
-func LogMiddleware(proximo http.Handler) http.Handler {
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		proximo.ServeHTTP(w, r)
-
-		log.Printf("| Requisao: %s |  Metodo: %s | ",
-			r.URL,
-			r.Method,
-		)
-	})
-}
 
 func AuthMiddleware(proximo http.Handler) http.Handler {
 
@@ -29,7 +17,7 @@ func AuthMiddleware(proximo http.Handler) http.Handler {
 			return
 		}
 
-		// se for a pagina do login retorna para nao entrar em loop eterno
+		// pagina de login nao precisa de autenticação, portanto, retorna para nao entrar em loop eterno
 		if r.URL.Path == "/login" {
 			proximo.ServeHTTP(w, r)
 			return

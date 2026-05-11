@@ -35,8 +35,11 @@ func FormularioLogin(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// funcao para logar
 func Logar(w http.ResponseWriter, r *http.Request) {
-	//return
+
+	// recebe a requisao
+	// chama o servico/usecase login
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gleberphant/ProcessoMan/internal/controladores"
-	"github.com/gleberphant/ProcessoMan/internal/servicos"
+	servicos "github.com/gleberphant/ProcessoMan/internal/servicos/intermediarios"
 )
 
 type Roteador struct {
@@ -27,9 +27,11 @@ func (s *Roteador) ConfigurarRotas() http.Handler {
 	// PASSA PELO MIDDLEWARE AUTENTICADOR
 	// -- home -
 
-	mux.HandleFunc("GET /", controladores.Index)
+	mux.Handle("GET /", servicos.AuthMiddleware(http.HandlerFunc(controladores.Index))) // para auth local
+	//mux.HandleFunc("GET /", controladores.Index) -- para auth global
 
 	// retornar mux
-	return servicos.AuthMiddleware(servicos.LogMiddleware(mux))
+	return servicos.LogMiddleware(mux) // para auth local
+	// return servicos.AuthMiddleware(servicos.LogMiddleware(mux)) -- para auth global
 
 }

@@ -1,4 +1,0 @@
-CREATE TABLE acessos_permitidos(  
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    token TEXT
-);
