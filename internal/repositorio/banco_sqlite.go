@@ -54,6 +54,9 @@ func Consultar(query string, args ...any) (*sql.Rows, error) {
 	// fzer consultar
 	res, err := conn.Query(query, args...)
 
+	if err != nil {
+		return nil, err
+	}
 	//retornar resultado
 
 	return res, err

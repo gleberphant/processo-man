@@ -1,36 +1,56 @@
 package casosdeuso
 
 import (
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"errors"
+	"fmt"
+	"log"
+
+	"github.com/gleberphant/ProcessoMan/internal/modelos"
 	"github.com/gleberphant/ProcessoMan/internal/repositorio"
 	"github.com/google/uuid"
 )
 
-// retorna o token gerado
-func Logar(usuario entidades.Usuario) (uuid.UUID, error) {
-
-	// chamar repositorio e pesquisar se existe usuarios
+// gerar token
+func Logar(usuario modelos.Usuario) (*modelos.Token, error) {
 
 	// procura se existe usuario
-	query, err := repositorio.Consultar("SELECT uuid FROM usuario WHERE email=? and senha=?", usuario.Email, usuario.Senha)
+	rows, err := repositorio.Consultar("SELECT uuid, nome FROM usuarios WHERE email=? and senha=?", usuario.Email, usuario.Senha)
 
 	if err != nil {
-		return uuid.UUID{}, err
+		return nil, fmt.Errorf("consulta a db: %w", err)
 	}
 
-	// se retornou o usuario então cria um token
+	defer rows.Close()
 
-	if query.Next() {
-		token, _ := uuid.NewUUID()
+	// se encontrar o usuario então cria um token
+	if rows.Next() {
 
-		_, err := repositorio.Consultar("INSERT INTO tokens(uuid, token) VALUES(?,?)", token, token)
+		var u modelos.Usuario
+
+		err = rows.Scan(&u.UUID, &u.Nome)
 
 		if err != nil {
-			return uuid.UUID{}, err
+			return nil, fmt.Errorf("leitura dados usuários: %w", err)
 		}
 
-		return token, nil
+		rows.Close()
+		log.Printf("Usuario UUDI %s - NOME %s", u.UUID, u.Nome)
+
+		var token = modelos.Token{
+			UUID:  uuid.New(),
+			Token: u.UUID,
+		}
+
+		_, err := repositorio.Consultar("INSERT INTO tokens(uuid, token) VALUES(?,?)", token.UUID, token.Token)
+
+		if err != nil {
+			return nil, fmt.Errorf("criacao do token: %w", err)
+		}
+
+		return &token, nil
 
 	}
+
+	return nil, errors.New("Usuario não encontrado")
 
 }

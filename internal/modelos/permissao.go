@@ -1,4 +1,4 @@
-package entidades
+package modelos
 
 import "github.com/google/uuid"
 

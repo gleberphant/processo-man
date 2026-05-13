@@ -1,13 +1,11 @@
-package entidades
+package modelos
 
 import (
 	"time"
-
-	"github.com/google/uuid" // Certifique-se de ter rodado 'go get' para este pacote
 )
 
 type Usuario struct {
-	UUID        uuid.UUID `json:"id,omitempty"  db:"id"`
+	UUID        string    `json:"uuid,omitempty"  db:"uuid"`
 	Nome        string    `json:"nome,omitempty"  db:"nome"`
 	Email       string    `json:"email,omitempty"  db:"email"`
 	Senha       string    `json:"-"  db:"senha"`
