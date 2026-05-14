@@ -1,17 +1,16 @@
+-- Active: 1778527634874@@127.0.0.1@3306
 -- CONFIGURACAO DA TABELA DE TOKENS
 
 -- resetar a tabela
 DROP TABLE IF EXISTS tokens;
-
+ 
     
 -- criacao da tabela
 CREATE TABLE IF NOT EXISTS tokens (
     uuid TEXT UNIQUE PRIMARY KEY,
-    token TEXT NOT NULL,
     usuario_uuid TEXT 
     perfis TEXT NOT NULL DEFAULT 'colaborador',
     data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
-    ativo BOOLEAN NOT NULL DEFAULT 0,
     validade TEXT DEFAULT 'permanente',
     comentarios TEXT,
     FOREIGN KEY (usuario_uuid) REFERENCES usuarios(uuid)
@@ -21,4 +20,4 @@ CREATE TABLE IF NOT EXISTS tokens (
 );
 
 -- inserir dados para teste
-INSERT INTO tokens (uuid, token) VALUES ('teste','teste');
+INSERT INTO tokens (uuid, usuario_uuid) VALUES ('teste','teste');

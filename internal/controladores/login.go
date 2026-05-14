@@ -4,28 +4,28 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/gleberphant/ProcessoMan/internal/modelos"
 	"github.com/gleberphant/ProcessoMan/internal/servicos/casosdeuso"
 )
 
-// pagina de login
-func FormularioLogin(w http.ResponseWriter, r *http.Request) {
+// formulario de login
+func LoginGet(w http.ResponseWriter, r *http.Request) {
 
+	// carrega dados
+	dados := struct {
+		Msg string
+	}{
+		Msg: r.URL.Query().Get("msg"),
+	}
+
+	// carregat HTML
 	tmpl, err := template.ParseFiles("../templates/login.html")
 	if err != nil {
 		log.Printf("Erro ao carregar template: %v", err.Error())
 		http.Error(w, "Erro ao carregar template: "+err.Error(), http.StatusInternalServerError)
 		return
-	}
-
-	msg := r.URL.Query().Get("msg")
-
-	// carregar dados
-	dados := struct {
-		Msg string
-	}{
-		Msg: msg,
 	}
 
 	// executar template
@@ -39,46 +39,44 @@ func FormularioLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 // funcao para logar
-func Logar(w http.ResponseWriter, r *http.Request) {
+func LoginPost(w http.ResponseWriter, r *http.Request) {
 
-	// recebe a requisao
-	// chama o servico/usecase login
-	var usuario = modelos.Usuario{}
+	var usuario = modelos.Usuario{
+		Email: r.PostFormValue("email"),
+		Senha: r.PostFormValue("senha"),
+	}
 
-	usuario.Email = "root@root"
-	usuario.Senha = "root"
-
-	token, err := casosdeuso.Logar(usuario)
+	err := casosdeuso.ValidarUsuario(&usuario)
 
 	if err != nil {
-		log.Printf("Erro logar: %s", err)
-		http.Error(w, "Erro ao logar no sistema", http.StatusInternalServerError)
+		log.Printf("Erro ao validar usuario: %v", err)
+		http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso Negado. Informe E-mail e Senha Válidos."), http.StatusSeeOther)
+
 		return
 	}
 
-	mapa := r.URL.Query()
-	mapa.Set("token", token.Token)
-	r.URL.RawQuery = mapa.Encode()
+	token, err := casosdeuso.GerarToken(usuario)
 
-	Index(w, r)
-
-}
-
-func Index(w http.ResponseWriter, r *http.Request) {
-
-	tmpl, err := template.ParseFiles("../templates/index.html")
 	if err != nil {
-		log.Printf("Erro ao carregar template: %v", err.Error())
-		http.Error(w, "Erro ao carregar template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Erro ao gerar token de acesso : %v", err)
+		http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso Negado. Erro ao gerar token de acesso tente novamente."), http.StatusSeeOther)
 		return
 	}
 
-	// executar template
-	err = tmpl.Execute(w, nil)
-	if err != nil {
-		log.Printf("erro ao executar template")
-		http.Error(w, "Erro ao renderizar pagina", http.StatusInternalServerError)
-		return
-	}
+	// Configura o cookie de sessão de forma segura
+	http.SetCookie(w, &http.Cookie{
+		Name:  "token",
+		Value: token.UUID,
+		//Path:     "/",
+		MaxAge:   3600,                 // Define expiração para 1 hora (em segundos)
+		HttpOnly: true,                 // Protege contra roubo via JavaScript (ataques XSS)
+		SameSite: http.SameSiteLaxMode, // Protege contra requisições forjadas de outros sites (CSRF)
+		// Secure: true,               // Descomente esta linha quando colocar em produção com HTTPS
+	})
+
+	// redireciona para o index
+	log.Printf("Token Gerado: [%s] ", token.UUID)
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 
 }

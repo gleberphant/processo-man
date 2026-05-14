@@ -11,6 +11,7 @@ type BancoDeDados struct {
 	Conexao *sql.DB
 }
 
+// conectar ao banco
 func Conectar(args ...string) (*sql.DB, error) {
 
 	var caminho string
@@ -41,6 +42,7 @@ func Conectar(args ...string) (*sql.DB, error) {
 	return Conexao, nil
 }
 
+// consultar dado do banco
 func Consultar(query string, args ...any) (*sql.Rows, error) {
 	//conectar
 	conn, err := Conectar()
@@ -60,4 +62,26 @@ func Consultar(query string, args ...any) (*sql.Rows, error) {
 	//retornar resultado
 
 	return res, err
+}
+
+// / inserir dados no banco
+func Inserir(query string, args ...any) error {
+	//conectar
+	conn, err := Conectar()
+
+	if err != nil {
+		return err
+	}
+
+	defer conn.Close()
+
+	// fzer consultar
+	_, err = conn.Exec(query, args...)
+
+	if err != nil {
+		return err
+	}
+	//retornar resultado
+
+	return err
 }

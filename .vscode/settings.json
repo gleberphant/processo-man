@@ -1,5 +1,13 @@
 {
     "geminicodeassist.chat.changeView": "Default diff view",
-    "geminicodeassist.rules": "- responda em portugues brasileiro\n- de preferencia a termos em portugues\n- me ensine boas praticas em golang\n- quero que voce haja como um mentor",
-    "window.title": "${dirty}${activeEditorShort}${separator}${dirname}${rootName}${separator}${profileName}${separator}${appName}"
+    "geminicodeassist.rules": "- responda em portugues brasileiro\n- de preferencia a termos em portugues\n- ensine programação em golang\n- ensine boas praticas de golang\n- nao quero elogios nem cumprimentos\n- responda de modo objetivo\n- explique o motivo",
+    "window.title": "${dirty}${activeEditorShort}${separator}${dirname}${rootName}${separator}${profileName}${separator}${appName}",
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "${workspaceFolder:processo-man}/database/sqlite.db",
+            "name": "sqlite"
+        }
+    ]
 }

@@ -5,12 +5,16 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/gleberphant/ProcessoMan/internal/repositorio"
+	"github.com/gleberphant/ProcessoMan/internal/modelos"
+	"github.com/gleberphant/ProcessoMan/internal/servicos/casosdeuso"
 )
 
 func AuthMiddleware(proximo http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		//-------------------------------------
+		// descatar pagina de login e fav icon
 		// fav icon para nao dobrar a requisicao
 		if r.URL.Path == "/favicon.ico" {
 			w.WriteHeader(http.StatusNoContent) // Devolve 204 (Sem Conteúdo)
@@ -23,13 +27,14 @@ func AuthMiddleware(proximo http.Handler) http.Handler {
 			return
 		}
 
-		// senao for a pagina de login então verifica as credenciais
+		//-------------------------------------
+		// procurar token
 
-		// 1º vamos tentar pegar  o token do cookie ou do url get
+		// 1º vamos tentar pegar  o token do cookie
 		var token string //token inicia vazio
 
-		// tenta ler o token por cookie
-		cookie, err := r.Cookie("token_sessao")
+		// // tenta ler o token por cookie
+		cookie, err := r.Cookie("token")
 
 		// se não tem erro no cookie. ler valor do cookie
 		if err == nil {
@@ -40,43 +45,31 @@ func AuthMiddleware(proximo http.Handler) http.Handler {
 		if token == "" {
 			token = r.URL.Query().Get("token")
 		}
-		//token = "ABC"
 
 		// se token do GET também está vazio, então retorna com mensagem
 		if token == "" {
-			rota := "/login?msg=" + url.QueryEscape("Acesso Negado. Forneca um TOKEN de acesso.")
-			http.Redirect(w, r, rota, http.StatusSeeOther)
+			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso Negado. Forneca um TOKEN de acesso."), http.StatusSeeOther)
 			return
 		}
+
+		//-------------------------------------
+		// validar o token
 
 		// 2º verificar se o token existe no  no banco de dados
-		log.Printf("Autenticando usuario com token: [%s] ", token)
+		log.Printf("Validando o token: %s ", token)
 
-		resultado, err := repositorio.Consultar("SELECT id FROM tokens WHERE token LIKE 'ABC'", token)
+		err = casosdeuso.ValidarToken(modelos.Token{UUID: token})
 
-		// se houve erro na conexao com o  banco de dados. informar ao usuario
+		// se houve erro na validação. Redireciona para LOGIN
 		if err != nil {
-			rota := "/login?msg=" + url.QueryEscape("Erro no servidor de Banco de Dados. Tente novamente")
-			http.Redirect(w, r, rota, http.StatusSeeOther)
+			log.Printf("Falha na validação do token : [%v] ", err)
+			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado. erro na validação do token"), http.StatusSeeOther)
 			return
 		}
 
-		defer resultado.Close()
+		//se nao houve erro injeta token no cabeçalho então o acesso é permitido
 
-		var acessoNegado bool = true
-
-		if resultado.Next() {
-			log.Printf("Usuario autenticado com token: %s ", token)
-			acessoNegado = false
-		}
-
-		// Verifica se acesso negado
-		if acessoNegado {
-			rota := "/login?msg=" + url.QueryEscape("Acesso negado. token não encontrado")
-			http.Redirect(w, r, rota, http.StatusSeeOther)
-			return
-		}
-
+		// iniciar seção com cookies
 		proximo.ServeHTTP(w, r)
 	})
 

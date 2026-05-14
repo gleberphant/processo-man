@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
 INSERT INTO
     usuarios (uuid, nome, email, senha)
 VALUES (
-        'root',
-        'root',
-        'root@root',
-        'root'
+        'teste',
+        'teste',
+        'teste@teste',
+        'teste'
     );
