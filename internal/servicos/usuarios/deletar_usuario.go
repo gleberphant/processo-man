@@ -1,4 +1,4 @@
-package casosdeuso
+package usuarios
 
 import (
 	"log"
@@ -7,7 +7,7 @@ import (
 	"github.com/gleberphant/ProcessoMan/internal/repositorio"
 )
 
-func InserirUsuario(usuario modelos.Usuario) error {
+func DeletarCliente(usuario modelos.Usuario) error {
 
 	err := repositorio.Inserir("INSERT INTO usuarios (uuid, nome, email, senha) VALUES (?, ?, ?, ?)",
 		usuario.UUID,

@@ -1,4 +1,4 @@
-package casosdeuso
+package usuarios
 
 import (
 	"log"
@@ -9,7 +9,7 @@ import (
 )
 
 // gerar token
-func GerarToken(usuario modelos.Usuario) (*modelos.Token, error) {
+func GerarToken(usuario *modelos.Usuario) (*modelos.Token, error) {
 
 	// primeiro limpa tokens antigos do mesmo usuário para não gerar insegurança
 	err := repositorio.Inserir("DELETE FROM tokens WHERE usuario_uuid=?", usuario.UUID)

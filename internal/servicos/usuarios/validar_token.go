@@ -1,4 +1,4 @@
-package casosdeuso
+package usuarios
 
 import (
 	"errors"

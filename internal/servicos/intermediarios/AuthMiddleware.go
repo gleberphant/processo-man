@@ -1,13 +1,39 @@
 package intermediarios
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"net/url"
 
 	"github.com/gleberphant/ProcessoMan/internal/modelos"
-	"github.com/gleberphant/ProcessoMan/internal/servicos/casosdeuso"
+	"github.com/gleberphant/ProcessoMan/internal/servicos/usuarios"
 )
+
+func procurarToken(r *http.Request) (string, error) {
+	var token string //token inicia vazio
+
+	// // tenta ler o token por cookie
+	cookie, err := r.Cookie("token")
+
+	// se não tem erro no cookie. ler valor do cookie
+	if err == nil {
+		token = cookie.Value
+	}
+
+	// se token do cookie é vazio então procura no get
+	if token == "" {
+		token = r.URL.Query().Get("token")
+	}
+
+	// se token do GET também está vazio, então retorna com mensagem
+	if token == "" {
+		log.Printf("Falha na validação do token : [%v] ", err)
+		return "", errors.New("Token não encontrado")
+	}
+
+	return token, nil
+}
 
 func AuthMiddleware(proximo http.Handler) http.Handler {
 
@@ -31,24 +57,11 @@ func AuthMiddleware(proximo http.Handler) http.Handler {
 		// procurar token
 
 		// 1º vamos tentar pegar  o token do cookie
-		var token string //token inicia vazio
+		token, err := procurarToken(r)
 
-		// // tenta ler o token por cookie
-		cookie, err := r.Cookie("token")
-
-		// se não tem erro no cookie. ler valor do cookie
-		if err == nil {
-			token = cookie.Value
-		}
-
-		// se token do cookie é vazio então procura no get
-		if token == "" {
-			token = r.URL.Query().Get("token")
-		}
-
-		// se token do GET também está vazio, então retorna com mensagem
-		if token == "" {
-			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso Negado. Forneca um TOKEN de acesso."), http.StatusSeeOther)
+		if err != nil {
+			log.Printf("Falha na validação do token : [%v] ", err)
+			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado. erro na validação do token"), http.StatusSeeOther)
 			return
 		}
 
@@ -56,9 +69,8 @@ func AuthMiddleware(proximo http.Handler) http.Handler {
 		// validar o token
 
 		// 2º verificar se o token existe no  no banco de dados
-		log.Printf("Validando o token: %s ", token)
 
-		err = casosdeuso.ValidarToken(modelos.Token{UUID: token})
+		err = usuarios.ValidarToken(modelos.Token{UUID: token})
 
 		// se houve erro na validação. Redireciona para LOGIN
 		if err != nil {
