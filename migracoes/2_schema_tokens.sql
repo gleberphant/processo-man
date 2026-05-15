@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS tokens (
     usuario_uuid TEXT 
     perfis TEXT NOT NULL DEFAULT 'colaborador',
     data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
-    validade TEXT DEFAULT 'permanente',
+    validade TEXT DEFAULT 'temporario',
     comentarios TEXT,
     FOREIGN KEY (usuario_uuid) REFERENCES usuarios(uuid)
     CONSTRAINT tipos_validade CHECK (
@@ -20,4 +20,4 @@ CREATE TABLE IF NOT EXISTS tokens (
 );
 
 -- inserir dados para teste
-INSERT INTO tokens (uuid, usuario_uuid) VALUES ('teste','teste');
+-- INSERT INTO tokens (uuid, usuario_uuid) VALUES ('teste','teste');

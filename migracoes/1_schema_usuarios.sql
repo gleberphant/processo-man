@@ -14,11 +14,11 @@ CREATE TABLE IF NOT EXISTS usuarios (
 );
 
 -- inserir dados para teste
-INSERT INTO
-    usuarios (uuid, nome, email, senha)
-VALUES (
-        'teste',
-        'teste',
-        'teste@teste',
-        'teste'
-    );
+-- INSERT INTO
+--     usuarios (uuid, nome, email, senha)
+-- VALUES (
+--         'teste',
+--         'teste',
+--         'teste@teste',
+--         'teste'
+--     );
