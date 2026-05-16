@@ -1,15 +1,15 @@
-package clientes
+package usuarios
 
 import (
 	"log"
 
 	"github.com/gleberphant/ProcessoMan/internal/modelos"
-	"github.com/gleberphant/ProcessoMan/internal/repositorio"
+	"github.com/gleberphant/ProcessoMan/internal/repositorios"
 )
 
-func VerCliente(usuario modelos.Usuario) error {
+func DeletarCliente(usuario modelos.Usuario) error {
 
-	err := repositorio.Inserir("INSERT INTO usuarios (uuid, nome, email, senha) VALUES (?, ?, ?, ?)",
+	err := repositorios.Inserir("INSERT INTO usuarios (uuid, nome, email, senha) VALUES (?, ?, ?, ?)",
 		usuario.UUID,
 		usuario.Nome,
 		usuario.Email,

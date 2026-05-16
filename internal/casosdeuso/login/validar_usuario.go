@@ -1,11 +1,11 @@
-package usuarios
+package login
 
 import (
 	"errors"
 	"log"
 
 	"github.com/gleberphant/ProcessoMan/internal/modelos"
-	"github.com/gleberphant/ProcessoMan/internal/repositorio"
+	"github.com/gleberphant/ProcessoMan/internal/repositorios"
 )
 
 // verificar se usuario existe. retorna error se usuario não encontrado
@@ -13,7 +13,7 @@ func ValidarUsuario(usuario *modelos.Usuario) error {
 
 	log.Printf("Validando usuario : %s [Senha: %s]", usuario.Email, usuario.Senha)
 
-	rows, err := repositorio.Consultar("SELECT uuid FROM usuarios WHERE email=? and senha=?", usuario.Email, usuario.Senha)
+	rows, err := repositorios.Consultar("SELECT uuid FROM usuarios WHERE email=? and senha=?", usuario.Email, usuario.Senha)
 
 	if err != nil {
 		return err

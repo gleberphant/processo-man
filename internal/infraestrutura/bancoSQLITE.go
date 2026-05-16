@@ -1,4 +1,4 @@
-package repositorio
+package infraestrutura
 
 import (
 	"database/sql"
@@ -7,7 +7,7 @@ import (
 	_ "modernc.org/sqlite" // Driver SQLite
 )
 
-type BancoDeDados struct {
+type BancoDeDadosSQLITE struct {
 	Conexao *sql.DB
 }
 

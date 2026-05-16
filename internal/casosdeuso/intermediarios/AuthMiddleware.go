@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/gleberphant/ProcessoMan/internal/casosdeuso/login"
 	"github.com/gleberphant/ProcessoMan/internal/modelos"
-	"github.com/gleberphant/ProcessoMan/internal/servicos/usuarios"
 )
 
 func procurarToken(r *http.Request) (string, error) {
@@ -70,7 +70,7 @@ func AuthMiddleware(proximo http.Handler) http.Handler {
 
 		// 2º verificar se o token existe no  no banco de dados
 
-		err = usuarios.ValidarToken(modelos.Token{UUID: token})
+		err = login.ValidarToken(modelos.Token{UUID: token})
 
 		// se houve erro na validação. Redireciona para LOGIN
 		if err != nil {

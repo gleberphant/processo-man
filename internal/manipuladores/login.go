@@ -1,12 +1,12 @@
-package controladores
+package manipuladores
 
 import (
 	"html/template"
 	"net/http"
 	"net/url"
 
+	"github.com/gleberphant/ProcessoMan/internal/casosdeuso/usuarios"
 	"github.com/gleberphant/ProcessoMan/internal/modelos"
-	"github.com/gleberphant/ProcessoMan/internal/servicos/casosdeuso"
 )
 
 // formulario de login
@@ -44,7 +44,7 @@ func LoginPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// autenticacao do usuario
-	token, err := casosdeuso.AutenticarUsuario(&usuario)
+	token, err := usuarios.AutenticarUsuario(&usuario)
 
 	if err != nil {
 		http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso Negado."), http.StatusSeeOther)

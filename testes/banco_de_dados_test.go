@@ -3,14 +3,14 @@ package testes
 import (
 	"testing"
 
-	"github.com/gleberphant/ProcessoMan/internal/repositorio"
+	"github.com/gleberphant/ProcessoMan/internal/repositorios"
 )
 
 func TestBancoDeDados(t *testing.T) {
 
 	//dbManager := infraestrutura.BancoDeDados{}
 
-	conn, err := repositorio.Conectar("../database/sqlite.db")
+	conn, err := repositorios.Conectar("../database/sqlite.db")
 
 	if err != nil {
 		t.Fatalf("Erro crítico ao conectar no SQLite: %v", err)
@@ -22,7 +22,7 @@ func TestBancoDeDados(t *testing.T) {
 	//testar consulta
 	//token := "ABC"
 
-	rows, err := repositorio.Consultar("SELECT id, token, permissoes FROM tokens")
+	rows, err := repositorios.Consultar("SELECT id, token, permissoes FROM tokens")
 
 	if err != nil {
 		t.Fatalf("\n ERRO :: Erro crítico CONSULTAR TABELA: %v", err)

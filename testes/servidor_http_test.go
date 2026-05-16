@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/rotas"
+	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/rotasHTTP"
 )
 
 func TestServidorHTTP(t *testing.T) {
 
-	router := rotas.Roteador{}
+	router := rotasHTTP.Roteador{}
 
 	//configurar servidor
 	server := http.Server{

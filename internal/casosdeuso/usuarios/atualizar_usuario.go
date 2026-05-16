@@ -4,12 +4,12 @@ import (
 	"log"
 
 	"github.com/gleberphant/ProcessoMan/internal/modelos"
-	"github.com/gleberphant/ProcessoMan/internal/repositorio"
+	"github.com/gleberphant/ProcessoMan/internal/repositorios"
 )
 
 func AtualizarCliente(usuario modelos.Usuario) error {
 
-	err := repositorio.Inserir("INSERT INTO usuarios (uuid, nome, email, senha) VALUES (?, ?, ?, ?)",
+	err := repositorios.Inserir("INSERT INTO usuarios (uuid, nome, email, senha) VALUES (?, ?, ?, ?)",
 		usuario.UUID,
 		usuario.Nome,
 		usuario.Email,

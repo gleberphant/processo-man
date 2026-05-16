@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gleberphant/ProcessoMan/internal/modelos"
-	"github.com/gleberphant/ProcessoMan/internal/repositorio"
+	"github.com/gleberphant/ProcessoMan/internal/repositorios"
 	"github.com/gleberphant/ProcessoMan/internal/servicos/casosdeuso"
 	"github.com/google/uuid"
 )
@@ -16,7 +16,7 @@ func main() {
 
 	// carregar banco de dados
 	log.Printf("Conectando ao repositório")
-	db, err := repositorio.Conectar()
+	db, err := repositorios.Conectar()
 
 	if err != nil {
 		log.Fatalf("Erro na conexao com o banco de dados: %v", err)

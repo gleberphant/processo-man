@@ -1,10 +1,10 @@
-package usuarios
+package login
 
 import (
 	"log"
 
 	"github.com/gleberphant/ProcessoMan/internal/modelos"
-	"github.com/gleberphant/ProcessoMan/internal/repositorio"
+	"github.com/gleberphant/ProcessoMan/internal/repositorios"
 	"github.com/google/uuid"
 )
 
@@ -12,7 +12,10 @@ import (
 func GerarToken(usuario *modelos.Usuario) (*modelos.Token, error) {
 
 	// primeiro limpa tokens antigos do mesmo usuário para não gerar insegurança
-	err := repositorio.Inserir("DELETE FROM tokens WHERE usuario_uuid=?", usuario.UUID)
+
+	repo := repositorios.TokenSqlite{}
+
+	err := repo.Inserir("DELETE FROM tokens WHERE usuario_uuid=?", usuario.UUID)
 
 	if err != nil {
 		log.Printf("Erro na LIMPEZA de tokens antigos : %s", err)
@@ -21,12 +24,12 @@ func GerarToken(usuario *modelos.Usuario) (*modelos.Token, error) {
 
 	// insere o novo token
 	var token = modelos.Token{
-		UUID:         uuid.New().String(),
-		Usuario_uuid: usuario.UUID,
-		Validade:     "temporario",
+		UUID:        uuid.New().String(),
+		UsuarioUUID: usuario.UUID,
+		Validade:    "temporario",
 	}
 
-	err = repositorio.Inserir("INSERT INTO tokens(uuid, usuario_uuid, validade) VALUES(?,?, ?)", token.UUID, token.Usuario_uuid, token.Validade)
+	err = repositorios.Inserir("INSERT INTO tokens(uuid, usuario_uuid, validade) VALUES(?,?, ?)", token.UUID, token.UsuarioUUID, token.Validade)
 
 	if err != nil {
 		log.Printf("Erro na criacao do token: %s", err)
