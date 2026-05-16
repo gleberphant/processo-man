@@ -4,19 +4,17 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strconv"
 
-	"github.com/gleberphant/ProcessoMan/internal/modelos"
-	"github.com/gleberphant/ProcessoMan/internal/repositorios"
-	"github.com/gleberphant/ProcessoMan/internal/servicos/casosdeuso"
-	"github.com/google/uuid"
+	// Assumindo que InserirUsuario esteja aqui
+
+	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/BancoDeDados"
 )
 
 func main() {
 
 	// carregar banco de dados
 	log.Printf("Conectando ao repositório")
-	db, err := repositorios.Conectar()
+	db, err := BancoDeDados.ConectarSQLITE()
 
 	if err != nil {
 		log.Fatalf("Erro na conexao com o banco de dados: %v", err)
@@ -61,53 +59,58 @@ func main() {
 
 	}
 
-	// inserir USUARIO TESTE
-	log.Printf("Inserindo USUARIO TESTE")
-	usuario := mockarUsuarios(1)
+	// // inserir USUARIO TESTE
+	// log.Printf("Inserindo USUARIO TESTE")
+	// usuario := mockarUsuarios(1)
 
-	// inserir TOKEN TESTE
-	log.Printf("Gerar TOKEN TESTE")
+	// // inserir TOKEN TESTE
+	// log.Printf("Gerar TOKEN TESTE")
 
-	token, err := casosdeuso.GerarToken(usuario)
+	// // Instancia o caso de uso antes de chamar o método (conforme sua refatoração de Injeção de Dependência)
+	// //repo, _ := repositorios.NovoTokenRepo()
+	// authCDU := autenticacao.NovoAutenticacaoCDU()
 
-	if err != nil {
-		log.Printf("Erro na execução : %v", err)
-	}
+	// token, err := authCDU.GerarToken(&usuario)
 
-	log.Printf("TOKEN GERADO : %s", token.UUID)
+	// if err != nil {
+	// 	log.Printf("Erro na execução : %v", err)
+	// }
+
+	// log.Printf("TOKEN GERADO : %s", token.UUID)
 
 }
 
-func mockarUsuarios(args ...int) modelos.Usuario {
+//func mockarUsuarios(args ...int) entidades.Usuario {
 
-	numUsuario := 0
+// numUsuario := 0
 
-	if len(args) > 0 {
-		numUsuario = args[0]
-	}
+// if len(args) > 0 {
+// 	numUsuario = args[0]
+// }
 
-	var usuario modelos.Usuario
+// var usuario entidades.Usuario
 
-	for i := 0; i < numUsuario+1; i++ {
+// for i := 0; i < numUsuario+1; i++ {
 
-		nome := "teste" + strconv.Itoa(i)
+// 	nome := "teste" + strconv.Itoa(i)
 
-		usuario = modelos.Usuario{
-			UUID:  uuid.New().String(),
-			Nome:  nome,
-			Email: nome + "@teste",
-			Senha: nome,
-		}
-		log.Printf("Inserindo USUARIO %s EMAIL %s", usuario.Nome, usuario.Email)
+// 	usuario = entidades.Usuario{
+// 		UUID:  uuid.New().String(),
+// 		Nome:  nome,
+// 		Email: nome + "@teste",
+// 		Senha: nome,
+// 	}
+// 	log.Printf("Inserindo USUARIO %s EMAIL %s", usuario.Nome, usuario.Email)
 
-		err := casosdeuso.InserirUsuario(usuario)
+// 	err := usuarios.InserirUsuario(usuario)
 
-		if err != nil {
-			log.Printf("Erro : %v", err)
-		}
+// 	if err != nil {
+// 		log.Printf("Erro : %v", err)
+// 	}
 
-		log.Printf("Usuario Gerado: %s Email: %s", usuario.UUID, usuario.Email)
-	}
+// 	log.Printf("Usuario Gerado: %s Email: %s", usuario.UUID, usuario.Email)
+// }
 
-	return usuario
-}
+// return usuario
+
+//}

@@ -1,4 +1,4 @@
-package modelos
+package entidades
 
 import (
 	"time"
@@ -7,7 +7,7 @@ import (
 )
 
 type Usuario struct {
-	UUID        string    `json:"uuid,omitempty"  db:"uuid"`
+	UUID        uuid.UUID `json:"uuid,omitempty"  db:"uuid"`
 	Nome        string    `json:"nome,omitempty"  db:"nome"`
 	Email       string    `json:"email,omitempty"  db:"email"`
 	Senha       string    `json:"-"  db:"senha"`
@@ -28,8 +28,8 @@ type Permissao struct {
 }
 
 type Token struct {
-	UUID        string    `json:"uuid,omitempty" db:"uuid"`
-	UsuarioUUID string    `json:"usuario_uuid,omitempty"  db:"usuario_uuid"`
+	UUID        uuid.UUID `json:"uuid,omitempty" db:"uuid"`
+	UsuarioUUID uuid.UUID `json:"usuario_uuid,omitempty"  db:"usuario_uuid"`
 	Perfis      string    `json:"perfis,omitempty"  db:"perfis"`
 	DataCriacao time.Time `json:"data_criacao,omitempty" db:"data_criacao"`
 	Validade    string    `json:"validade,omitempty"  db:"validade"`

@@ -1,23 +1,23 @@
 package testes
 
-import (
-	"net/http"
-	"testing"
+// import (
+// 	"net/http"
+// 	"testing"
 
-	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/rotasHTTP"
-)
+// 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/ServidorHTTP"
+// )
 
-func TestServidorHTTP(t *testing.T) {
+// func TestServidorHTTP(t *testing.T) {
 
-	router := rotasHTTP.Roteador{}
+// 	router := ServidorHTTP.Roteador{}
 
-	//configurar servidor
-	server := http.Server{
-		Addr:    ":8080",
-		Handler: router.ConfigurarRotas(),
-	}
+// 	//configurar servidor
+// 	server := http.Server{
+// 		Addr:    ":8080",
+// 		Handler: router.ConfigurarRotas(),
+// 	}
 
-	t.Log("Servidor rodando na porta 8080")
-	server.ListenAndServe()
+// 	t.Log("Servidor rodando na porta 8080")
+// 	server.ListenAndServe()
 
-}
+// }

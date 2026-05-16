@@ -4,17 +4,18 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/rotasHTTP"
+	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/HTTP"
 )
 
 func main() {
 
-	router := rotasHTTP.Roteador{}
+	r := HTTP.Roteador{}
 
+	r.InjecaoDependencias()
 	//configurar servidor
 	server := http.Server{
 		Addr:    ":8080",
-		Handler: router.ConfigurarRotas(),
+		Handler: r.ConfigurarRotas(),
 	}
 
 	fmt.Println("Servidor rodando na porta 8080")

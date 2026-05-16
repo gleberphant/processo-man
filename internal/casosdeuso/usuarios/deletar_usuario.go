@@ -1,25 +1,10 @@
 package usuarios
 
 import (
-	"log"
-
-	"github.com/gleberphant/ProcessoMan/internal/modelos"
-	"github.com/gleberphant/ProcessoMan/internal/repositorios"
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
 )
 
-func DeletarCliente(usuario modelos.Usuario) error {
-
-	err := repositorios.Inserir("INSERT INTO usuarios (uuid, nome, email, senha) VALUES (?, ?, ?, ?)",
-		usuario.UUID,
-		usuario.Nome,
-		usuario.Email,
-		usuario.Senha,
-	)
-
-	if err != nil {
-		log.Printf("erro ao criar usuario : %v", err)
-		return err
-	}
+func DeletarUsuario(usuario entidades.Usuario) error {
 
 	return nil
 }

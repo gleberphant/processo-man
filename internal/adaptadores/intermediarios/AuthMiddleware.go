@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/gleberphant/ProcessoMan/internal/casosdeuso/login"
-	"github.com/gleberphant/ProcessoMan/internal/modelos"
+	"github.com/gleberphant/ProcessoMan/internal/casosdeuso/autenticacao"
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/google/uuid"
 )
 
-func procurarToken(r *http.Request) (string, error) {
+func ProcurarTokenEnviado(r *http.Request) (string, error) {
 	var token string //token inicia vazio
 
 	// // tenta ler o token por cookie
@@ -28,14 +29,13 @@ func procurarToken(r *http.Request) (string, error) {
 
 	// se token do GET também está vazio, então retorna com mensagem
 	if token == "" {
-		log.Printf("Falha na validação do token : [%v] ", err)
 		return "", errors.New("Token não encontrado")
 	}
 
 	return token, nil
 }
 
-func AuthMiddleware(proximo http.Handler) http.Handler {
+func AuthMiddleware(proximo http.Handler, auth *autenticacao.AutenticacaoCDU) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -57,11 +57,11 @@ func AuthMiddleware(proximo http.Handler) http.Handler {
 		// procurar token
 
 		// 1º vamos tentar pegar  o token do cookie
-		token, err := procurarToken(r)
+		token, err := ProcurarTokenEnviado(r)
 
 		if err != nil {
-			log.Printf("Falha na validação do token : [%v] ", err)
-			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado. erro na validação do token"), http.StatusSeeOther)
+			log.Printf("Token não encontrado : [%v] ", err)
+			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado. Token não encontrado"), http.StatusSeeOther)
 			return
 		}
 
@@ -70,12 +70,12 @@ func AuthMiddleware(proximo http.Handler) http.Handler {
 
 		// 2º verificar se o token existe no  no banco de dados
 
-		err = login.ValidarToken(modelos.Token{UUID: token})
+		err = auth.ValidarToken(entidades.Token{UUID: uuid.MustParse(token)})
 
 		// se houve erro na validação. Redireciona para LOGIN
 		if err != nil {
-			log.Printf("Falha na validação do token : [%v] ", err)
-			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado. erro na validação do token"), http.StatusSeeOther)
+			log.Printf("Token Inválido : [%v] ", err)
+			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado. Token Inválido"), http.StatusSeeOther)
 			return
 		}
 

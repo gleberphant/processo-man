@@ -2,15 +2,28 @@ package manipuladores
 
 import (
 	"html/template"
+	"log"
 	"net/http"
 	"net/url"
 
-	"github.com/gleberphant/ProcessoMan/internal/casosdeuso/usuarios"
-	"github.com/gleberphant/ProcessoMan/internal/modelos"
+	"github.com/gleberphant/ProcessoMan/internal/casosdeuso/autenticacao"
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
 )
 
+type ManipuladorLogin struct {
+	CDUatenticacao *autenticacao.AutenticacaoCDU
+}
+
+func NovoManipuladorLogin(cduAutenticacao *autenticacao.AutenticacaoCDU) *ManipuladorLogin {
+
+	return &ManipuladorLogin{
+		CDUatenticacao: cduAutenticacao,
+	}
+
+}
+
 // formulario de login
-func LoginGet(w http.ResponseWriter, r *http.Request) {
+func (m *ManipuladorLogin) LoginGet(w http.ResponseWriter, r *http.Request) {
 
 	// carrega dados
 	dados := struct {
@@ -36,25 +49,26 @@ func LoginGet(w http.ResponseWriter, r *http.Request) {
 }
 
 // funcao para logar
-func LoginPost(w http.ResponseWriter, r *http.Request) {
+func (m *ManipuladorLogin) LoginPost(w http.ResponseWriter, r *http.Request) {
 	// pega os dados do login
-	var usuario = modelos.Usuario{
+	var usuario = entidades.Usuario{
 		Email: r.PostFormValue("email"),
 		Senha: r.PostFormValue("senha"),
 	}
 
 	// autenticacao do usuario
-	token, err := usuarios.AutenticarUsuario(&usuario)
+	token, err := m.CDUatenticacao.AutenticarUsuario(&usuario)
 
 	if err != nil {
-		http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso Negado."), http.StatusSeeOther)
+		log.Printf("Usuario invalido %v", err)
+		http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso Negado. Usuario Inválido."), http.StatusSeeOther)
 		return
 	}
 
 	// Configura o cookie de sessão de forma segura
 	http.SetCookie(w, &http.Cookie{
 		Name:  "token",
-		Value: token.UUID,
+		Value: token.UUID.String(),
 		//Path:     "/",
 		MaxAge:   3600,                 // Define expiração para 1 hora (em segundos)
 		HttpOnly: true,                 // Protege contra roubo via JavaScript (ataques XSS)

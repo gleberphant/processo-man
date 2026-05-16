@@ -1,4 +1,4 @@
-package infraestrutura
+package manipuladores
 
 import (
 	"html/template"
