@@ -1,0 +1,37 @@
+{{define "page"}}
+<main class="container mt-5">
+    <div class="container">
+        <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+                <h1 class="display-5">Novo usuario</h1>
+                <p class="lead">Insira os detalhes</p>
+            </div>
+        </div>
+
+        <!-- Se o UUID for válido (edição), manda o POST para editar, senão manda para criar -->
+        <form method="POST" action="{{ if .UUID }}/processo/editar{{ else }}/processo/criar{{ end }}">
+            
+            <!-- Campo oculto para enviar o UUID no PostFormValue quando for edição -->
+            <input type="hidden" name="uuid" value="{{ if .UUID }}{{ .UUID }}{{ end }}">
+        
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome</label>
+    
+                 <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite seu nome" required
+                    value="{{ .Nome }}" autofocus>
+            </div>
+        
+            <!-- Restante do formulário... -->
+        <div class="mb-4S"></div>
+            <button type="submit" class="btn btn-primary btn-lg">
+                {{ if .UUID }}Salvar Alterações{{ else }} Criar Processo{{ end }}
+            </button>
+            </div>
+        </form>
+        
+    </div>
+</main>
+
+{{end}}
+
+{{define "title"}}Index - Projeto Go{{end}}

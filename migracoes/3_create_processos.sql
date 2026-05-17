@@ -1,22 +1,17 @@
--- Active: 1778527634874@@127.0.0.1@3306
+-- Active: 1778958784571@@127.0.0.1@3306
 -- CONFIGURACAO DA TABELA DE TOKENS
 
 -- resetar a tabela
-DROP TABLE IF EXISTS tokens;
+DROP TABLE IF EXISTS processos;
  
     
 -- criacao da tabela
-CREATE TABLE IF NOT EXISTS tokens (
+CREATE TABLE IF NOT EXISTS processos (
     uuid TEXT UNIQUE PRIMARY KEY,
-    usuario_uuid TEXT 
-    perfis TEXT NOT NULL DEFAULT 'colaborador',
+    nome TEXT,
+    dono TEXT, 
     data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
-    validade TEXT DEFAULT 'temporario',
-    comentarios TEXT,
-    FOREIGN KEY (usuario_uuid) REFERENCES usuarios(uuid)
-    CONSTRAINT tipos_validade CHECK (
-        validade IN ('permanente', 'temporario')
-    )
+    comentarios TEXT
 );
 
 -- inserir dados para teste
