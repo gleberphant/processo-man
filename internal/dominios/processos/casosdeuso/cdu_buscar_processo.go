@@ -12,10 +12,7 @@ func (u *CDUProcesso) BuscarProcessoPorUUID(strUUID string) (*entidades.Processo
 	if strUUID == "" {
 		return nil, errors.New("UUID nulo")
 	}
-	usuario, err := u.repoProcesso.BuscarPorUUID(uuid.MustParse(strUUID))
-	if err != nil {
-		return nil, err
-	}
 
-	return usuario, nil
+	return u.repoProcesso.BuscarPorUUID(uuid.MustParse(strUUID))
+
 }

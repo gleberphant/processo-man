@@ -43,15 +43,13 @@ func (m *ManipuladorProcesso) PageListar(w http.ResponseWriter, r *http.Request)
 // PageCriar renderiza o formulário para criação de um novo processo.
 func (m *ManipuladorProcesso) PageCriar(w http.ResponseWriter, r *http.Request) {
 	// Passa uma entidade vazia para o template para manter a consistência com a edição
-	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, entidades.Processo{})
+	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, nil)
 }
 
 // PageEditar carrega os dados de um processo existente e renderiza o mesmo formulário.
 func (m *ManipuladorProcesso) PageEditar(w http.ResponseWriter, r *http.Request) {
-	// Assumindo passagem do UUID via Query String (?uuid=...). Ajuste caso use chi.URLParam(r, "uuid")
 	uuidStr := r.URL.Query().Get("uuid")
 
-	// Nota: Utilizando o método existente. Recomenda-se renomear BuscarUsuarioPorUUID para BuscarProcessoPorUUID no futuro.
 	processo, err := m.cduProcesso.BuscarProcessoPorUUID(uuidStr)
 	if err != nil {
 		erroMsg := fmt.Sprintf("Processo não encontrado: %v", err)
@@ -94,6 +92,7 @@ func (m *ManipuladorProcesso) CriarProcessoPost(w http.ResponseWriter, r *http.R
 func (m *ManipuladorProcesso) EditarProcessoPost(w http.ResponseWriter, r *http.Request) {
 
 	UUID, err := uuid.Parse(r.PostFormValue("uuid"))
+
 	var Processo = entidades.Processo{
 		UUID: UUID,
 		Nome: r.PostFormValue("nome"),

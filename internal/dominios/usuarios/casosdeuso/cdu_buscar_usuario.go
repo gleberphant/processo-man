@@ -12,10 +12,6 @@ func (u *CDUUsuario) BuscarUsuarioPorUUID(strUUID string) (*entidades.Usuario, e
 	if strUUID == "" {
 		return nil, errors.New("UUID nulo")
 	}
-	usuario, err := u.RepoUsuarios.BuscarPorUUID(uuid.MustParse(strUUID))
-	if err != nil {
-		return nil, err
-	}
 
-	return usuario, nil
+	return u.RepoUsuarios.BuscarPorUUID(uuid.MustParse(strUUID))
 }

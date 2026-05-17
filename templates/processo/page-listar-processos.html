@@ -39,8 +39,7 @@
                                 <form id="form-ver-{{.UUID}}" method="get" action="/processo/visualizar"
                                     style="display:inline;">
                                     <input type="hidden" name="uuid" value="{{.UUID}}" />
-                                    <button type="button" onclick="document.getElementById('form-ver-' + '{{.UUID}}').submit()"
-                                        class="btn btn-info mb-2">
+                                    <button type="submit" class="btn btn-info mb-2">
                                         Visualizar
                                     </button>
                                 </form>
@@ -48,8 +47,7 @@
                                 <form id="form-editar-{{.UUID}}" method="get" action="/processo/editar"
                                     style="display:inline;">
                                     <input type="hidden" name="uuid" value="{{.UUID}}" />
-                                    <button type="button" onclick="onClickEditar('{{.UUID}}')"
-                                        class="btn btn-warning mb-2">
+                                    <button type="submit" class="btn btn-warning mb-2">
                                         Editar
                                     </button>
                                 </form>
@@ -78,14 +76,6 @@
                     document.getElementById('form-deletar-' + id).submit();
                 }
 
-            }
-
-            function onClickEditar(id) {
-                document.getElementById('form-editar-' + id).submit();
-            }
-
-            function onClickNovo() {
-                document.getElementById('form-criar-usuario').submit();
             }
 
         </script>

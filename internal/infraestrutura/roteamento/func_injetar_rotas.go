@@ -26,7 +26,7 @@ func (s *Roteador) ConfigurarRotas() http.Handler {
 	//// PAGINAS GET
 	mux.HandleFunc("GET /usuario/listar", s.ManipuladorUsuario.PageListar)
 	mux.HandleFunc("GET /usuario/criar", s.ManipuladorUsuario.PageCriar)
-	mux.HandleFunc("GET /usuario/editar", s.ManipuladorUsuario.PageCriar)
+	mux.HandleFunc("GET /usuario/editar", s.ManipuladorUsuario.PageEditar)
 
 	//// ACOES POST
 	mux.HandleFunc("POST /usuario/criar", s.ManipuladorUsuario.CriarUsuarioPost)

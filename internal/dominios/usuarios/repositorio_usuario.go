@@ -39,12 +39,7 @@ func (r *RepositorioUsuario) Criar(usuario entidades.Usuario) error {
 		usuario.Senha,
 	)
 
-	if err != nil {
-
-		return err
-	}
-
-	return nil
+	return err
 
 }
 
@@ -102,25 +97,14 @@ func (r *RepositorioUsuario) Deletar(UUID uuid.UUID) error {
 }
 
 // BuscarPorUUID recupera os dados de um usuário específico através do seu identificador único.
-func (r *RepositorioUsuario) BuscarPorUUID(uuid uuid.UUID) (*entidades.Usuario, error) {
+func (r *RepositorioUsuario) BuscarPorUUID(UUID uuid.UUID) (*entidades.Usuario, error) {
 
 	db := r.Conn
 
-	rows, err := db.Query("SELECT uuid, nome, email FROM usuarios WHERE uuid=?; ", uuid.String())
-
-	// se erro na consulta
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
-
-	if !rows.Next() {
-		return nil, errors.New("Usuario não encontrado")
-	}
+	row := db.QueryRow("SELECT uuid, nome, email FROM usuarios WHERE uuid=? ", UUID.String())
 
 	usuario := &entidades.Usuario{}
-	rows.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email)
+	row.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email)
 
 	return usuario, nil
 
