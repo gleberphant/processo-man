@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/HTTP"
+	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/roteamento"
 )
 
 func main() {
 
-	r := HTTP.Roteador{}
+	r := roteamento.Roteador{}
 
 	r.InjetarDependencias()
 	//configurar servidor

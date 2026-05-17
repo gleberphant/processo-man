@@ -8,8 +8,8 @@
  [x] **Lógica de Auth**               No `ServicoUsuario`, criar método `Autenticar(email, senha)`.
  [x] **Structs de Negócio**           Implementar `Cliente`, `Processo` e `Tarefa` com Embedding de Usuario.
  [x] **CRUD de Clientes**             Implementar `CriarCliente` e `ListarClientes` no `ServicoUsuario`.
- [] **Página de Cadastro Cliente**   Método `PageCriarCliente` e `CriarCliente` (POST) no manipulador.
- [] **Middleware de Sessão**         Criar função que verifica se o usuário está logado antes de acessar rotas "Page".  
+ [x] **Página de Cadastro Cliente**   Método `PageCriarCliente` e `CriarCliente` (POST) no manipulador.
+ [x] **Middleware de Sessão**         Criar função que verifica se o usuário está logado antes de acessar rotas "Page".  
  [] **Gestão de Processos**          Implementar `CriarProcesso` vinculando o `ID` do cliente.
  [] **Fluxo de Novo Processo**       Handler `PageCriarProcesso` e lógica de persistência no `ControleProcesso`.
  [] **Entidade Fraca: Lista**        Implementar a `Lista de Tarefas` como dependente de um `ID_PROCESSO`.

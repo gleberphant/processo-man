@@ -1,4 +1,4 @@
-package BancoDeDados
+package bancodedados
 
 import (
 	"database/sql"
