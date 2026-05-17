@@ -1,4 +1,4 @@
-package autenticacao
+package CasosDeUsoAutenticacao
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 )
 
 // verificar se token é valido. retorna error se token não encontrado
-func (a *AutenticacaoCDU) ValidarToken(token entidades.Token) error {
+func (a *CasosDeUsoAutenticacao) ValidarToken(token entidades.Token) error {
 
 	if token.UUID == uuid.Nil {
 		return errors.New("token inválido: UUID não fornecido")

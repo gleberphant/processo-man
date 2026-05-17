@@ -6,24 +6,28 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/gleberphant/ProcessoMan/internal/casosdeuso/autenticacao"
+	"github.com/gleberphant/ProcessoMan/internal/casosdeuso/CasosDeUsoAutenticacao"
+	"github.com/gleberphant/ProcessoMan/internal/casosdeuso/CasosDeUsoUsuario"
 	"github.com/gleberphant/ProcessoMan/internal/entidades"
 )
 
 type ManipuladorLogin struct {
-	CDUatenticacao *autenticacao.AutenticacaoCDU
+	CDUAutenticacao *CasosDeUsoAutenticacao.CasosDeUsoAutenticacao
+	//CDUUsuario *CasosDeUsoUsuario.CasosDeUsoUsuario
 }
 
-func NovoManipuladorLogin(cduAutenticacao *autenticacao.AutenticacaoCDU) *ManipuladorLogin {
+func NovoManipuladorLogin(cduToken *CasosDeUsoAutenticacao.CasosDeUsoAutenticacao,
+	cduUsuario *CasosDeUsoUsuario.CasosDeUsoUsuario) *ManipuladorLogin {
 
 	return &ManipuladorLogin{
-		CDUatenticacao: cduAutenticacao,
+		CDUAutenticacao: cduToken,
+		//CDUUsuario: cduUsuario,
 	}
 
 }
 
 // formulario de login
-func (m *ManipuladorLogin) LoginGet(w http.ResponseWriter, r *http.Request) {
+func (m *ManipuladorLogin) PageLogin(w http.ResponseWriter, r *http.Request) {
 
 	// carrega dados
 	dados := struct {
@@ -35,6 +39,7 @@ func (m *ManipuladorLogin) LoginGet(w http.ResponseWriter, r *http.Request) {
 	// carregat HTML
 	tmpl, err := template.ParseFiles("../templates/login.html")
 	if err != nil {
+		log.Printf("Erro %v", err)
 		http.Error(w, "Erro ao carregar template: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -42,6 +47,7 @@ func (m *ManipuladorLogin) LoginGet(w http.ResponseWriter, r *http.Request) {
 	// executar template
 	err = tmpl.Execute(w, dados)
 	if err != nil {
+		log.Printf("Erro %v", err)
 		http.Error(w, "Erro ao renderizar pagina", http.StatusInternalServerError)
 		return
 	}
@@ -56,11 +62,11 @@ func (m *ManipuladorLogin) LoginPost(w http.ResponseWriter, r *http.Request) {
 		Senha: r.PostFormValue("senha"),
 	}
 
-	// autenticacao do usuario
-	token, err := m.CDUatenticacao.AutenticarUsuario(&usuario)
+	// autenticacao do usuario e retorna o token gerado
+	token, err := m.CDUAutenticacao.AutenticarUsuario(usuario.Email, usuario.Senha)
 
 	if err != nil {
-		log.Printf("Usuario invalido %v", err)
+		log.Printf("Erro na autenticacao. %v", err)
 		http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso Negado. Usuario Inválido."), http.StatusSeeOther)
 		return
 	}

@@ -11,7 +11,7 @@ func main() {
 
 	r := HTTP.Roteador{}
 
-	r.InjecaoDependencias()
+	r.InjetarDependencias()
 	//configurar servidor
 	server := http.Server{
 		Addr:    ":8080",

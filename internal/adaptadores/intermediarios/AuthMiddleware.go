@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/gleberphant/ProcessoMan/internal/casosdeuso/autenticacao"
+	"github.com/gleberphant/ProcessoMan/internal/casosdeuso/CasosDeUsoAutenticacao"
 	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/google/uuid"
 )
@@ -35,7 +35,7 @@ func ProcurarTokenEnviado(r *http.Request) (string, error) {
 	return token, nil
 }
 
-func AuthMiddleware(proximo http.Handler, auth *autenticacao.AutenticacaoCDU) http.Handler {
+func AuthMiddleware(proximo http.Handler, auth *CasosDeUsoAutenticacao.CasosDeUsoAutenticacao) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 

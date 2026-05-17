@@ -1,4 +1,4 @@
-package autenticacao
+package CasosDeUsoAutenticacao
 
 import (
 	"errors"
@@ -7,22 +7,22 @@ import (
 )
 
 // recebe login e senha e devolver token
-func (a *AutenticacaoCDU) AutenticarUsuario(usuario *entidades.Usuario) (*entidades.Token, error) {
+func (a *CasosDeUsoAutenticacao) AutenticarUsuario(email string, senha string) (*entidades.Token, error) {
 
 	// Verifica se o usuario existe
 
-	if usuario == nil {
+	if email == "" {
 		return nil, errors.New("Usuario nulo")
 	}
 
-	err := a.RepoUsuarios.AutenticarUsuario(usuario)
+	usuarioUUID, err := a.RepoUsuarios.AutenticarUsuario(email, senha)
 
 	if err != nil {
 		return nil, err
 	}
 
 	// Gera token
-	token, err := a.GerarToken(usuario)
+	token, err := a.GerarToken(usuarioUUID)
 	if err != nil {
 		return nil, err
 	}

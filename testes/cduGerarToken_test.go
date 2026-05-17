@@ -4,37 +4,32 @@ import (
 	"testing"
 
 	"github.com/gleberphant/ProcessoMan/internal/adaptadores/repositorios"
-	"github.com/gleberphant/ProcessoMan/internal/casosdeuso/autenticacao"
+	"github.com/gleberphant/ProcessoMan/internal/casosdeuso/CasosDeUsoAutenticacao"
 	"github.com/gleberphant/ProcessoMan/internal/entidades"
-	"github.com/google/uuid"
+	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/BancoDeDados"
 )
 
 func TestGerarToken(t *testing.T) {
 
+	// conectar banco de dados
+	db, _ := BancoDeDados.ConectarSQLITE()
+
 	// cria os repositorios
-	tokensRepo, err := repositorios.NovoTokenRepo()
+	tokensRepo := repositorios.NovoRepositorioToken(db)
 
-	if err != nil {
-		return
-	}
+	usuariosRepo := repositorios.NovoRepositorioUsuario(db)
 
-	usuariosRepo, err := repositorios.NovoUsuarioRepo()
-
-	if err != nil {
-		return
-	}
-
-	casodeuso := autenticacao.NovoAutenticacaoCDU(tokensRepo, usuariosRepo)
+	CDULogin := CasosDeUsoAutenticacao.NovoCasoDeUsoAutenticacao(tokensRepo, usuariosRepo)
 
 	casosDeTeste := []struct {
 		Nome            string // description of this test case
-		Entrada         *entidades.Usuario
+		Entrada         string
 		RepostaEsperada *entidades.Token
 		EsperaFalha     bool
 	}{
 		{
 			Nome:    "Token com usuario valido",
-			Entrada: &entidades.Usuario{UUID: uuid.MustParse("c3f16c59-f802-478b-8c3b-b3b6f20e0af6")},
+			Entrada: "c3f16c59-f802-478b-8c3b-b3b6f20e0af6",
 			//RepostaEsperada: &entidades.Token{},
 			EsperaFalha: false,
 		},
@@ -49,7 +44,7 @@ func TestGerarToken(t *testing.T) {
 	for _, teste := range casosDeTeste {
 		t.Run(teste.Nome, func(t *testing.T) {
 
-			resposta, err := casodeuso.GerarToken(teste.Entrada)
+			resposta, err := CDULogin.GerarToken(teste.Entrada)
 			// se falhou
 			if err != nil {
 				// verifica se esperava falha

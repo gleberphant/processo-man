@@ -7,7 +7,7 @@
  [x] **Handler de Login (GET)**       Método `PageLogin`: Carregar e renderizar o template HTML de login.
  [x] **Lógica de Auth**               No `ServicoUsuario`, criar método `Autenticar(email, senha)`.
  [x] **Structs de Negócio**           Implementar `Cliente`, `Processo` e `Tarefa` com Embedding de Usuario.
- [] **CRUD de Clientes**             Implementar `CriarCliente` e `ListarClientes` no `ServicoUsuario`.
+ [x] **CRUD de Clientes**             Implementar `CriarCliente` e `ListarClientes` no `ServicoUsuario`.
  [] **Página de Cadastro Cliente**   Método `PageCriarCliente` e `CriarCliente` (POST) no manipulador.
  [] **Middleware de Sessão**         Criar função que verifica se o usuário está logado antes de acessar rotas "Page".  
  [] **Gestão de Processos**          Implementar `CriarProcesso` vinculando o `ID` do cliente.
@@ -17,4 +17,3 @@
  [] **Visualização do Projeto**      Handler `PageVisualizar` que busca Processo + Lista + Tarefas em um único DTO.
  [] **Área do Cliente (HTML)**       Criar template para o caso de uso "Acompanhar Andamento".
  [] **Refatoração JSON**             Adicionar `w.Header().Set("Content-Type", "application/json")` nos métodos de ação.
-

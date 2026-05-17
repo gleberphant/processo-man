@@ -1,0 +1,42 @@
+{{define "page"}}
+<main class="container mt-5">
+    <div class="container">
+        <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+                <h1 class="display-5">Novo usuario</h1>
+                <p class="lead">Insira os detalhes</p>
+            </div>
+        </div>
+
+
+        <!--  *TODO: COLOCAR JAVASCRIPT PARA SE FOR DEFINIDO UUID A ROTA DEVE SER /EDITAR SER UUID VAZIO A ROTA DEVE SER /CRIAR -->
+        <form action="/usuario/criar" method="POST">
+
+            <input type="hidden" name="UUID" value="uuid" />
+
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome</label>
+                <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite seu nome" required
+                    autofocus>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">E-mail</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="nome@exemplo.com"
+                    required>
+            </div>
+            <div class="mb-4">
+                <label for="senha" class="form-label">Senha</label>
+                <input type="text" class="form-control" id="senha" name="senha" placeholder="Sua senha secreta"
+                    required>
+            </div>
+            <div class="mb-4S">
+                <button type="submit" class="btn btn-primary btn-lg">CRIAR/EDITAR</button>
+
+            </div>
+        </form>
+    </div>
+</main>
+
+{{end}}
+
+{{define "title"}}Index - Projeto Go{{end}}
