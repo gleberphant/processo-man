@@ -5,7 +5,6 @@ import (
 
 	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao"
 	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao/casosdeuso"
-	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
 	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/bancodedados"
 )
@@ -18,9 +17,9 @@ func TestGerarToken(t *testing.T) {
 	// cria os repositorios
 	tokensRepo := autenticacao.NovoRepositorioToken(db)
 
-	usuariosRepo := usuarios.NovoRepositorioUsuario(db)
+	//usuariosRepo := usuarios.NovoRepositorioUsuario(db)
 
-	CDULogin := casosdeuso.NovoCDUAutenticacao(tokensRepo, usuariosRepo)
+	CDULogin := casosdeuso.NovoCDUAutenticacao(tokensRepo)
 
 	casosDeTeste := []struct {
 		Nome            string // description of this test case
