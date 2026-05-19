@@ -27,7 +27,7 @@ func (s *Roteador) InjetarDependencias() error {
 	// injeta repositorios nos casos de uso
 	cduAutenticacao := cduAutenticacao.NovoCDUAutenticacao(tokensRepo)
 	cduUsuario := cduUsuario.NovoCDUUsuario(usuariosRepo)
-	cduProcesso := cduProcesso.NovoCDUProcesso(processoRepo)
+	cduProcesso := cduProcesso.NovoCDUProcesso(processoRepo, processoRepo)
 
 	// injeta casos de uso nos manipuladores
 	s.LoginManipulador = autenticacao.NovoManipuladorLogin(cduAutenticacao)

@@ -17,11 +17,22 @@ type ManipuladorProcesso struct {
 	cduProcesso *casosdeuso.CDUProcesso
 }
 
+type ResponseDTO struct {
+	Msg     string
+	Payload any
+}
+
 // NovoManipuladorProcesso cria e retorna uma nova instância de ManipuladorProcesso.
 func NovoManipuladorProcesso(CasosDeUsoProcesso *casosdeuso.CDUProcesso) *ManipuladorProcesso {
 	return &ManipuladorProcesso{
 		cduProcesso: CasosDeUsoProcesso,
 	}
+}
+
+// PageCriar renderiza o formulário para criação de um novo processo.
+func (m *ManipuladorProcesso) PageCriar(w http.ResponseWriter, r *http.Request) {
+
+	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, nil)
 }
 
 // PageListar renderiza a página contendo a listagem de todos os processos.
@@ -40,14 +51,89 @@ func (m *ManipuladorProcesso) PageListar(w http.ResponseWriter, r *http.Request)
 
 }
 
-// PageCriar renderiza o formulário para criação de um novo processo.
-func (m *ManipuladorProcesso) PageCriar(w http.ResponseWriter, r *http.Request) {
-	// Passa uma entidade vazia para o template para manter a consistência com a edição
-	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, nil)
+// PageEditar carrega os dados de um processo existente e renderiza o mesmo formulário.
+func (m *ManipuladorProcesso) PageVisualizarProcesso(w http.ResponseWriter, r *http.Request) {
+	uuidStr := r.URL.Query().Get("uuid")
+
+	processo, err := m.cduProcesso.BuscarProcessoPorUUID(uuidStr)
+
+	if err != nil {
+		erroMsg := fmt.Sprintf("Processo não encontrado: %v", err)
+		log.Println(erroMsg)
+		http.Error(w, erroMsg, http.StatusNotFound)
+		return
+	}
+
+	viewModel := struct {
+		Titulo   string
+		Mensagem string
+		Processo entidades.Processo
+		Anexos   []string
+		Tarefas  []entidades.Tarefa
+	}{
+		Titulo:   "Processo nº: " + string(processo.UUID.String()),
+		Mensagem: "ok",
+		Processo: *processo,
+		Anexos:   []string{"arquivo1.doc", "arquivo2.doc"},
+		Tarefas:  processo.Tarefas,
+	}
+
+	apresentacao.ExibirPaginaHTML("processo/page-ver-processo.html", w, viewModel)
+}
+
+func (m *ManipuladorProcesso) APIVisualizarProcesso(w http.ResponseWriter, r *http.Request) {
+	uuidStr := r.URL.Query().Get("uuid")
+
+	processo, err := m.cduProcesso.BuscarProcessoPorUUID(uuidStr)
+
+	if err != nil {
+		erroMsg := fmt.Sprintf("Processo não encontrado: %v", err)
+		log.Println(erroMsg)
+		http.Error(w, erroMsg, http.StatusNotFound)
+		return
+	}
+
+	responseAPI := ResponseDTO{
+		Msg: "OK",
+		Payload: struct {
+			Processo entidades.Processo
+			Anexos   []string
+			Tarefas  []entidades.Tarefa
+		}{
+			Processo: *processo,
+			Anexos:   []string{"arquivo1.doc", "arquivo2.doc"},
+			Tarefas:  processo.Tarefas,
+		},
+	}
+
+	err = apresentacao.ExibirJsonApi(w, responseAPI)
+
+	if err != nil {
+		erroMsg := fmt.Sprintf("Falha no JASON: %v", err)
+		log.Println(erroMsg)
+		http.Error(w, erroMsg, http.StatusNotFound)
+		return
+	}
 }
 
 // PageEditar carrega os dados de um processo existente e renderiza o mesmo formulário.
 func (m *ManipuladorProcesso) PageEditar(w http.ResponseWriter, r *http.Request) {
+	uuidStr := r.URL.Query().Get("uuid")
+
+	processo, err := m.cduProcesso.BuscarProcessoPorUUID(uuidStr)
+	if err != nil {
+		erroMsg := fmt.Sprintf("Processo não encontrado: %v", err)
+		log.Println(erroMsg)
+		http.Error(w, erroMsg, http.StatusNotFound)
+		return
+	}
+
+	// Reutiliza o mesmo template, injetando os dados do processo
+	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, processo)
+}
+
+// PageEditar carrega os dados de um processo existente e renderiza o mesmo formulário.
+func (m *ManipuladorProcesso) PageDeletar(w http.ResponseWriter, r *http.Request) {
 	uuidStr := r.URL.Query().Get("uuid")
 
 	processo, err := m.cduProcesso.BuscarProcessoPorUUID(uuidStr)
@@ -69,7 +155,7 @@ func (m *ManipuladorProcesso) CriarProcessoPost(w http.ResponseWriter, r *http.R
 	var Processo = entidades.Processo{
 		UUID: UUID,
 		Nome: r.PostFormValue("nome"),
-		ListaTarefas: []entidades.Tarefa{{
+		Tarefas: []entidades.Tarefa{{
 			Nome: r.PostFormValue("tarefa"),
 		},
 		},
@@ -96,7 +182,7 @@ func (m *ManipuladorProcesso) EditarProcessoPost(w http.ResponseWriter, r *http.
 	var Processo = entidades.Processo{
 		UUID: UUID,
 		Nome: r.PostFormValue("nome"),
-		ListaTarefas: []entidades.Tarefa{{
+		Tarefas: []entidades.Tarefa{{
 			Nome: r.PostFormValue("tarefa"),
 		},
 		},

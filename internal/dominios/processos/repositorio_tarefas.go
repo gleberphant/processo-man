@@ -24,15 +24,14 @@ func (r *RepositorioProcesso) CriarTarefa(tarefa entidades.Tarefa) error {
 }
 
 // Listar retorna todos os tarefas cadastrados no banco de dados.
-func (r *RepositorioProcesso) ListarTarefas() ([]entidades.Tarefa, error) {
+func (r *RepositorioProcesso) ListarTarefas(processo_uuid uuid.UUID) ([]entidades.Tarefa, error) {
 
 	db := r.conn
 
-	rows, err := db.Query("SELECT uuid, processo_uuid, nome FROM tarefas ")
+	rows, err := db.Query("SELECT uuid, responsavel_uuid, nome FROM tarefas WHERE processo_uuid=?", processo_uuid.String())
 
-	// se erro na consulta
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error: SQLITE>ListarTarefa>SELECT: %w", err)
 	}
 
 	defer rows.Close()
@@ -43,7 +42,7 @@ func (r *RepositorioProcesso) ListarTarefas() ([]entidades.Tarefa, error) {
 
 		tarefa := entidades.Tarefa{}
 
-		rows.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.Nome)
+		rows.Scan(&tarefa.UUID, &tarefa.ResponsavelUUID, &tarefa.Nome)
 
 		lista = append(lista, tarefa)
 	}
@@ -52,7 +51,7 @@ func (r *RepositorioProcesso) ListarTarefas() ([]entidades.Tarefa, error) {
 
 }
 
-// Deletar remove um tarefa do banco de dados utilizando seu UUID.
+// Atular uma tarefa do banco de dados
 func (r *RepositorioProcesso) AtualizarTarefa(tarefa entidades.Tarefa) error {
 
 	if tarefa.UUID == uuid.Nil {

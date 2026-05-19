@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/google/uuid"
@@ -116,16 +117,32 @@ func (r *RepositorioProcesso) BuscarPorUUID(UUID uuid.UUID) (*entidades.Processo
 
 	db := r.conn
 
-	row := db.QueryRow("SELECT uuid, nome FROM processos WHERE uuid=?; ", UUID.String())
+	row := db.QueryRow("SELECT nome, data_criacao, comentarios FROM processos WHERE uuid=?; ", UUID.String())
 
-	Processo := &entidades.Processo{}
-	err := row.Scan(&Processo.UUID, &Processo.Nome)
+	var nome, dataCriacao string
+	var comentarios sql.NullString
 
+	err := row.Scan(&nome, &dataCriacao, &comentarios)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Erro ao ler dados do banco: %w", err)
 	}
 
-	return Processo, nil
+	processo := &entidades.Processo{}
+
+	processo.UUID = UUID
+	processo.Nome = nome
+	if comentarios.Valid {
+		processo.Comentarios = comentarios.String
+	}
+
+	// Utiliza o layout constante RFC3339 para interpretar a data e hora retornada com T e Z
+	processo.DataCriacao, err = time.Parse(time.RFC3339, dataCriacao)
+
+	if err != nil {
+		return nil, fmt.Errorf("Erro ao fazer parse da data: %w", err)
+	}
+
+	return processo, nil
 
 }
 
@@ -133,15 +150,15 @@ func (r *RepositorioProcesso) BuscarPorUUID(UUID uuid.UUID) (*entidades.Processo
 func (r *RepositorioProcesso) AutenticarProcesso(UUID uuid.UUID) (string, error) {
 	db := r.conn
 
-	row := db.QueryRow("SELECT uuid, nome FROM processos WHERE uuid=?;", UUID.String())
+	row := db.QueryRow("SELECT uuid FROM processos WHERE uuid=?;", UUID.String())
 
-	var str string = ""
+	var str string
 
-	err := row.Scan(str)
+	err := row.Scan(&str)
 
 	if err != nil {
 		return "", fmt.Errorf("Erro no SELECT de autenticacao de Processo %w", err)
 	}
 
-	return UUID.String(), nil
+	return str, nil
 }

@@ -1,4 +1,4 @@
--- Active: 1779048010659@@127.0.0.1@3306
+-- Active: 1778958784571@@127.0.0.1@3306
 -- CONFIGURACAO DA TABELA DE TOKENS
 
 -- resetar a tabela
@@ -14,7 +14,9 @@ CREATE TABLE IF NOT EXISTS tarefas (
     concluida BOOLEAN DEFAULT false,
     data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
     data_conclusao DATETIME DEFAULT NULL,
-    comentarios TEXT
+    comentarios TEXT,
+    FOREIGN KEY (processo_uuid) REFERENCES processos(uuid),
+    FOREIGN KEY (responsavel_uuid) REFERENCES usuarios(uuid)
 );
 
 -- inserir dados para teste

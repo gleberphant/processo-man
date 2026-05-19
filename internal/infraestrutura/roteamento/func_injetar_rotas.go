@@ -35,14 +35,18 @@ func (s *Roteador) ConfigurarRotas() http.Handler {
 
 	// ROTAS PROCESSOS
 	//// PAGINAS GET
-	mux.HandleFunc("GET /processo/listar", s.ManipuladorProcesso.PageListar)
 	mux.HandleFunc("GET /processo/criar", s.ManipuladorProcesso.PageCriar)
+	mux.HandleFunc("GET /processo/visualizar", s.ManipuladorProcesso.PageVisualizarProcesso)
+	mux.HandleFunc("GET /processo/listar", s.ManipuladorProcesso.PageListar)
 	mux.HandleFunc("GET /processo/editar", s.ManipuladorProcesso.PageEditar)
 
 	//// AÇÕES POST
 	mux.HandleFunc("POST /processo/criar", s.ManipuladorProcesso.CriarProcessoPost)
-	mux.HandleFunc("POST /processo/deletar", s.ManipuladorProcesso.DeletarProcessoPost)
 	mux.HandleFunc("POST /processo/editar", s.ManipuladorProcesso.EditarProcessoPost)
+	mux.HandleFunc("POST /processo/deletar", s.ManipuladorProcesso.DeletarProcessoPost)
+
+	//// RETORNOS DE API
+	mux.HandleFunc("GET /api/processo/visualizar", s.ManipuladorProcesso.APIVisualizarProcesso)
 
 	// INJETA INTERMEDIÁRIOS - Middlewares
 	roteador := intermediarios.AutenticadorIntermediario(intermediarios.LogIntermediario(mux), s.LoginManipulador.CDUAutenticacao)

@@ -13,6 +13,20 @@ func (u *CDUProcesso) BuscarProcessoPorUUID(strUUID string) (*entidades.Processo
 		return nil, errors.New("UUID nulo")
 	}
 
-	return u.repoProcesso.BuscarPorUUID(uuid.MustParse(strUUID))
+	var err error
+	var processo *entidades.Processo
+	var tarefas []entidades.Tarefa
+
+	processo, err = u.repoProcesso.BuscarPorUUID(uuid.MustParse(strUUID))
+
+	if err != nil {
+		return nil, err
+	}
+
+	tarefas, err = u.repoTarefa.ListarTarefas(processo.UUID)
+
+	processo.Tarefas = tarefas
+
+	return processo, nil
 
 }

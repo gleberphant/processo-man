@@ -13,13 +13,23 @@ type IRepositorioProcesso interface {
 	BuscarPorUUID(uuid.UUID) (*entidades.Processo, error)
 }
 
-type CDUProcesso struct {
-	repoProcesso IRepositorioProcesso
+type IRepositorioTarefa interface {
+	CriarTarefa(entidades.Tarefa) error
+	ListarTarefas(uuid.UUID) ([]entidades.Tarefa, error)
+	AtualizarTarefa(entidades.Tarefa) error
+	DeletarTarefa(uuid.UUID) error
+	BuscarTarefaPorUUID(UUID uuid.UUID) (*entidades.Tarefa, error)
 }
 
-func NovoCDUProcesso(ProcessosRepo IRepositorioProcesso) *CDUProcesso {
+type CDUProcesso struct {
+	repoProcesso IRepositorioProcesso
+	repoTarefa   IRepositorioTarefa
+}
+
+func NovoCDUProcesso(ProcessosRepo IRepositorioProcesso, TarefasRepo IRepositorioTarefa) *CDUProcesso {
 
 	return &CDUProcesso{
 		repoProcesso: ProcessosRepo,
+		repoTarefa:   TarefasRepo,
 	}
 }

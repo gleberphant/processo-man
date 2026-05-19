@@ -10,8 +10,8 @@
  [x] **CRUD de Clientes**             Implementar `CriarCliente` e `ListarClientes` no `ServicoUsuario`.
  [x] **Página de Cadastro Cliente**   Método `PageCriarCliente` e `CriarCliente` (POST) no manipulador.
  [x] **Middleware de Sessão**         Criar função que verifica se o usuário está logado antes de acessar rotas "Page".  
- [] **Gestão de Processos**          Implementar `CriarProcesso` vinculando o `ID` do cliente.
- [] **Fluxo de Novo Processo**       Handler `PageCriarProcesso` e lógica de persistência no `ControleProcesso`.
+ [x] **Gestão de Processos**          Implementar `CriarProcesso` vinculando o `ID` do cliente.
+ [x] **Fluxo de Novo Processo**       Handler `PageCriarProcesso` e lógica de persistência no `ControleProcesso`.
  [] **Entidade Fraca: Lista**        Implementar a `Lista de Tarefas` como dependente de um `ID_PROCESSO`.
  [] **Lógica de Tarefas**            Implementar `InserirTarefa` e `AtualizarStatusTarefa` (concluída/aberta).
  [] **Visualização do Projeto**      Handler `PageVisualizar` que busca Processo + Lista + Tarefas em um único DTO.

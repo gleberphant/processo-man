@@ -1,7 +1,14 @@
 -- CONFIGURACAO DA TABELA DE USUARIOS
 
--- resetar a tabela
-DROP TABLE IF EXISTS usuarios;
+-- DESABILITA TEMPORARIAMENTE AS CONSTRAINTS
+PRAGMA foreign_keys=off;
+
+-- INICIO DA TRANSAÇÃO
+BEGIN TRANSACTION;
+
+
+-- backup da tabela - para migração de dados
+ALTER TABLE IF EXISTS usuarios RENAME TO usuarios_old;
 
 -- criação da tabela
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -13,12 +20,6 @@ CREATE TABLE IF NOT EXISTS usuarios (
     data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- inserir dados para teste
--- INSERT INTO
---     usuarios (uuid, nome, email, senha)
--- VALUES (
---         'teste',
---         'teste',
---         'teste@teste',
---         'teste'
---     );
+
+
+DROP TABLE IF EXISTS usuarios_old;
