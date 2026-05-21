@@ -7,6 +7,14 @@ import (
 	"net/http"
 )
 
+func ExibirErro(w http.ResponseWriter, erroMsg string) {
+
+	log.Println(erroMsg)
+	//substituir por redirecionamento para o index com uma mensagem
+	http.Error(w, erroMsg, http.StatusInternalServerError)
+
+}
+
 func ExibirJsonApi(w http.ResponseWriter, dados interface{}) error {
 	// Converte  'dados' para o formato JSON.
 	jason, err := json.Marshal(dados)

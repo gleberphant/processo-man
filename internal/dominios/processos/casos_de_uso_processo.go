@@ -10,7 +10,7 @@ import (
 type IRepositorioProcesso interface {
 	Criar(Processo) error
 	Listar() ([]Processo, error)
-	Atualizar(Processo) error
+	Editar(Processo) error
 	Deletar(uuid.UUID) error
 	BuscarPorUUID(uuid.UUID) (*Processo, error)
 }
@@ -51,7 +51,7 @@ func (u *CDUProcesso) CriarProcesso(processo Processo) error {
 
 	}
 
-	return u.repoProcesso.Atualizar(processo)
+	return u.repoProcesso.Editar(processo)
 
 }
 
@@ -66,7 +66,7 @@ func (u *CDUProcesso) EditarProcesso(processo Processo) error {
 		return errors.New("não é possível atualizar um processo sem UUID")
 	}
 
-	return u.repoProcesso.Atualizar(processo)
+	return u.repoProcesso.Editar(processo)
 }
 
 func (u *CDUProcesso) DeletarProcesso(strUUID string) error {

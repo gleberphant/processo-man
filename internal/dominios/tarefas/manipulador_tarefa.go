@@ -46,9 +46,8 @@ func (m *ManipuladorTarefa) PageListarTarefas(w http.ResponseWriter, r *http.Req
 	lista, err := m.cduTarefa.ListarTarefas(strProcessoUUID)
 
 	if err != nil {
-		erro := fmt.Sprintf("Erro :%v", err)
-		log.Println(erro)
-		http.Error(w, erro, http.StatusInternalServerError) //substituir por redirecionamento para o index com uma mensagem
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Listar Tarefa:%v", err))
+		return
 	}
 
 	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, lista)
@@ -61,9 +60,7 @@ func (m *ManipuladorTarefa) PageEditarTarefa(w http.ResponseWriter, r *http.Requ
 
 	Tarefa, err := m.cduTarefa.BuscarTarefaPorUUID(uuidStr)
 	if err != nil {
-		erroMsg := fmt.Sprintf("Tarefa não encontrado: %v", err)
-		log.Println(erroMsg)
-		http.Error(w, erroMsg, http.StatusNotFound)
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Editar Tarefa:%v", err))
 		return
 	}
 
@@ -74,9 +71,7 @@ func (m *ManipuladorTarefa) PageEditarTarefa(w http.ResponseWriter, r *http.Requ
 func (m *ManipuladorTarefa) CriarTarefaPost(w http.ResponseWriter, r *http.Request) {
 	processoUUID, err := uuid.Parse(r.PostFormValue("ProcessoUUID"))
 	if err != nil {
-		erroMsg := fmt.Sprintf("Erro na criação do Tarefa:%v", err)
-		log.Println(erroMsg)
-		http.Error(w, erroMsg, http.StatusInternalServerError) //substituir por redirecionamento para o index com uma mensagem
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Criar Tarefa:%v", err))
 		return
 	}
 
@@ -92,9 +87,7 @@ func (m *ManipuladorTarefa) CriarTarefaPost(w http.ResponseWriter, r *http.Reque
 	err = m.cduTarefa.CriarTarefa(tarefa)
 
 	if err != nil {
-		erroMsg := fmt.Sprintf("Erro na criação do Tarefa:%v", err)
-		log.Println(erroMsg)
-		http.Error(w, erroMsg, http.StatusInternalServerError) //substituir por redirecionamento para o index com uma mensagem
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Criar Tarefa:%v", err))
 		return
 	}
 
@@ -117,10 +110,8 @@ func (m *ManipuladorTarefa) EditarTarefaPost(w http.ResponseWriter, r *http.Requ
 	err = m.cduTarefa.EditarTarefa(Tarefa)
 
 	if err != nil {
-		erroMsg := fmt.Sprintf("Erro na edição do Tarefa:%v", err)
-		log.Println(erroMsg)
-
-		http.Error(w, erroMsg, http.StatusInternalServerError) //substituir por redirecionamento para o index com uma mensagem
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Tarefa:%v", err))
+		return
 	}
 
 	http.Redirect(w, r, "/tarefa/listar", http.StatusSeeOther)
@@ -133,10 +124,8 @@ func (m *ManipuladorTarefa) DeletarTarefaPost(w http.ResponseWriter, r *http.Req
 	err := m.cduTarefa.DeletarTarefa(UUID)
 
 	if err != nil {
-		erroMsg := fmt.Sprintf("Erro ao deletar Tarefa:%v", err)
-		log.Println(erroMsg)
-
-		http.Error(w, erroMsg, http.StatusInternalServerError) //substituir por redirecionamento para o index com uma mensagem
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Tarefa:%v", err))
+		return
 	}
 
 	http.Redirect(w, r, "/Tarefa/listar", http.StatusSeeOther)

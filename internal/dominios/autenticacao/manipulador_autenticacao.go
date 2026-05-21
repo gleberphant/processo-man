@@ -1,9 +1,8 @@
 package autenticacao
 
 import (
-	"log"
+	"fmt"
 	"net/http"
-	"net/url"
 
 	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
@@ -47,9 +46,7 @@ func (m *ManipuladorLogin) LoginPost(w http.ResponseWriter, r *http.Request) {
 	token, err := m.CDUAutenticacao.AutenticarUsuario(usuario.Email, usuario.Senha)
 
 	if err != nil {
-		log.Printf("Erro na autenticacao. %v", err)
-		http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso Negado. Usuario Inválido."), http.StatusSeeOther)
-		return
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro LoginPost:%v", err))
 	}
 
 	// Configura o cookie de sessão de forma segura

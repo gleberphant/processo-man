@@ -76,7 +76,7 @@ func (r *RepositorioProcesso) Listar() ([]Processo, error) {
 }
 
 // Deletar remove um processo do banco de dados utilizando seu UUID.
-func (r *RepositorioProcesso) Atualizar(Processo Processo) error {
+func (r *RepositorioProcesso) Editar(Processo Processo) error {
 
 	if Processo.UUID == uuid.Nil {
 		return errors.New("UUID NULO")

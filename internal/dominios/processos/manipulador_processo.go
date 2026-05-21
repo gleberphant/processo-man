@@ -2,7 +2,6 @@ package processos
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gleberphant/ProcessoMan/internal/dominios/tarefas"
@@ -34,10 +33,7 @@ func (m *ManipuladorProcesso) PageListar(w http.ResponseWriter, r *http.Request)
 	lista, err := m.cduProcesso.ListarProcessos()
 
 	if err != nil {
-		erro := fmt.Sprintf("Erro :%v", err)
-		log.Println(erro)
-		//substituir por redirecionamento para o index com uma mensagem
-		http.Error(w, erro, http.StatusInternalServerError)
+		apresentacao.ExibirErro(w, fmt.Sprintf("erro PageListar:%v", err))
 	}
 
 	apresentacao.ExibirPaginaHTML("processo/page-listar-processos.html", w, lista)
@@ -51,9 +47,7 @@ func (m *ManipuladorProcesso) PageVisualizarProcesso(w http.ResponseWriter, r *h
 	processo, err := m.cduProcesso.BuscarProcessoPorUUID(uuidStr)
 
 	if err != nil {
-		erroMsg := fmt.Sprintf("Processo não encontrado: %v", err)
-		log.Println(erroMsg)
-		http.Error(w, erroMsg, http.StatusNotFound)
+		apresentacao.ExibirErro(w, fmt.Sprintf("erro PageVer:%v", err))
 		return
 	}
 
@@ -79,14 +73,12 @@ func (m *ManipuladorProcesso) PageEditar(w http.ResponseWriter, r *http.Request)
 	uuidStr := r.URL.Query().Get("uuid")
 
 	processo, err := m.cduProcesso.BuscarProcessoPorUUID(uuidStr)
+
 	if err != nil {
-		erroMsg := fmt.Sprintf("Processo não encontrado: %v", err)
-		log.Println(erroMsg)
-		http.Error(w, erroMsg, http.StatusNotFound)
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro PageEditar:%v", err))
 		return
 	}
 
-	// Reutiliza o mesmo template, injetando os dados do processo
 	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, processo)
 }
 
@@ -96,10 +88,7 @@ func (m *ManipuladorProcesso) PageDeletar(w http.ResponseWriter, r *http.Request
 
 	processo, err := m.cduProcesso.BuscarProcessoPorUUID(uuidStr)
 	if err != nil {
-		erroMsg := fmt.Sprintf("Processo não encontrado: %v", err)
-		log.Println(erroMsg)
-		http.Error(w, erroMsg, http.StatusNotFound)
-		return
+		apresentacao.ExibirErro(w, fmt.Sprintf("erro PageDeletar:%v", err))
 	}
 
 	// Reutiliza o mesmo template, injetando os dados do processo
@@ -122,10 +111,7 @@ func (m *ManipuladorProcesso) CriarProcessoPost(w http.ResponseWriter, r *http.R
 	err = m.cduProcesso.CriarProcesso(Processo)
 
 	if err != nil {
-		erroMsg := fmt.Sprintf("Erro na criação do Processo:%v", err)
-		log.Println(erroMsg)
-		//substituir por redirecionamento para o index com uma mensagem
-		http.Error(w, erroMsg, http.StatusInternalServerError)
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro criar Processo:%v", err))
 	}
 
 	http.Redirect(w, r, "/processo/listar", http.StatusSeeOther)
@@ -136,23 +122,19 @@ func (m *ManipuladorProcesso) CriarProcessoPost(w http.ResponseWriter, r *http.R
 func (m *ManipuladorProcesso) EditarProcessoPost(w http.ResponseWriter, r *http.Request) {
 
 	UUID, err := uuid.Parse(r.PostFormValue("uuid"))
-
-	var Processo = Processo{
-		UUID: UUID,
-		Nome: r.PostFormValue("nome"),
-		Tarefas: []tarefas.Tarefa{{
-			Nome: r.PostFormValue("tarefa"),
-		},
-		},
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro editar Processo:%v", err))
 	}
 
-	err = m.cduProcesso.EditarProcesso(Processo)
+	var ProcessoDTO = Processo{
+		UUID: UUID,
+		Nome: r.PostFormValue("nome"),
+	}
+
+	err = m.cduProcesso.EditarProcesso(ProcessoDTO)
 
 	if err != nil {
-		erroMsg := fmt.Sprintf("Erro na edição do Processo:%v", err)
-		log.Println(erroMsg)
-		//substituir por redirecionamento para o index com uma mensagem
-		http.Error(w, erroMsg, http.StatusInternalServerError)
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro editar Processo:%v", err))
 	}
 
 	http.Redirect(w, r, "/processo/listar", http.StatusSeeOther)
@@ -166,10 +148,7 @@ func (m *ManipuladorProcesso) DeletarProcessoPost(w http.ResponseWriter, r *http
 	err := m.cduProcesso.DeletarProcesso(UUID)
 
 	if err != nil {
-		erroMsg := fmt.Sprintf("Erro ao deletar Processo:%v", err)
-		log.Println(erroMsg)
-		//substituir por redirecionamento para o index com uma mensagem
-		http.Error(w, erroMsg, http.StatusInternalServerError)
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro deletar Processo:%v", err))
 	}
 
 	http.Redirect(w, r, "/processo/listar", http.StatusSeeOther)

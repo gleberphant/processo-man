@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/processos"
 	"github.com/gleberphant/ProcessoMan/internal/dominios/tarefas"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 )
@@ -28,7 +27,7 @@ func (m *ManipuladorProcesso) APIVisualizarProcesso(w http.ResponseWriter, r *ht
 	}{
 		Msg: "OK",
 		Payload: struct {
-			Processo processos.Processo
+			Processo Processo
 			Anexos   []string
 			Tarefas  []tarefas.Tarefa
 		}{
