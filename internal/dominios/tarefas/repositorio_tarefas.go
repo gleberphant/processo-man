@@ -1,15 +1,28 @@
-package processos
+package tarefas
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/google/uuid"
 )
 
+type RepositorioTarefa struct {
+	conn *sql.DB
+}
+
+// NovoRepositorioProcesso cria uma nova instância do repositório de processos e estabelece a conexão.
+func NovoRepositorioTarefa(conn *sql.DB) *RepositorioTarefa {
+	repo := RepositorioTarefa{
+		conn: conn,
+	}
+
+	return &repo
+}
+
 // Criar insere um novo registro de tarefa na tabela de tarefas.
-func (r *RepositorioProcesso) CriarTarefa(tarefa entidades.Tarefa) error {
+func (r *RepositorioTarefa) CriarTarefa(tarefa Tarefa) error {
 
 	db := r.conn
 
@@ -24,11 +37,11 @@ func (r *RepositorioProcesso) CriarTarefa(tarefa entidades.Tarefa) error {
 }
 
 // Listar retorna todos os tarefas cadastrados no banco de dados.
-func (r *RepositorioProcesso) ListarTarefas(processo_uuid uuid.UUID) ([]entidades.Tarefa, error) {
+func (r *RepositorioTarefa) ListarTarefas(processoUUID uuid.UUID) ([]Tarefa, error) {
 
 	db := r.conn
 
-	rows, err := db.Query("SELECT uuid, responsavel_uuid, nome FROM tarefas WHERE processo_uuid=?", processo_uuid.String())
+	rows, err := db.Query("SELECT uuid, responsavel_uuid, nome FROM tarefas WHERE processo_uuid=?", processoUUID.String())
 
 	if err != nil {
 		return nil, fmt.Errorf("Error: SQLITE>ListarTarefa>SELECT: %w", err)
@@ -36,11 +49,11 @@ func (r *RepositorioProcesso) ListarTarefas(processo_uuid uuid.UUID) ([]entidade
 
 	defer rows.Close()
 
-	var lista []entidades.Tarefa
+	var lista []Tarefa
 
 	for rows.Next() {
 
-		tarefa := entidades.Tarefa{}
+		tarefa := Tarefa{}
 
 		rows.Scan(&tarefa.UUID, &tarefa.ResponsavelUUID, &tarefa.Nome)
 
@@ -52,7 +65,7 @@ func (r *RepositorioProcesso) ListarTarefas(processo_uuid uuid.UUID) ([]entidade
 }
 
 // Atular uma tarefa do banco de dados
-func (r *RepositorioProcesso) AtualizarTarefa(tarefa entidades.Tarefa) error {
+func (r *RepositorioTarefa) EditarTarefa(tarefa Tarefa) error {
 
 	if tarefa.UUID == uuid.Nil {
 		return errors.New("UUID NULO")
@@ -66,7 +79,7 @@ func (r *RepositorioProcesso) AtualizarTarefa(tarefa entidades.Tarefa) error {
 }
 
 // Deletar remove um tarefa do banco de dados utilizando seu UUID.
-func (r *RepositorioProcesso) DeletarTarefa(UUID uuid.UUID) error {
+func (r *RepositorioTarefa) DeletarTarefa(UUID uuid.UUID) error {
 
 	if UUID == uuid.Nil {
 		return errors.New("UUID NULO")
@@ -80,13 +93,13 @@ func (r *RepositorioProcesso) DeletarTarefa(UUID uuid.UUID) error {
 }
 
 // BuscarPorUUID recupera os dados de um tarefa específico através do seu identificador único.
-func (r *RepositorioProcesso) BuscarTarefaPorUUID(UUID uuid.UUID) (*entidades.Tarefa, error) {
+func (r *RepositorioTarefa) BuscarTarefaPorUUID(UUID uuid.UUID) (*Tarefa, error) {
 
 	db := r.conn
 
 	row := db.QueryRow("SELECT uuid, processo_uuid, nome FROM tarefas WHERE uuid=?", UUID.String())
 
-	tarefa := &entidades.Tarefa{}
+	tarefa := &Tarefa{}
 	err := row.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.Nome)
 
 	if err != nil {
@@ -95,21 +108,4 @@ func (r *RepositorioProcesso) BuscarTarefaPorUUID(UUID uuid.UUID) (*entidades.Ta
 
 	return tarefa, nil
 
-}
-
-// verifica se existe
-func (r *RepositorioProcesso) AutenticarTarefa(UUID uuid.UUID) (string, error) {
-	db := r.conn
-
-	row := db.QueryRow("SELECT uuid FROM tarefas WHERE uuid=?;", UUID.String())
-
-	var strUUID string
-
-	err := row.Scan(&strUUID)
-
-	if err != nil {
-		return "", fmt.Errorf("Erro no SELECT de autenticacao de tarefa %w", err)
-	}
-
-	return strUUID, nil
 }

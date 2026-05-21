@@ -5,25 +5,18 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/processos/casosdeuso"
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominios/tarefas"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/google/uuid"
 )
 
-// ManipuladorProcesso gerencia as requisições HTTP relacionadas ao domínio de processos,
 // servindo como interface entre a camada de apresentação e os casos de uso.
 type ManipuladorProcesso struct {
-	cduProcesso *casosdeuso.CDUProcesso
-}
-
-type ResponseDTO struct {
-	Msg     string
-	Payload any
+	cduProcesso *CDUProcesso
 }
 
 // NovoManipuladorProcesso cria e retorna uma nova instância de ManipuladorProcesso.
-func NovoManipuladorProcesso(CasosDeUsoProcesso *casosdeuso.CDUProcesso) *ManipuladorProcesso {
+func NovoManipuladorProcesso(CasosDeUsoProcesso *CDUProcesso) *ManipuladorProcesso {
 	return &ManipuladorProcesso{
 		cduProcesso: CasosDeUsoProcesso,
 	}
@@ -67,9 +60,9 @@ func (m *ManipuladorProcesso) PageVisualizarProcesso(w http.ResponseWriter, r *h
 	viewModel := struct {
 		Titulo   string
 		Mensagem string
-		Processo entidades.Processo
+		Processo Processo
 		Anexos   []string
-		Tarefas  []entidades.Tarefa
+		Tarefas  []tarefas.Tarefa
 	}{
 		Titulo:   "Processo nº: " + string(processo.UUID.String()),
 		Mensagem: "ok",
@@ -79,41 +72,6 @@ func (m *ManipuladorProcesso) PageVisualizarProcesso(w http.ResponseWriter, r *h
 	}
 
 	apresentacao.ExibirPaginaHTML("processo/page-ver-processo.html", w, viewModel)
-}
-
-func (m *ManipuladorProcesso) APIVisualizarProcesso(w http.ResponseWriter, r *http.Request) {
-	uuidStr := r.URL.Query().Get("uuid")
-
-	processo, err := m.cduProcesso.BuscarProcessoPorUUID(uuidStr)
-
-	if err != nil {
-		erroMsg := fmt.Sprintf("Processo não encontrado: %v", err)
-		log.Println(erroMsg)
-		http.Error(w, erroMsg, http.StatusNotFound)
-		return
-	}
-
-	responseAPI := ResponseDTO{
-		Msg: "OK",
-		Payload: struct {
-			Processo entidades.Processo
-			Anexos   []string
-			Tarefas  []entidades.Tarefa
-		}{
-			Processo: *processo,
-			Anexos:   []string{"arquivo1.doc", "arquivo2.doc"},
-			Tarefas:  processo.Tarefas,
-		},
-	}
-
-	err = apresentacao.ExibirJsonApi(w, responseAPI)
-
-	if err != nil {
-		erroMsg := fmt.Sprintf("Falha no JASON: %v", err)
-		log.Println(erroMsg)
-		http.Error(w, erroMsg, http.StatusNotFound)
-		return
-	}
 }
 
 // PageEditar carrega os dados de um processo existente e renderiza o mesmo formulário.
@@ -152,10 +110,10 @@ func (m *ManipuladorProcesso) PageDeletar(w http.ResponseWriter, r *http.Request
 func (m *ManipuladorProcesso) CriarProcessoPost(w http.ResponseWriter, r *http.Request) {
 
 	UUID, err := uuid.Parse(r.PostFormValue("uuid"))
-	var Processo = entidades.Processo{
+	var Processo = Processo{
 		UUID: UUID,
 		Nome: r.PostFormValue("nome"),
-		Tarefas: []entidades.Tarefa{{
+		Tarefas: []tarefas.Tarefa{{
 			Nome: r.PostFormValue("tarefa"),
 		},
 		},
@@ -179,16 +137,16 @@ func (m *ManipuladorProcesso) EditarProcessoPost(w http.ResponseWriter, r *http.
 
 	UUID, err := uuid.Parse(r.PostFormValue("uuid"))
 
-	var Processo = entidades.Processo{
+	var Processo = Processo{
 		UUID: UUID,
 		Nome: r.PostFormValue("nome"),
-		Tarefas: []entidades.Tarefa{{
+		Tarefas: []tarefas.Tarefa{{
 			Nome: r.PostFormValue("tarefa"),
 		},
 		},
 	}
 
-	err = m.cduProcesso.AtualizarProcesso(Processo)
+	err = m.cduProcesso.EditarProcesso(Processo)
 
 	if err != nil {
 		erroMsg := fmt.Sprintf("Erro na edição do Processo:%v", err)

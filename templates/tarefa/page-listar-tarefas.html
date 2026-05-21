@@ -1,0 +1,65 @@
+{{define "page"}}
+<main class="container mt-5">
+    <div class="container">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h4 mb-0">Lista de Tarefas</h2>
+            <form id="form-criar-tarefa" method="get" action="/tarefa/criar" style="display:inline;">
+                <button type="submit" class="btn btn-primary mb-2">Novo</button>
+            </form>
+        </div>
+        <section class="card">
+            <div class="table-responsive">
+                <table class="table align-middle table-striped table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>UUID</th>
+                            <th>Nome</th>
+                            <th>Processo (UUID)</th>
+                            <th>Responsável (UUID)</th>
+                            <th>AÇÕES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ range . }}
+                        <tr>
+                            <td>{{ .UUID }}</td>
+                            <td>{{ .Nome }}</td>
+                            <td>{{ .ProcessoUUID }}</td>
+                            <td>{{ .ResponsavelUUID }}</td>
+
+                            <td>
+                                <form id="form-ver-{{.UUID}}" method="get" action="/tarefa/visualizar" style="display:inline;">
+                                    <input type="hidden" name="uuid" value="{{.UUID}}" />
+                                    <button type="submit" class="btn btn-info mb-2">Visualizar</button>
+                                </form>
+
+                                <form id="form-editar-{{.UUID}}" method="get" action="/tarefa/editar" style="display:inline;">
+                                    <input type="hidden" name="uuid" value="{{.UUID}}" />
+                                    <button type="submit" class="btn btn-warning mb-2">Editar</button>
+                                </form>
+                                <form id="form-deletar-{{.UUID}}" method="post" action="/tarefa/deletar" style="display:inline;">
+                                    <input type="hidden" name="uuid" value="{{.UUID}}" />
+                                    <button type="button" onclick="onClickDeletar('{{.UUID}}')" class="btn btn-danger mb-2">Deletar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <script>
+            function onClickDeletar(id) {
+                let resposta = confirm("Tem certeza que deseja deletar a Tarefa ID=" + id + " ??")
+                if (resposta) {
+                    document.getElementById('form-deletar-' + id).submit();
+                }
+            }
+        </script>
+    </div>
+</main>
+{{end}}
+
+{{define "title"}}Lista de Tarefas - Projeto Go{{end}}

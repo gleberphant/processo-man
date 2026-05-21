@@ -2,11 +2,10 @@ package roteamento
 
 import (
 	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao"
-	cduAutenticacao "github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao/casosdeuso"
 	"github.com/gleberphant/ProcessoMan/internal/dominios/processos"
-	cduProcesso "github.com/gleberphant/ProcessoMan/internal/dominios/processos/casosdeuso"
+	"github.com/gleberphant/ProcessoMan/internal/dominios/tarefas"
 	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
-	cduUsuario "github.com/gleberphant/ProcessoMan/internal/dominios/usuarios/casosdeuso"
+	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios/casosdeuso"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/bancodedados"
 )
 
@@ -23,16 +22,19 @@ func (s *Roteador) InjetarDependencias() error {
 	tokensRepo := autenticacao.NovoRepositorioToken(db)
 	usuariosRepo := usuarios.NovoRepositorioUsuario(db)
 	processoRepo := processos.NovoRepositorioProcesso(db)
+	tarefaRepo := tarefas.NovoRepositorioTarefa(db)
 
 	// injeta repositorios nos casos de uso
-	cduAutenticacao := cduAutenticacao.NovoCDUAutenticacao(tokensRepo)
-	cduUsuario := cduUsuario.NovoCDUUsuario(usuariosRepo)
-	cduProcesso := cduProcesso.NovoCDUProcesso(processoRepo, processoRepo)
+	cduAutenticacao := autenticacao.NovoCDUAutenticacao(tokensRepo)
+	cduUsuario := casosdeuso.NovoCDUUsuario(usuariosRepo)
+	cduProcesso := processos.NovoCDUProcesso(processoRepo, tarefaRepo)
+	cduTarefa := tarefas.NovoCDUTarefa(tarefaRepo)
 
 	// injeta casos de uso nos manipuladores
 	s.LoginManipulador = autenticacao.NovoManipuladorLogin(cduAutenticacao)
 	s.ManipuladorUsuario = usuarios.NovoManipuladorUsuario(cduUsuario)
 	s.ManipuladorProcesso = processos.NovoManipuladorProcesso(cduProcesso)
+	s.ManipuladorTarefa = tarefas.NovoManipuladorTarefa(cduTarefa)
 
 	return nil
 

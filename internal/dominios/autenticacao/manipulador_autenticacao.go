@@ -5,16 +5,15 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao/casosdeuso"
 	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 )
 
 type ManipuladorLogin struct {
-	CDUAutenticacao *casosdeuso.CDUAutenticacao
+	CDUAutenticacao *CDUAutenticacao
 }
 
-func NovoManipuladorLogin(cduToken *casosdeuso.CDUAutenticacao) *ManipuladorLogin {
+func NovoManipuladorLogin(cduToken *CDUAutenticacao) *ManipuladorLogin {
 
 	return &ManipuladorLogin{
 		CDUAutenticacao: cduToken,

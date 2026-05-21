@@ -1,10 +1,9 @@
-package casosdeuso_test
+package autenticacao_test
 
 import (
 	"testing"
 
 	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao"
-	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao/casosdeuso"
 	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/bancodedados"
 )
@@ -19,7 +18,7 @@ func TestGerarToken(t *testing.T) {
 
 	//usuariosRepo := usuarios.NovoRepositorioUsuario(db)
 
-	CDULogin := casosdeuso.NovoCDUAutenticacao(tokensRepo)
+	CDULogin := autenticacao.NovoCDUAutenticacao(tokensRepo)
 
 	casosDeTeste := []struct {
 		Nome            string // description of this test case
