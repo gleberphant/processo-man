@@ -1,0 +1,33 @@
+{{define "title"}}Criar Perfil - Administração{{end}}
+
+{{define "page"}}
+<main class="container mt-5">
+    <div class="container">
+        <div class="jumbotron jumbotron-fluid mb-4">
+            <div class="container">
+                <h1 class="display-5">{{ if .UUID }}Editar Perfil{{ else }}Novo Perfil{{ end }}</h1>
+                <p class="lead">Defina um nome para o perfil de acesso.</p>
+            </div>
+        </div>
+
+        <!-- Rotas dinâmicas baseadas na existência de um UUID válido -->
+        <form method="POST" action="{{ if .UUID }}/perfil/editar{{ else }}/perfil/criar{{ end }}">
+            
+            <!-- Envio do UUID de forma oculta para atualização -->
+            <input type="hidden" name="uuid" value="{{ if .UUID }}{{ .UUID }}{{ end }}">
+        
+            <div class="mb-3">
+                <label for="Nome" class="form-label">Nome do Perfil</label>
+                <input type="text" class="form-control" id="Nome" name="Nome" placeholder="Ex: Administrador, Colaborador, Cliente" required value="{{ .Nome }}" autofocus>
+                <div class="form-text">O nome deve ser claro para facilitar a atribuição aos usuários.</div>
+            </div>
+
+            <div class="mb-4"></div>
+            <button type="submit" class="btn btn-primary btn-lg">
+                {{ if .UUID }}Salvar Alterações{{ else }}Criar Perfil{{ end }}
+            </button>
+            <a href="/perfil/listar" class="btn btn-outline-secondary btn-lg ms-2">Cancelar</a>
+        </form>
+    </div>
+</main>
+{{end}}

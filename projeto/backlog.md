@@ -12,8 +12,14 @@
  [x] **Middleware de Sessão**         Criar função que verifica se o usuário está logado antes de acessar rotas "Page".  
  [x] **Gestão de Processos**          Implementar `CriarProcesso` vinculando o `ID` do cliente.
  [x] **Fluxo de Novo Processo**       Handler `PageCriarProcesso` e lógica de persistência no `ControleProcesso`.
- [] **Entidade Fraca: Lista**        Implementar a `Lista de Tarefas` como dependente de um `ID_PROCESSO`.
- [] **Lógica de Tarefas**            Implementar `InserirTarefa` e `AtualizarStatusTarefa` (concluída/aberta).
- [] **Visualização do Projeto**      Handler `PageVisualizar` que busca Processo + Lista + Tarefas em um único DTO.
- [] **Área do Cliente (HTML)**       Criar template para o caso de uso "Acompanhar Andamento".
- [] **Refatoração JSON**             Adicionar `w.Header().Set("Content-Type", "application/json")` nos métodos de ação.
+ [x] **Visualização do Projeto**      Handler `PageVisualizar` que busca Processo + Lista + Tarefas em um único DTO.
+ [x] **Entidade Fraca: Lista**        Implementar a `Lista de Tarefas` como dependente de um `ID_PROCESSO`.
+ [x] **Lógica de Tarefas**            Implementar `InserirTarefa` e `AtualizarStatusTarefa` (concluída/aberta).
+ [] **Processo**                      Implementar `Editar` Processo
+ [] **Processo**                      Implementar `Deletar` Processo
+ [] **Tarefas**                       Designar um `responsável` pela tarefa
+ [] **Tarefas**                       Implementar `Editar` `tarefa`
+ [] **Tarefas**                       Implementar `Deletar` tarefa
+ [] **Tipos de Usuarios**             Implementar `CLiente` e `Colaborador`
+ [] **Área do Cliente (HTML)**        Criar template para o caso de uso "Acompanhar Andamento".
+ [] **Refatoração JSON**              Adicionar `w.Header().Set("Content-Type", "application/json")` nos métodos de ação.

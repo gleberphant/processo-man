@@ -1,0 +1,42 @@
+{{define "title"}}Área de Administração - ProcessoMan{{end}}
+
+{{define "page"}}
+<main class="container mt-5">
+    <div class="jumbotron jumbotron-fluid mb-4">
+        <div class="container">
+            <h1 class="display-5">Painel de Administração</h1>
+            <p class="lead">Gerencie usuários, perfis, permissões e configurações globais do sistema.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Usuários</h5>
+                    <p class="card-text text-muted">Crie, edite, remova e liste os usuários do sistema.</p>
+                    <a href="/usuario/listar" class="btn btn-primary">Gerenciar Usuários</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Perfis de Acesso</h5>
+                    <p class="card-text text-muted">Gerencie os perfis (cargos/funções) disponíveis.</p>
+                    <a href="/perfil/listar" class="btn btn-secondary">Gerenciar Perfis</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Processos Globais</h5>
+                    <p class="card-text text-muted">Visão administrativa de todos os processos.</p>
+                    <a href="/processo/listar" class="btn btn-info text-white">Ver Processos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{{end}}

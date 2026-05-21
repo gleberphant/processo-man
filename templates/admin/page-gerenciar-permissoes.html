@@ -1,0 +1,48 @@
+{{define "title"}}Gerenciar Permissões - Usuário{{end}}
+
+{{define "page"}}
+<main class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8 offset-md-2">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 mb-0">Permissões de: {{ .Usuario.Nome }}</h2>
+                <a href="/usuario/listar" class="btn btn-secondary btn-sm">Voltar</a>
+            </div>
+            
+            <div class="card shadow-sm border-0">
+                <div class="card-body bg-light">
+                    <p class="text-muted">Selecione os perfis e permissões que este usuário deve possuir no sistema.</p>
+                    
+                    <!-- Envia as alterações via POST para o manipulador pertinente -->
+                    <form method="POST" action="/usuario/salvar-permissoes">
+                        <input type="hidden" name="usuario_uuid" value="{{ .Usuario.UUID }}">
+                        
+                        <h6 class="mt-4 mb-3 border-bottom pb-2">Perfis Disponíveis</h6>
+                        <div class="row">
+                            <!-- Itera sobre um ViewModel que contém todos os perfis e uma flag indicando se o usuário o possui -->
+                            {{ range .TodosPerfis }}
+                            <div class="col-md-6 mb-2">
+                                <div class="form-check form-switch">
+                                    <!-- O value envia o UUID do perfil. Se marcado, vai no POST. Se não, é omitido -->
+                                    <input class="form-check-input" type="checkbox" id="perfil_{{ .UUID }}" name="perfis" value="{{ .UUID }}" {{ if .UsuarioPossui }}checked{{ end }}>
+                                    <label class="form-check-label" for="perfil_{{ .UUID }}">{{ .Nome }}</label>
+                                </div>
+                            </div>
+                            {{ else }}
+                            <div class="col-12">
+                                <div class="alert alert-warning" role="alert">Nenhum perfil cadastrado no sistema.</div>
+                            </div>
+                            {{ end }}
+                        </div>
+
+                        <div class="mt-4 text-end">
+                            <button type="submit" class="btn btn-success">Salvar Permissões</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{{end}}
