@@ -26,7 +26,6 @@ func NovoManipuladorTarefa(CasosDeUsoTarefa *CDUTarefa) *ManipuladorTarefa {
 func (m *ManipuladorTarefa) PageCriarTarefa(w http.ResponseWriter, r *http.Request) {
 
 	viewModel := struct {
-		UUID   string
 		Tarefa interface{}
 	}{
 		Tarefa: struct {
@@ -36,11 +35,31 @@ func (m *ManipuladorTarefa) PageCriarTarefa(w http.ResponseWriter, r *http.Reque
 			ResponsavelUUID string
 			Comentarios     string
 		}{
-			ProcessoUUID: r.URL.Query().Get("ProcessoUUID"),
+			//UUID:         "",
+			Nome:         "",
+			ProcessoUUID: r.PathValue("ProcessoUUID"),
+			//ResponsavelUUID: "",
+			//Comentarios:     "",
 		},
 	}
 
 	apresentacao.ExibirPaginaHTML("tarefa/page-criar-tarefa.html", w, viewModel)
+}
+
+// PageListar renderiza a página contendo a listagem de todos os Tarefas.
+func (m *ManipuladorTarefa) PageListarTarefas(w http.ResponseWriter, r *http.Request) {
+
+	strProcessoUUID := r.PathValue("ProcessoUUID")
+
+	lista, err := m.cduTarefa.ListarTarefas(strProcessoUUID)
+
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Listar Tarefa:%v", err))
+		return
+	}
+
+	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, lista)
+
 }
 
 // PageEditar carrega os dados de um Tarefa existente e renderiza o mesmo formulário.
@@ -55,42 +74,22 @@ func (m *ManipuladorTarefa) PageEditarTarefa(w http.ResponseWriter, r *http.Requ
 	}
 
 	viewModel := struct {
+		tarefa Tarefa
 		UUID   string
-		Tarefa interface{}
+		//ProcessoUUID    string
+		//Nome            string
+		//ResponsavelUUID string
+		//Comentarios     string
 	}{
-		UUID: uuidStr,
-		Tarefa: struct {
-			UUID            string
-			Nome            string
-			ProcessoUUID    string
-			ResponsavelUUID string
-			Comentarios     string
-		}{
-			UUID:            tarefa.UUID.String(),
-			Nome:            tarefa.Nome,
-			ProcessoUUID:    tarefa.ProcessoUUID.String(),
-			ResponsavelUUID: tarefa.ResponsavelUUID.String(),
-			Comentarios:     tarefa.Comentarios,
-		},
+		tarefa: tarefa,
+		UUID:   tarefa.UUID.String(),
+		//ProcessoUUID:    tarefa.ProcessoUUID.String(),
+		//Nome:            tarefa.Nome,
+		//ResponsavelUUID: tarefa.ResponsavelUUID.String(),
+		//Comentarios:     tarefa.Comentarios,
 	}
 
 	apresentacao.ExibirPaginaHTML("tarefa/page-criar-Tarefa.html", w, viewModel)
-}
-
-// PageListar renderiza a página contendo a listagem de todos os Tarefas.
-func (m *ManipuladorTarefa) PageListarTarefas(w http.ResponseWriter, r *http.Request) {
-
-	strProcessoUUID := r.URL.Query().Get("ProcessoUUID")
-
-	lista, err := m.cduTarefa.ListarTarefas(strProcessoUUID)
-
-	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Listar Tarefa:%v", err))
-		return
-	}
-
-	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, lista)
-
 }
 
 // --------
@@ -123,8 +122,7 @@ func (m *ManipuladorTarefa) CriarTarefaPost(w http.ResponseWriter, r *http.Reque
 
 func (m *ManipuladorTarefa) EditarTarefaPost(w http.ResponseWriter, r *http.Request) {
 
-	UUID, err := uuid.Parse(r.PostFormValue("uuid"))
-	
+	UUID, err := uuid.Parse(r.PathValue("uuid"))
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Tarefa: %v", err))
 		return
@@ -147,12 +145,12 @@ func (m *ManipuladorTarefa) EditarTarefaPost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	http.Redirect(w, r, "/processo/visualizar?uuid="+tarefa.ProcessoUUID.String(), http.StatusSeeOther)
+	http.Redirect(w, r, "/tarefa/listar", http.StatusSeeOther)
 }
 
 func (m *ManipuladorTarefa) DeletarTarefaPost(w http.ResponseWriter, r *http.Request) {
 
-	var UUID = r.PostFormValue("uuid")
+	var UUID = r.PathValue("uuid")
 
 	err := m.cduTarefa.DeletarTarefa(UUID)
 

@@ -42,7 +42,7 @@ func (m *ManipuladorProcesso) PageListar(w http.ResponseWriter, r *http.Request)
 
 // PageEditar carrega os dados de um processo existente e renderiza o mesmo formulário.
 func (m *ManipuladorProcesso) PageVisualizarProcesso(w http.ResponseWriter, r *http.Request) {
-	uuidStr := r.URL.Query().Get("uuid")
+	uuidStr := r.PathValue("uuid")
 
 	processo, err := m.cduProcesso.BuscarProcessoPorUUID(uuidStr)
 
@@ -70,7 +70,7 @@ func (m *ManipuladorProcesso) PageVisualizarProcesso(w http.ResponseWriter, r *h
 
 // PageEditar carrega os dados de um processo existente e renderiza o mesmo formulário.
 func (m *ManipuladorProcesso) PageEditar(w http.ResponseWriter, r *http.Request) {
-	uuidStr := r.URL.Query().Get("uuid")
+	uuidStr := r.PathValue("uuid")
 
 	processo, err := m.cduProcesso.BuscarProcessoPorUUID(uuidStr)
 
@@ -84,7 +84,7 @@ func (m *ManipuladorProcesso) PageEditar(w http.ResponseWriter, r *http.Request)
 
 // PageEditar carrega os dados de um processo existente e renderiza o mesmo formulário.
 func (m *ManipuladorProcesso) PageDeletar(w http.ResponseWriter, r *http.Request) {
-	uuidStr := r.URL.Query().Get("uuid")
+	uuidStr := r.PathValue("uuid")
 
 	processo, err := m.cduProcesso.BuscarProcessoPorUUID(uuidStr)
 	if err != nil {
@@ -137,7 +137,7 @@ func (m *ManipuladorProcesso) EditarProcessoPost(w http.ResponseWriter, r *http.
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro editar Processo:%v", err))
 	}
 
-	http.Redirect(w, r, "/processo/visualizar?uuid="+UUID.String(), http.StatusSeeOther)
+	http.Redirect(w, r, "/processo/listar", http.StatusSeeOther)
 }
 
 // DeletarProcessoPost remove um processo com base no identificador enviado via formulário.
