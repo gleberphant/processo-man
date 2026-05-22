@@ -58,13 +58,28 @@ func (m *ManipuladorTarefa) PageListarTarefas(w http.ResponseWriter, r *http.Req
 func (m *ManipuladorTarefa) PageEditarTarefa(w http.ResponseWriter, r *http.Request) {
 	uuidStr := r.URL.Query().Get("uuid")
 
-	Tarefa, err := m.cduTarefa.BuscarTarefaPorUUID(uuidStr)
+	tarefa, err := m.cduTarefa.BuscarTarefaPorUUID(uuidStr)
+
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Editar Tarefa:%v", err))
 		return
 	}
 
-	apresentacao.ExibirPaginaHTML("tarefa/page-criar-Tarefa.html", w, Tarefa)
+	viewModel := struct {
+		UUID            string
+		ProcessoUUID    string
+		Nome            string
+		ResponsavelUUID string
+		Comentarios     string
+	}{
+		UUID:            tarefa.UUID.String(),
+		ProcessoUUID:    tarefa.ProcessoUUID.String(),
+		Nome:            tarefa.Nome,
+		ResponsavelUUID: tarefa.ResponsavelUUID.String(),
+		Comentarios:     tarefa.Comentarios,
+	}
+
+	apresentacao.ExibirPaginaHTML("tarefa/page-criar-Tarefa.html", w, viewModel)
 }
 
 // --------
@@ -98,8 +113,14 @@ func (m *ManipuladorTarefa) CriarTarefaPost(w http.ResponseWriter, r *http.Reque
 func (m *ManipuladorTarefa) EditarTarefaPost(w http.ResponseWriter, r *http.Request) {
 
 	UUID, err := uuid.Parse(r.PostFormValue("uuid"))
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Tarefa: %v", err))
+		return
+	}
 
-	var Tarefa = Tarefa{
+	uuid.MustParse(r.PostFormValue("ProcessoUUID"))
+
+	var tarefa = Tarefa{
 		UUID:            UUID,
 		ProcessoUUID:    uuid.MustParse(r.PostFormValue("ProcessoUUID")),
 		ResponsavelUUID: uuid.MustParse(r.PostFormValue("ResponsavelUUID")),
@@ -107,7 +128,7 @@ func (m *ManipuladorTarefa) EditarTarefaPost(w http.ResponseWriter, r *http.Requ
 		Comentarios:     r.PostFormValue("Comentarios"),
 	}
 
-	err = m.cduTarefa.EditarTarefa(Tarefa)
+	err = m.cduTarefa.EditarTarefa(tarefa)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Tarefa:%v", err))
