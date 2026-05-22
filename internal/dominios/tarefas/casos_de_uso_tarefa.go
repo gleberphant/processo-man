@@ -50,7 +50,7 @@ func (t *CDUTarefa) ListarTarefas(strProcessoUUID string) ([]Tarefa, error) {
 
 func (t *CDUTarefa) EditarTarefa(tarefa Tarefa) error {
 
-	return nil
+	return t.repoTarefa.EditarTarefa(tarefa)
 }
 
 func (t *CDUTarefa) DeletarTarefa(strUUID string) error {
@@ -58,7 +58,13 @@ func (t *CDUTarefa) DeletarTarefa(strUUID string) error {
 	return nil
 }
 
-func (t *CDUTarefa) BuscarTarefaPorUUID(strUUID string) (Tarefa, error) {
+func (t *CDUTarefa) BuscarTarefaPorUUID(strUUID string) (*Tarefa, error) {
+	UUID, err := uuid.Parse(strUUID)
 
-	return Tarefa{}, nil
+	if err != nil {
+
+		return nil, err
+	}
+
+	return t.repoTarefa.BuscarTarefaPorUUID(UUID)
 }

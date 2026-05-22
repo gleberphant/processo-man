@@ -73,7 +73,7 @@ func (r *RepositorioTarefa) EditarTarefa(tarefa Tarefa) error {
 
 	db := r.conn
 
-	_, err := db.Exec("UPDATE tarefas SET nome = ? WHERE uuid = ?", tarefa.Nome, tarefa.UUID)
+	_, err := db.Exec("UPDATE tarefas SET nome = ?, comentarios = ? WHERE uuid = ?", tarefa.Nome, tarefa.Comentarios, tarefa.UUID)
 
 	return err
 }
@@ -97,10 +97,10 @@ func (r *RepositorioTarefa) BuscarTarefaPorUUID(UUID uuid.UUID) (*Tarefa, error)
 
 	db := r.conn
 
-	row := db.QueryRow("SELECT uuid, processo_uuid, nome FROM tarefas WHERE uuid=?", UUID.String())
+	row := db.QueryRow("SELECT uuid, processo_uuid,  responsavel_uuid,nome FROM tarefas WHERE uuid=?", UUID.String())
 
 	tarefa := &Tarefa{}
-	err := row.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.Nome)
+	err := row.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome)
 
 	if err != nil {
 		return nil, err

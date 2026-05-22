@@ -36,9 +36,11 @@ func (s *Roteador) ConfigurarRotas() http.Handler {
 	// ROTAS PROCESSOS
 	//// PAGINAS GET
 	mux.HandleFunc("GET /processo/criar", s.ManipuladorProcesso.PageCriar)
+	mux.HandleFunc("GET /processo/{uuid}", s.ManipuladorProcesso.PageVisualizarProcesso)
 	mux.HandleFunc("GET /processo/visualizar", s.ManipuladorProcesso.PageVisualizarProcesso)
 	mux.HandleFunc("GET /processo/listar", s.ManipuladorProcesso.PageListar)
 	mux.HandleFunc("GET /processo/editar", s.ManipuladorProcesso.PageEditar)
+	mux.HandleFunc("GET /processo/editar/{uuid}", s.ManipuladorProcesso.PageEditar)
 
 	//// AÇÕES POST
 	mux.HandleFunc("POST /processo/criar", s.ManipuladorProcesso.CriarProcessoPost)
@@ -49,7 +51,7 @@ func (s *Roteador) ConfigurarRotas() http.Handler {
 	//// PAGINAS GET
 	mux.HandleFunc("GET /tarefa/criar", s.ManipuladorTarefa.PageCriarTarefa)
 	mux.HandleFunc("GET /tarefa/listar", s.ManipuladorTarefa.PageListarTarefas)
-	mux.HandleFunc("GET /tarefa/editar", s.ManipuladorTarefa.PageEditarTarefa)
+	mux.HandleFunc("GET /tarefa/editar/{uuid}", s.ManipuladorTarefa.PageEditarTarefa)
 
 	//// AÇÕES POST
 	mux.HandleFunc("POST /tarefa/criar", s.ManipuladorTarefa.CriarTarefaPost)

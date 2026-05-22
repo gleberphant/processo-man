@@ -137,7 +137,7 @@ func (m *ManipuladorProcesso) EditarProcessoPost(w http.ResponseWriter, r *http.
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro editar Processo:%v", err))
 	}
 
-	http.Redirect(w, r, "/processo/listar", http.StatusSeeOther)
+	http.Redirect(w, r, "/processo/visualizar?uuid="+UUID.String(), http.StatusSeeOther)
 }
 
 // DeletarProcessoPost remove um processo com base no identificador enviado via formulário.

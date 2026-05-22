@@ -2,7 +2,6 @@ package usuarios
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios/casosdeuso"
@@ -27,9 +26,8 @@ func (m *ManipuladorUsuario) PageListar(w http.ResponseWriter, r *http.Request) 
 
 	lista, err := m.cduUsario.ListarUsuarios()
 	if err != nil {
-		erroMsg := fmt.Sprintf("Erro :%v", err)
-		log.Println(erroMsg)
-		http.Error(w, erroMsg, http.StatusInternalServerError)
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro PageListar:%v", err))
+		return
 	}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-listar-usuario.html", w, lista)
@@ -49,10 +47,7 @@ func (m *ManipuladorUsuario) PageEditar(w http.ResponseWriter, r *http.Request) 
 	usuario, err := m.cduUsario.BuscarUsuarioPorUUID(uuidStr)
 
 	if err != nil {
-		erroMsg := fmt.Sprintf("Usuario não encontrado: %v", err)
-		log.Println(erroMsg)
-		http.Error(w, erroMsg, http.StatusNotFound)
-		return
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro PageEditar:%v", err))
 	}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-criar-usuario.html", w, usuario)
@@ -74,9 +69,7 @@ func (m *ManipuladorUsuario) CriarUsuarioPost(w http.ResponseWriter, r *http.Req
 	err := m.cduUsario.CriaUsuario(usuario)
 
 	if err != nil {
-		erroMsg := fmt.Sprintf("Erro na criação do usuario:%v", err)
-		log.Println(erroMsg)
-		http.Error(w, erroMsg, http.StatusInternalServerError)
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Criar Usuario:%v", err))
 	}
 
 	http.Redirect(w, r, "/usuario/listar", http.StatusSeeOther)
@@ -97,12 +90,10 @@ func (m *ManipuladorUsuario) EditarUsuarioPost(w http.ResponseWriter, r *http.Re
 		},
 		},
 	}
-	err = m.cduUsario.AtualizarUsuario(usuario)
+	err = m.cduUsario.EditarUsuario(usuario)
 
 	if err != nil {
-		erroMsg := fmt.Sprintf("Erro na criação do usuario:%v", err)
-		log.Println(erroMsg)
-		http.Error(w, erroMsg, http.StatusInternalServerError)
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Usuario:%v", err))
 	}
 
 	http.Redirect(w, r, "/usuario/listar", http.StatusSeeOther)
@@ -115,9 +106,7 @@ func (m *ManipuladorUsuario) DeletarUsuarioPost(w http.ResponseWriter, r *http.R
 	err := m.cduUsario.DeletarUsuario(UUID)
 
 	if err != nil {
-		erroMsg := fmt.Sprintf("Erro ao deletar usuario:%v", err)
-		log.Println(erroMsg)
-		http.Error(w, erroMsg, http.StatusInternalServerError)
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Usuario:%v", err))
 	}
 
 	http.Redirect(w, r, "/usuario/listar", http.StatusSeeOther)

@@ -16,22 +16,22 @@
         
             <div class="mb-3">
                 <label for="Nome" class="form-label">Nome</label>
-                 <input type="text" class="form-control" id="Nome" name="Nome" placeholder="Digite o nome da tarefa" required value="{{ .Nome }}" autofocus>
+                 <input type="text" class="form-control" id="Nome" name="Nome" placeholder="Digite o nome da tarefa" required value="{{ .Tarefa.Nome }}" autofocus>
             </div>
 
             <div class="mb-3">
                 <label for="ProcessoUUID" class="form-label">UUID do Processo</label>
-                 <input type="text" readonly class="form-control" id="ProcessoUUID" name="ProcessoUUID" placeholder="Informe o UUID do processo" required value="{{ .ProcessoUUID }}">
+                 <input type="text" readonly class="form-control" id="ProcessoUUID" name="ProcessoUUID" placeholder="Informe o UUID do processo" required value="{{ .Tarefa.ProcessoUUID }}">
             </div>
 
             <div class="mb-3">
                 <label for="ResponsavelUUID" class="form-label">UUID do Responsável</label>
-                 <input type="text" class="form-control" id="ResponsavelUUID" name="ResponsavelUUID" placeholder="Informe o UUID do responsável" required value="{{ .ResponsavelUUID }}">
+                 <input type="text" readonly class="form-control" id="ResponsavelUUID" name="ResponsavelUUID" placeholder="Informe o UUID do responsável" required value="{{ .Tarefa.ResponsavelUUID }}">
             </div>
 
             <div class="mb-3">
                 <label for="Comentarios" class="form-label">Comentários</label>
-                <textarea class="form-control" id="Comentarios" name="Comentarios" rows="3">{{ .Comentarios }}</textarea>
+                <textarea class="form-control" id="Comentarios" name="Comentarios" rows="3">{{ .Tarefa.Comentarios }}</textarea>
             </div>
         
             <div class="mb-4"></div>
