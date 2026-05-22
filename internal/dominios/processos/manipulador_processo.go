@@ -24,7 +24,7 @@ func NovoManipuladorProcesso(CasosDeUsoProcesso *CDUProcesso) *ManipuladorProces
 // PageCriar renderiza o formulário para criação de um novo processo.
 func (m *ManipuladorProcesso) PageCriar(w http.ResponseWriter, r *http.Request) {
 
-	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, nil)
+	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, Processo{})
 }
 
 // PageListar renderiza a página contendo a listagem de todos os processos.

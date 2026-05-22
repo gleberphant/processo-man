@@ -25,21 +25,14 @@ func NovoManipuladorTarefa(CasosDeUsoTarefa *CDUTarefa) *ManipuladorTarefa {
 // PageCriar renderiza o formulário para criação de um novo Tarefa.
 func (m *ManipuladorTarefa) PageCriarTarefa(w http.ResponseWriter, r *http.Request) {
 
+	processoUUIDStr := r.PathValue("ProcessoUUID")
+	processoUUID, _ := uuid.Parse(processoUUIDStr)
+
 	viewModel := struct {
-		Tarefa interface{}
+		Tarefa Tarefa
 	}{
-		Tarefa: struct {
-			UUID            string
-			Nome            string
-			ProcessoUUID    string
-			ResponsavelUUID string
-			Comentarios     string
-		}{
-			//UUID:         "",
-			Nome:         "",
-			ProcessoUUID: r.PathValue("ProcessoUUID"),
-			//ResponsavelUUID: "",
-			//Comentarios:     "",
+		Tarefa: Tarefa{
+			ProcessoUUID: processoUUID,
 		},
 	}
 
@@ -74,22 +67,12 @@ func (m *ManipuladorTarefa) PageEditarTarefa(w http.ResponseWriter, r *http.Requ
 	}
 
 	viewModel := struct {
-		tarefa Tarefa
-		UUID   string
-		//ProcessoUUID    string
-		//Nome            string
-		//ResponsavelUUID string
-		//Comentarios     string
+		Tarefa Tarefa
 	}{
-		tarefa: tarefa,
-		UUID:   tarefa.UUID.String(),
-		//ProcessoUUID:    tarefa.ProcessoUUID.String(),
-		//Nome:            tarefa.Nome,
-		//ResponsavelUUID: tarefa.ResponsavelUUID.String(),
-		//Comentarios:     tarefa.Comentarios,
+		Tarefa: *tarefa,
 	}
 
-	apresentacao.ExibirPaginaHTML("tarefa/page-criar-Tarefa.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("tarefa/page-criar-tarefa.html", w, viewModel)
 }
 
 // --------
