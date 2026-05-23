@@ -5,8 +5,8 @@
     <div class="row mb-4">
         <div class="col-md-12 mb-3">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <h2 class="h4 mb-0">Detalhes da Tarefa: {{ .Nome }}</h2>
-                <form method="get" action="/tarefa/editar" style="display:inline;">
+                <h2 class="h4 mb-0">Detalhes da Tarefa: {{ .Tarefa.Nome }}</h2>
+                <form method="get" action="/tarefas/{{.Tarefa.UUID}}/editar" style="display:inline;">
                     <input type="hidden" name="uuid" value="{{.UUID}}" />
                     <button type="submit" class="btn btn-primary btn-sm">Editar Tarefa</button>
                 </form>
@@ -15,11 +15,11 @@
                 <div class="table-responsive">
                     <table class="table table-bordered mb-0">
                         <tbody>
-                            <tr><th class="bg-light w-25">UUID</th><td>{{.UUID}}</td></tr>
-                            <tr><th class="bg-light">NOME</th><td>{{.Nome}}</td></tr>
-                            <tr><th class="bg-light">PROCESSO (UUID)</th><td>{{.ProcessoUUID}}</td></tr>
-                            <tr><th class="bg-light">RESPONSÁVEL (UUID)</th><td>{{.ResponsavelUUID}}</td></tr>
-                            <tr><th class="bg-light">COMENTÁRIOS</th><td>{{.Comentarios}}</td></tr>
+                            <tr><th class="bg-light w-25">UUID</th><td>{{.Tarefa.UUID}}</td></tr>
+                            <tr><th class="bg-light">NOME</th><td>{{.Tarefa.Nome}}</td></tr>
+                            <tr><th class="bg-light">PROCESSO (UUID)</th><td>{{.Tarefa.ProcessoUUID}}</td></tr>
+                            <tr><th class="bg-light">RESPONSÁVEL (UUID)</th><td>{{.Tarefa.ResponsavelUUID}}</td></tr>
+                            <tr><th class="bg-light">COMENTÁRIOS</th><td>{{.Tarefa.Comentarios}}</td></tr>
                         </tbody>
                     </table>
                 </div>

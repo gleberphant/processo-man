@@ -7,7 +7,7 @@ import (
 	"net/url"
 
 	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao"
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+
 	"github.com/google/uuid"
 )
 
@@ -63,7 +63,7 @@ func AutenticadorIntermediario(proximo http.Handler, autenticador *autenticacao.
 
 		//-------------------------------------
 		// validar o token
-		err = autenticador.ValidarToken(entidades.Token{UUID: uuid.MustParse(token)})
+		err = autenticador.ValidarToken(autenticacao.Token{UUID: uuid.MustParse(token)})
 
 		// se houve erro na validação. Redireciona para LOGIN
 		if err != nil {

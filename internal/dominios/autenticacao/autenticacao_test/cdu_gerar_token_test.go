@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao"
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/bancodedados"
 )
 
@@ -23,18 +22,18 @@ func TestGerarToken(t *testing.T) {
 	casosDeTeste := []struct {
 		Nome            string // description of this test case
 		Entrada         string
-		RepostaEsperada *entidades.Token
+		RepostaEsperada *autenticacao.Token
 		EsperaFalha     bool
 	}{
 		{
 			Nome:    "Token com usuario valido",
 			Entrada: "c3f16c59-f802-478b-8c3b-b3b6f20e0af6",
-			//RepostaEsperada: &entidades.Token{},
+			//RepostaEsperada: &Token{},
 			EsperaFalha: false,
 		},
 		// {
 		// 	NomeDoTeste: "Token com usuario inválido - Deve Falhar",
-		// 	Entidade:    &entidades.Usuario{UUID: uuid.New()},
+		// 	Entidade:    &Usuario{UUID: uuid.New()},
 		// 	//RepostaEsperada: nil,
 		// 	TesteDeFalha: true,
 		// },

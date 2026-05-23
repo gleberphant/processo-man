@@ -5,9 +5,9 @@
     <div class="row mb-4">
         <!-- Bloco do Processo -->
         <div class="col-md-6 mb-3">
+
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <h2 class="h4 mb-0">{{ .Titulo }}</h2>
-                <form method="get" action="/processo/editar" style="display:inline;">
+                <form method="get" action="/processos/{{.Processo.UUID}}/editar" style="display:inline;">
                     <input type="hidden" name="uuid" value="{{.Processo.UUID}}" />
                     <button type="submit" class="btn btn-primary btn-sm">Editar Processo</button>
                 </form>
@@ -73,7 +73,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h2 class="h4 mb-0">TAREFAS</h2>
-                <a href="/tarefa/criar?ProcessoUUID={{.Processo.UUID}}" class="btn btn-primary btn-sm">Adicionar
+                <a href="/tarefas/criar?ProcessoUUID={{.Processo.UUID}}" class="btn btn-primary btn-sm">Adicionar
                     Tarefa</a>
             </div>
 
@@ -103,9 +103,24 @@
                                 <td>{{.Conclusao}}</td>
                                 <td>{{if not .DataConclusao.IsZero}}{{.DataConclusao.Format "02/01/2006"}}{{end}}</td>
                                 <td>
-                                    <a href="/tarefa/editar/{{.UUID}}" class="btn btn-warning btn-sm mb-1">Editar</a>
-                                    <form action="/tarefa/concluir/{{.UUID}}" method="POST" style="display:inline;">
-                                        <button type="submit" class="btn btn-danger btn-sm mb-1">Concluir</button>
+                                    <form id="form-ver-{{.UUID}}" method="get" action="/tarefas/{{.UUID}}"
+                                        style="display:inline;">
+
+                                        <button type="submit" class="btn btn-warning mb-2">Ver</button>
+                                    </form>
+
+                                    <form id="form-editar-{{.UUID}}" method="get" action="/tarefas/{{.UUID}}/editar"
+                                        style="display:inline;">
+
+                                        <button type="submit" class="btn btn-warning mb-2">Editar</button>
+                                    </form>
+
+                                    <form id="form-concluir-{{.UUID}}" method="post"
+                                        action="/tarefas/{{.UUID}}/concluir" style="display:inline;">
+                                        <input type="hidden" class="form-control" name="ProcessoUUID"
+                                            value="{{ .ProcessoUUID }}" required>
+                                        <button type="button" onclick="onClickConcluir('{{.UUID}}')"
+                                            class="btn btn-danger mb-2">Concluir</button>
                                     </form>
                                 </td>
                             </tr>
@@ -118,6 +133,15 @@
                     </table>
                 </div>
             </section>
+
+            <script>
+                function onClickConcluir(id) {
+                    let resposta = confirm("Tem certeza que deseja deletar a Tarefa ID=" + id + " ??")
+                    if (resposta) {
+                        document.getElementById('form-concluir-' + id).submit();
+                    }
+                }
+            </script>
         </div>
     </div>
 </main>

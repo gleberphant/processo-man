@@ -8,20 +8,27 @@ import (
 
 type IRepositorioTarefa interface {
 	CriarTarefa(Tarefa) error
-	ListarTarefas(uuid.UUID) ([]Tarefa, error)
+	ListarTarefas() ([]Tarefa, error)
+	ListarTarefasPorProcesso(uuid.UUID) ([]Tarefa, error)
 	EditarTarefa(Tarefa) error
 	DeletarTarefa(uuid.UUID) error
 	BuscarTarefaPorUUID(UUID uuid.UUID) (*Tarefa, error)
 }
 
-type CDUTarefa struct {
-	repoTarefa IRepositorioTarefa
+type IRepositorioProcesso interface {
+	AutenticarProcesso(uuid.UUID) (uuid.UUID, error)
 }
 
-func NovoCDUTarefa(TarefasRepo IRepositorioTarefa) *CDUTarefa {
+type CDUTarefa struct {
+	repoTarefa   IRepositorioTarefa
+	repoProcesso IRepositorioProcesso
+}
+
+func NovoCDUTarefa(TarefasRepo IRepositorioTarefa, ProcessoRepo IRepositorioProcesso) *CDUTarefa {
 
 	return &CDUTarefa{
-		repoTarefa: TarefasRepo,
+		repoTarefa:   TarefasRepo,
+		repoProcesso: ProcessoRepo,
 	}
 }
 
@@ -37,7 +44,7 @@ func (t *CDUTarefa) CriarTarefa(tarefa Tarefa) error {
 
 }
 
-func (t *CDUTarefa) ListarTarefas(strProcessoUUID string) ([]Tarefa, error) {
+func (t *CDUTarefa) ListarTarefasPorProcesso(strProcessoUUID string) ([]Tarefa, error) {
 
 	processoUUID, err := uuid.Parse(strProcessoUUID)
 
@@ -45,7 +52,12 @@ func (t *CDUTarefa) ListarTarefas(strProcessoUUID string) ([]Tarefa, error) {
 		return nil, err
 	}
 
-	return t.repoTarefa.ListarTarefas(processoUUID)
+	return t.repoTarefa.ListarTarefasPorProcesso(processoUUID)
+}
+
+func (t *CDUTarefa) ListarTarefas() ([]Tarefa, error) {
+
+	return t.repoTarefa.ListarTarefas()
 }
 
 func (t *CDUTarefa) EditarTarefa(tarefa Tarefa) error {
@@ -55,7 +67,13 @@ func (t *CDUTarefa) EditarTarefa(tarefa Tarefa) error {
 
 func (t *CDUTarefa) DeletarTarefa(strUUID string) error {
 
-	return nil
+	UUID, err := uuid.Parse(strUUID)
+
+	if err != nil {
+		return err
+	}
+
+	return t.repoTarefa.DeletarTarefa(UUID)
 }
 
 func (t *CDUTarefa) BuscarTarefaPorUUID(strUUID string) (*Tarefa, error) {
@@ -67,4 +85,15 @@ func (t *CDUTarefa) BuscarTarefaPorUUID(strUUID string) (*Tarefa, error) {
 	}
 
 	return t.repoTarefa.BuscarTarefaPorUUID(UUID)
+}
+
+func (t *CDUTarefa) AutenticarProcesso(strUUID string) (uuid.UUID, error) {
+	UUID, err := uuid.Parse(strUUID)
+
+	if err != nil {
+
+		return uuid.Nil, err
+	}
+
+	return t.repoProcesso.AutenticarProcesso(UUID)
 }

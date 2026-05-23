@@ -24,8 +24,8 @@ func (s *Roteador) ConfigurarRotas() http.Handler {
 
 	// ROTAS USUARIOS
 	//// PAGINAS GET
-	mux.HandleFunc("GET /usuario/listar", s.ManipuladorUsuario.PageListar)
 	mux.HandleFunc("GET /usuario/criar", s.ManipuladorUsuario.PageCriar)
+	mux.HandleFunc("GET /usuario/listar", s.ManipuladorUsuario.PageListar)
 	mux.HandleFunc("GET /usuario/editar", s.ManipuladorUsuario.PageEditar)
 
 	//// ACOES POST
@@ -35,26 +35,30 @@ func (s *Roteador) ConfigurarRotas() http.Handler {
 
 	// ROTAS PROCESSOS
 	//// PAGINAS GET
-	mux.HandleFunc("GET /processo/criar", s.ManipuladorProcesso.PageCriar)
-	mux.HandleFunc("GET /processo/visualizar", s.ManipuladorProcesso.PageVisualizarProcesso)
-	mux.HandleFunc("GET /processo/listar", s.ManipuladorProcesso.PageListar)
-	mux.HandleFunc("GET /processo/editar", s.ManipuladorProcesso.PageEditar)
+	mux.HandleFunc("GET /processos/criar", s.ManipuladorProcesso.PageCriar)
+	mux.HandleFunc("GET /processos", s.ManipuladorProcesso.PageListar)
+	mux.HandleFunc("GET /processos/{UUID}", s.ManipuladorProcesso.PageVerProcesso)
+	mux.HandleFunc("GET /processos/{UUID}/editar", s.ManipuladorProcesso.PageEditar)
 
 	//// AÇÕES POST
-	mux.HandleFunc("POST /processo/criar", s.ManipuladorProcesso.CriarProcessoPost)
-	mux.HandleFunc("POST /processo/editar", s.ManipuladorProcesso.EditarProcessoPost)
-	mux.HandleFunc("POST /processo/deletar", s.ManipuladorProcesso.DeletarProcessoPost)
+	mux.HandleFunc("POST /processos/criar", s.ManipuladorProcesso.CriarProcessoPost)
+	mux.HandleFunc("POST /processos/{UUID}/editar", s.ManipuladorProcesso.EditarProcessoPost)
+	mux.HandleFunc("POST /processos/{UUID}/deletar", s.ManipuladorProcesso.DeletarProcessoPost)
+	mux.HandleFunc("POST /tarefas/{UUID}/arquivar", s.ManipuladorTarefa.DeletarTarefaPost)
 
 	// ROTAS TAREFAS
 	//// PAGINAS GET
-	mux.HandleFunc("GET /tarefa/criar/{ProcessoUUID}", s.ManipuladorTarefa.PageCriarTarefa)
-	mux.HandleFunc("GET /tarefa/listar/{ProcessoUUID}", s.ManipuladorTarefa.PageListarTarefas)
-	mux.HandleFunc("GET /tarefa/editar/{uuid}", s.ManipuladorTarefa.PageEditarTarefa)
+	mux.HandleFunc("GET /tarefas/criar", s.ManipuladorTarefa.PageCriarTarefa)
+	mux.HandleFunc("GET /tarefas", s.ManipuladorTarefa.PageListarTarefas)
+	mux.HandleFunc("GET /tarefas/processo", s.ManipuladorTarefa.PageListarTarefasPorProcesso)
+	mux.HandleFunc("GET /tarefas/{UUID}", s.ManipuladorTarefa.PageVerTarefa)
+	mux.HandleFunc("GET /tarefas/{UUID}/editar", s.ManipuladorTarefa.PageEditarTarefa)
 
 	//// AÇÕES POST
-	mux.HandleFunc("POST /tarefa/criar", s.ManipuladorTarefa.CriarTarefaPost)
-	mux.HandleFunc("POST /tarefa/editar/{uuid}", s.ManipuladorTarefa.EditarTarefaPost)
-	mux.HandleFunc("POST /tarefa/deletar/{uuid}", s.ManipuladorTarefa.DeletarTarefaPost)
+	mux.HandleFunc("POST /tarefas/criar", s.ManipuladorTarefa.CriarTarefaPost)
+	mux.HandleFunc("POST /tarefas/{UUID}/editar", s.ManipuladorTarefa.EditarTarefaPost)
+	mux.HandleFunc("POST /tarefas/{UUID}/deletar", s.ManipuladorTarefa.DeletarTarefaPost)
+	mux.HandleFunc("POST /tarefas/{UUID}/concluir", s.ManipuladorTarefa.DeletarTarefaPost)
 
 	//// RETORNOS DE API
 	//mux.HandleFunc("GET /api/processo/visualizar", s.ManipuladorProcesso.APIVisualizarProcesso)

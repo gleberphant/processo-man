@@ -4,7 +4,7 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="h4 mb-0">Lista de Processo</h2>
-            <form id="form-criar-usuario" method="get" action="/processo/criar" style="display:inline;">
+            <form id="form-criar-usuario" method="get" action="/processos/criar" style="display:inline;">
                 <button onclick="onClickNovo()" class="btn btn-primary mb-2">Novo</button>
             </form>
         </div>
@@ -27,33 +27,33 @@
                     </thead>
                     <tbody>
 
-                        {{ range . }}
+                        {{ range .Processo }}
                         <tr>
                             <td>{{ .UUID }}</td>
                             <td>{{ .Nome }}</td>
-                            <td>{{ .Dono }}</td>
+                            <td>{{ .Dono.Nome }}</td>
                             <td>{{ .DataCriacao }}</td>
                             <td>-</td>
 
                             <td>
-                                <form id="form-ver-{{.UUID}}" method="get" action="/processo/visualizar"
+                                <form id="form-ver-{{.UUID}}" method="get" action="/processos/{{.UUID}}"
                                     style="display:inline;">
-                                    <input type="hidden" name="uuid" value="{{.UUID}}" />
+                                    
                                     <button type="submit" class="btn btn-info mb-2">
                                         Visualizar
                                     </button>
                                 </form>
 
-                                <form id="form-editar-{{.UUID}}" method="get" action="/processo/editar"
+                                <form id="form-editar-{{.UUID}}" method="get" action="/processos/{{.UUID}}/editar"
                                     style="display:inline;">
-                                    <input type="hidden" name="uuid" value="{{.UUID}}" />
+                                    
                                     <button type="submit" class="btn btn-warning mb-2">
                                         Editar
                                     </button>
                                 </form>
-                                <form id="form-deletar-{{.UUID}}" method="post" action="/processo/deletar"
+                                <form id="form-deletar-{{.UUID}}" method="post" action="/processos/{{.UUID}}/deletar"
                                     style="display:inline;">
-                                    <input type="hidden" name="uuid" value="{{.UUID}}" />
+                                    
                                     <button type="button" onclick="onClickDeletar('{{.UUID}}')"
                                         class="btn btn-danger mb-2">
                                         Deletar

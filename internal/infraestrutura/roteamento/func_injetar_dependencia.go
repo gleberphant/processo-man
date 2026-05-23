@@ -5,7 +5,7 @@ import (
 	"github.com/gleberphant/ProcessoMan/internal/dominios/processos"
 	"github.com/gleberphant/ProcessoMan/internal/dominios/tarefas"
 	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
-	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios/casosdeuso"
+
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/bancodedados"
 )
 
@@ -26,9 +26,9 @@ func (s *Roteador) InjetarDependencias() error {
 
 	// injeta repositorios nos casos de uso
 	cduAutenticacao := autenticacao.NovoCDUAutenticacao(tokensRepo)
-	cduUsuario := casosdeuso.NovoCDUUsuario(usuariosRepo)
+	cduUsuario := usuarios.NovoCDUUsuario(usuariosRepo)
 	cduProcesso := processos.NovoCDUProcesso(processoRepo, tarefaRepo)
-	cduTarefa := tarefas.NovoCDUTarefa(tarefaRepo)
+	cduTarefa := tarefas.NovoCDUTarefa(tarefaRepo, processoRepo)
 
 	// injeta casos de uso nos manipuladores
 	s.LoginManipulador = autenticacao.NovoManipuladorLogin(cduAutenticacao)

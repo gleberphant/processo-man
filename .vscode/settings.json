@@ -1,7 +1,7 @@
 {
     "geminicodeassist.chat.changeView": "Default diff view",
     "geminicodeassist.rules": "- responda em portugues brasileiro\n- de preferencia a termos em portugues\n- ensine programação em golang\n- ensine boas praticas de golang\n- nao quero elogios nem cumprimentos\n- responda de modo objetivo\n- explique o motivo",
-    "window.title": "${dirty}${activeEditorShort}${separator}${dirname}${rootName}${separator}${profileName}${separator}${appName}",
+    
     "sqltools.connections": [
         {
             "previewLimit": 50,

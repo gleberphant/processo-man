@@ -4,18 +4,15 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios/casosdeuso"
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/google/uuid"
 )
 
-// var layout = []string{"../templates/layout/_layout.html", "../templates/layout/_header.html", "../templates/layout/_navbar.html", "../templates/layout/_footer.html"}
 type ManipuladorUsuario struct {
-	cduUsario *casosdeuso.CDUUsuario
+	cduUsario *CDUUsuario
 }
 
-func NovoManipuladorUsuario(casosDeUsoUsuario *casosdeuso.CDUUsuario) *ManipuladorUsuario {
+func NovoManipuladorUsuario(casosDeUsoUsuario *CDUUsuario) *ManipuladorUsuario {
 
 	return &ManipuladorUsuario{
 		cduUsario: casosDeUsoUsuario,
@@ -36,7 +33,7 @@ func (m *ManipuladorUsuario) PageListar(w http.ResponseWriter, r *http.Request) 
 
 func (m *ManipuladorUsuario) PageCriar(w http.ResponseWriter, r *http.Request) {
 
-	apresentacao.ExibirPaginaHTML("usuario/page-criar-usuario.html", w, entidades.Usuario{})
+	apresentacao.ExibirPaginaHTML("usuario/page-criar-usuario.html", w, Usuario{})
 
 }
 
@@ -56,11 +53,11 @@ func (m *ManipuladorUsuario) PageEditar(w http.ResponseWriter, r *http.Request) 
 
 func (m *ManipuladorUsuario) CriarUsuarioPost(w http.ResponseWriter, r *http.Request) {
 
-	var usuario = entidades.Usuario{
+	var usuario = Usuario{
 		Nome:  r.PostFormValue("nome"),
 		Email: r.PostFormValue("email"),
 		Senha: r.PostFormValue("senha"),
-		Perfis: []entidades.Perfil{{
+		Perfis: []Perfil{{
 			Nome: r.PostFormValue("perfil"),
 		},
 		},
@@ -80,12 +77,12 @@ func (m *ManipuladorUsuario) EditarUsuarioPost(w http.ResponseWriter, r *http.Re
 
 	UUID, err := uuid.Parse(r.PostFormValue("uuid"))
 
-	var usuario = entidades.Usuario{
+	var usuario = Usuario{
 		UUID:  UUID,
 		Nome:  r.PostFormValue("nome"),
 		Email: r.PostFormValue("email"),
 		Senha: r.PostFormValue("senha"),
-		Perfis: []entidades.Perfil{{
+		Perfis: []Perfil{{
 			Nome: r.PostFormValue("perfil"),
 		},
 		},

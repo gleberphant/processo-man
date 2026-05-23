@@ -3,14 +3,13 @@ package autenticacao
 import (
 	"errors"
 
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/google/uuid"
 )
 
 type IRepositorioToken interface {
 	Fechar()
-	Criar(entidades.Token) (*entidades.Token, error)
-	BuscarPorUUID(entidades.Token) (*entidades.Token, error)
+	Criar(Token) (*Token, error)
+	BuscarPorUUID(Token) (*Token, error)
 	DeletarPorUsuarioUUID(UsuarioUUID string) error
 	AutenticarUsuario(string, string) (string, error)
 }
@@ -33,7 +32,7 @@ func NovoCDUAutenticacao(tokensRepo IRepositorioToken) *CDUAutenticacao {
 	}
 }
 
-func (a *CDUAutenticacao) AutenticarUsuario(email string, senha string) (*entidades.Token, error) {
+func (a *CDUAutenticacao) AutenticarUsuario(email string, senha string) (*Token, error) {
 
 	// Verifica se o usuario existe
 
@@ -58,7 +57,7 @@ func (a *CDUAutenticacao) AutenticarUsuario(email string, senha string) (*entida
 }
 
 // gerar token
-func (a *CDUAutenticacao) GerarToken(usuarioUUID string) (*entidades.Token, error) {
+func (a *CDUAutenticacao) GerarToken(usuarioUUID string) (*Token, error) {
 
 	if usuarioUUID == "" {
 		return nil, errors.New("usuário inválido")
@@ -72,7 +71,7 @@ func (a *CDUAutenticacao) GerarToken(usuarioUUID string) (*entidades.Token, erro
 	}
 
 	// inserir o novo token no repositorio
-	token, err := a.RepoTokens.Criar(entidades.Token{
+	token, err := a.RepoTokens.Criar(Token{
 		UUID:        uuid.New(),
 		UsuarioUUID: uuid.MustParse(usuarioUUID),
 		Validade:    "temporario",
@@ -87,7 +86,7 @@ func (a *CDUAutenticacao) GerarToken(usuarioUUID string) (*entidades.Token, erro
 }
 
 // verificar se token é valido. retorna error se token não encontrado
-func (a *CDUAutenticacao) ValidarToken(token entidades.Token) error {
+func (a *CDUAutenticacao) ValidarToken(token Token) error {
 
 	if token.UUID == uuid.Nil {
 		return errors.New("token inválido: UUID não fornecido")

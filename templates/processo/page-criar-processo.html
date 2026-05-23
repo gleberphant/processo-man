@@ -9,7 +9,7 @@
         </div>
 
         <!-- Se o UUID for válido (edição), manda o POST para editar, senão manda para criar -->
-        <form method="POST" action="{{ if .UUID }}/processo/editar{{ else }}/processo/criar{{ end }}">
+        <form method="POST" action="{{ if .UUID }}/processos/{{ .UUID }}/editar {{ else }}/processos/criar{{ end }}">
             
             <!-- Campo oculto para enviar o UUID no PostFormValue quando for edição -->
             <input type="hidden" name="uuid" value="{{ if .UUID }}{{ .UUID }}{{ end }}">
@@ -18,7 +18,7 @@
                 <label for="nome" class="form-label">Nome</label>
     
                  <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite seu nome" required
-                    value="{{ .Nome }}" autofocus>
+                    value="{{ .Processo.Nome }}" autofocus>
             </div>
         
             <!-- Restante do formulário... -->

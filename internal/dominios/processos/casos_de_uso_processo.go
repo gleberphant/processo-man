@@ -17,10 +17,12 @@ type IRepositorioProcesso interface {
 
 type IRepositorioTarefa interface {
 	CriarTarefa(tarefas.Tarefa) error
-	ListarTarefas(uuid.UUID) ([]tarefas.Tarefa, error)
+	ListarTarefas() ([]tarefas.Tarefa, error)
+	ListarTarefasPorProcesso(uuid.UUID) ([]tarefas.Tarefa, error)
 	EditarTarefa(tarefas.Tarefa) error
 	DeletarTarefa(uuid.UUID) error
 	BuscarTarefaPorUUID(UUID uuid.UUID) (*tarefas.Tarefa, error)
+	DeletarTarefasPorProcesso(UUID uuid.UUID) error
 }
 
 type CDUProcesso struct {
@@ -77,7 +79,18 @@ func (u *CDUProcesso) DeletarProcesso(strUUID string) error {
 		return err
 	}
 
-	return u.repoProcesso.Deletar(UUID)
+	err = u.repoProcesso.Deletar(UUID)
+	if err != nil {
+		return err
+	}
+
+	err = u.repoTarefa.DeletarTarefasPorProcesso(UUID)
+
+	if err != nil {
+		return err
+	}
+
+	return err
 }
 
 func (u *CDUProcesso) BuscarProcessoPorUUID(strUUID string) (*Processo, error) {
@@ -96,7 +109,7 @@ func (u *CDUProcesso) BuscarProcessoPorUUID(strUUID string) (*Processo, error) {
 		return nil, err
 	}
 
-	tarefas, err = u.repoTarefa.ListarTarefas(processo.UUID)
+	tarefas, err = u.repoTarefa.ListarTarefasPorProcesso(processo.UUID)
 
 	processo.Tarefas = tarefas
 

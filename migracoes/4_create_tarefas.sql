@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS tarefas (
     data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
     data_conclusao DATETIME DEFAULT NULL,
     comentarios TEXT,
-    FOREIGN KEY (processo_uuid) REFERENCES processos(uuid),
-    FOREIGN KEY (responsavel_uuid) REFERENCES usuarios(uuid)
+    FOREIGN KEY (processo_uuid) REFERENCES processos(uuid) ON DELETE CASCADE,
+    FOREIGN KEY (responsavel_uuid) REFERENCES usuarios(uuid) ON DELETE CASCADE
 );
 
 -- inserir dados para teste

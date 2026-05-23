@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 )
 
@@ -37,7 +37,7 @@ func (m *ManipuladorLogin) PageLogin(w http.ResponseWriter, r *http.Request) {
 // funcao para logar
 func (m *ManipuladorLogin) LoginPost(w http.ResponseWriter, r *http.Request) {
 	// pega os dados do login
-	var usuario = entidades.Usuario{
+	var usuario = usuarios.Usuario{
 		Email: r.PostFormValue("email"),
 		Senha: r.PostFormValue("senha"),
 	}

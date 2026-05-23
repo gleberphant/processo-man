@@ -36,12 +36,39 @@ func (r *RepositorioTarefa) CriarTarefa(tarefa Tarefa) error {
 
 }
 
-// Listar retorna todos os tarefas cadastrados no banco de dados.
-func (r *RepositorioTarefa) ListarTarefas(processoUUID uuid.UUID) ([]Tarefa, error) {
+func (r *RepositorioTarefa) ListarTarefas() ([]Tarefa, error) {
 
 	db := r.conn
 
-	rows, err := db.Query("SELECT uuid, responsavel_uuid, nome FROM tarefas WHERE processo_uuid=?", processoUUID.String())
+	rows, err := db.Query("SELECT uuid, processo_uuid, responsavel_uuid, nome, comentarios FROM tarefas")
+
+	if err != nil {
+		return nil, fmt.Errorf("Error: SQLITE>ListarTodasTarefa>SELECT: %w", err)
+	}
+
+	defer rows.Close()
+
+	var lista []Tarefa
+
+	for rows.Next() {
+
+		tarefa := Tarefa{}
+
+		rows.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome, &tarefa.Comentarios)
+
+		lista = append(lista, tarefa)
+	}
+
+	return lista, nil
+
+}
+
+// Listar retorna todos os tarefas cadastrados no banco de dados.
+func (r *RepositorioTarefa) ListarTarefasPorProcesso(processoUUID uuid.UUID) ([]Tarefa, error) {
+
+	db := r.conn
+
+	rows, err := db.Query("SELECT uuid, processo_uuid, responsavel_uuid, nome, comentarios FROM tarefas WHERE processo_uuid=?", processoUUID.String())
 
 	if err != nil {
 		return nil, fmt.Errorf("Error: SQLITE>ListarTarefa>SELECT: %w", err)
@@ -55,7 +82,7 @@ func (r *RepositorioTarefa) ListarTarefas(processoUUID uuid.UUID) ([]Tarefa, err
 
 		tarefa := Tarefa{}
 
-		rows.Scan(&tarefa.UUID, &tarefa.ResponsavelUUID, &tarefa.Nome)
+		rows.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome, &tarefa.Comentarios)
 
 		lista = append(lista, tarefa)
 	}
@@ -88,6 +115,19 @@ func (r *RepositorioTarefa) DeletarTarefa(UUID uuid.UUID) error {
 	db := r.conn
 
 	_, err := db.Exec("DELETE FROM tarefas WHERE uuid=?", UUID)
+
+	return err
+}
+
+func (r *RepositorioTarefa) DeletarTarefasPorProcesso(ProcessoUUID uuid.UUID) error {
+
+	if ProcessoUUID == uuid.Nil {
+		return errors.New("UUID NULO")
+	}
+
+	db := r.conn
+
+	_, err := db.Exec("DELETE FROM tarefas WHERE processo_uuid=?", ProcessoUUID)
 
 	return err
 }

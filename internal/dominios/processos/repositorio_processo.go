@@ -146,18 +146,22 @@ func (r *RepositorioProcesso) BuscarPorUUID(UUID uuid.UUID) (*Processo, error) {
 }
 
 // verifica se existe
-func (r *RepositorioProcesso) AutenticarProcesso(UUID uuid.UUID) (string, error) {
+func (r *RepositorioProcesso) AutenticarProcesso(UUID uuid.UUID) (uuid.UUID, error) {
 	db := r.conn
 
-	row := db.QueryRow("SELECT uuid FROM processos WHERE uuid=?;", UUID.String())
+	row := db.QueryRow("SELECT EXISTS (SELECT 1 FROM processos WHERE uuid = ?)", UUID.String())
 
-	var str string
+	var existe bool
 
-	err := row.Scan(&str)
+	err := row.Scan(&existe)
 
 	if err != nil {
-		return "", fmt.Errorf("Erro no SELECT de autenticacao de Processo %w", err)
+		return uuid.Nil, fmt.Errorf("Erro>Autenticar Processo> SELECT > %w", err)
 	}
 
-	return str, nil
+	if !existe {
+		return uuid.Nil, errors.New("processo não encontrado")
+	}
+
+	return UUID, nil
 }

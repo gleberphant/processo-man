@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/google/uuid"
 )
 
@@ -28,7 +27,7 @@ func (r *RepositorioUsuario) Fechar() {
 }
 
 // Criar insere um novo registro de usuário na tabela de usuários.
-func (r *RepositorioUsuario) Criar(usuario entidades.Usuario) error {
+func (r *RepositorioUsuario) Criar(usuario Usuario) error {
 
 	db := r.Conn
 
@@ -44,7 +43,7 @@ func (r *RepositorioUsuario) Criar(usuario entidades.Usuario) error {
 }
 
 // Listar retorna todos os usuários cadastrados no banco de dados.
-func (r *RepositorioUsuario) Listar() ([]entidades.Usuario, error) {
+func (r *RepositorioUsuario) Listar() ([]Usuario, error) {
 
 	db := r.Conn
 
@@ -57,11 +56,11 @@ func (r *RepositorioUsuario) Listar() ([]entidades.Usuario, error) {
 
 	defer rows.Close()
 
-	var listaUsuario []entidades.Usuario
+	var listaUsuario []Usuario
 
 	for rows.Next() {
 
-		usuario := entidades.Usuario{}
+		usuario := Usuario{}
 
 		rows.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email)
 
@@ -73,7 +72,7 @@ func (r *RepositorioUsuario) Listar() ([]entidades.Usuario, error) {
 }
 
 // Deletar remove um usuário do banco de dados utilizando seu UUID.
-func (r *RepositorioUsuario) Atualizar(usuario entidades.Usuario) error {
+func (r *RepositorioUsuario) Atualizar(usuario Usuario) error {
 
 	return nil
 }
@@ -97,26 +96,26 @@ func (r *RepositorioUsuario) Deletar(UUID uuid.UUID) error {
 }
 
 // BuscarPorUUID recupera os dados de um usuário específico através do seu identificador único.
-func (r *RepositorioUsuario) BuscarPorUUID(UUID uuid.UUID) (*entidades.Usuario, error) {
+func (r *RepositorioUsuario) BuscarPorUUID(UUID uuid.UUID) (*Usuario, error) {
 
 	db := r.Conn
 
 	row := db.QueryRow("SELECT uuid, nome, email FROM usuarios WHERE uuid=? ", UUID.String())
 
-	usuario := &entidades.Usuario{}
+	usuario := &Usuario{}
 	row.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email)
 
 	return usuario, nil
 
 }
 
-func (r *RepositorioUsuario) BuscarPorEmail(email string) (*entidades.Usuario, error) {
+func (r *RepositorioUsuario) BuscarPorEmail(email string) (*Usuario, error) {
 
 	db := r.Conn
 
 	row := db.QueryRow("SELECT uuid, nome, email FROM usuarios WHERE email=?", email)
 
-	usuario := &entidades.Usuario{}
+	usuario := &Usuario{}
 
 	err := row.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email, &usuario.Senha)
 

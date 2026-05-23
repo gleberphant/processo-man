@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
 )
 
 type RepositorioToken struct {
@@ -28,7 +26,7 @@ func (r *RepositorioToken) Fechar() {
 }
 
 // Criar insere um novo registro de token na tabela de tokens.
-func (r *RepositorioToken) Criar(token entidades.Token) (*entidades.Token, error) {
+func (r *RepositorioToken) Criar(token Token) (*Token, error) {
 
 	var err error
 	db := r.Conn
@@ -52,7 +50,7 @@ func (r *RepositorioToken) Criar(token entidades.Token) (*entidades.Token, error
 }
 
 // Ver busca os detalhes de um token específico através do seu UUID.
-func (r *RepositorioToken) BuscarPorUUID(token entidades.Token) (*entidades.Token, error) {
+func (r *RepositorioToken) BuscarPorUUID(token Token) (*Token, error) {
 
 	db := r.Conn
 
@@ -75,7 +73,7 @@ func (r *RepositorioToken) BuscarPorUUID(token entidades.Token) (*entidades.Toke
 }
 
 // Listar recupera todos os tokens registrados no banco de dados
-func (r *RepositorioToken) Listar() ([]entidades.Token, error) {
+func (r *RepositorioToken) Listar() ([]Token, error) {
 	db := r.Conn
 
 	rows, err := db.Query("SELECT uuid, usuario_uuid, validade, data_criacao FROM tokens")
@@ -84,9 +82,9 @@ func (r *RepositorioToken) Listar() ([]entidades.Token, error) {
 	}
 	defer rows.Close()
 
-	var tokens []entidades.Token
+	var tokens []Token
 	for rows.Next() {
-		var t entidades.Token
+		var t Token
 		err := rows.Scan(&t.UUID, &t.UsuarioUUID, &t.Validade, &t.DataCriacao)
 		if err != nil {
 			return nil, fmt.Errorf("[Erro no SCAN ROWS DE LISTAR  token ]: %w", err)
@@ -98,7 +96,7 @@ func (r *RepositorioToken) Listar() ([]entidades.Token, error) {
 }
 
 // Atualizar modifica os dados de validade ou comentários de um token existente
-func (r *RepositorioToken) Atualizar(token entidades.Token) error {
+func (r *RepositorioToken) Atualizar(token Token) error {
 	db := r.Conn
 
 	_, err := db.Exec("UPDATE tokens SET validade = ?, comentarios = ? WHERE uuid = ?",
