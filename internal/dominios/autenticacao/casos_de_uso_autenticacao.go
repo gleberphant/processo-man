@@ -35,15 +35,9 @@ func NovoCDUAutenticacao(tokensRepo IRepositorioToken, usuariosRepo IRepositorio
 }
 
 // verificar se token é valido. retorna error se token não encontrado
-func (a *CDUAutenticacao) ValidarToken(strUUID string) error {
+func (a *CDUAutenticacao) ValidarToken(tokenUUID uuid.UUID) error {
 
-	UUID, err := uuid.Parse(strUUID)
-	if err != nil {
-		return fmt.Errorf("token nulo: %w ", err)
-
-	}
-
-	_, err = a.RepoTokens.BuscarPorUUID(UUID)
+	_, err := a.RepoTokens.BuscarPorUUID(tokenUUID)
 
 	if err != nil {
 		return fmt.Errorf("token invalido: %w ", err)

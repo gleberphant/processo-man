@@ -1,0 +1,44 @@
+{{define "title"}}Novo Colaborador{{end}}
+
+{{define "page"}}
+<main class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8 offset-md-2">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 mb-0">Cadastrar Novo Colaborador</h2>
+                <a href="/usuarios" class="btn btn-secondary btn-sm">Voltar</a>
+            </div>
+            
+            <div class="card shadow-sm border-0">
+                <div class="card-body bg-light">
+                    <form method="POST" action="/usuarios/colaboradores/criar"> <!-- Certifique-se de injetar a rota de colaboradores da mesma forma que os clientes -->
+                        <h6 class="mb-3 border-bottom pb-2">Dados de Acesso</h6>
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome Completo</label>
+                            <input type="text" class="form-control" id="nome" name="nome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-mail</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="senha" class="form-label">Senha Inicial</label>
+                            <input type="password" class="form-control" id="senha" name="senha" required>
+                        </div>
+
+                        <h6 class="mt-4 mb-3 border-bottom pb-2">Dados Funcionais</h6>
+                        <div class="mb-3">
+                            <label for="cargo" class="form-label">Cargo / Função</label>
+                            <input type="text" class="form-control" id="cargo" name="cargo" required>
+                        </div>
+
+                        <div class="mt-4 text-end">
+                            <button type="submit" class="btn btn-primary">Salvar Colaborador</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{{end}}

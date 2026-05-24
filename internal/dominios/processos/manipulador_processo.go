@@ -43,6 +43,7 @@ func (m *ManipuladorProcesso) PageListar(w http.ResponseWriter, r *http.Request)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("erro Page Listar Processo:%v", err))
+		return
 	}
 
 	viewModel := ViewModelProcesso{
@@ -57,7 +58,13 @@ func (m *ManipuladorProcesso) PageListar(w http.ResponseWriter, r *http.Request)
 func (m *ManipuladorProcesso) PageVerProcesso(w http.ResponseWriter, r *http.Request) {
 	strUUID := r.PathValue("UUID")
 
-	processo, err := m.cduProcesso.BuscarProcessoPorUUID(strUUID)
+	processoUUID, err := uuid.Parse(strUUID)
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("UUID do processo inválido: %v", err))
+		return
+	}
+
+	processo, err := m.cduProcesso.BuscarProcessoPorUUID(processoUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("erro Page Ver Processo:%v", err))
@@ -77,7 +84,13 @@ func (m *ManipuladorProcesso) PageVerProcesso(w http.ResponseWriter, r *http.Req
 func (m *ManipuladorProcesso) PageEditar(w http.ResponseWriter, r *http.Request) {
 	strUUID := r.PathValue("UUID")
 
-	processo, err := m.cduProcesso.BuscarProcessoPorUUID(strUUID)
+	processoUUID, err := uuid.Parse(strUUID)
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("UUID do processo inválido: %v", err))
+		return
+	}
+
+	processo, err := m.cduProcesso.BuscarProcessoPorUUID(processoUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro PageEditar:%v", err))
@@ -104,6 +117,7 @@ func (m *ManipuladorProcesso) CriarProcessoPost(w http.ResponseWriter, r *http.R
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro criar Processo: %v", err))
+		return
 	}
 
 	http.Redirect(w, r, "/processos", http.StatusSeeOther)
@@ -119,6 +133,7 @@ func (m *ManipuladorProcesso) EditarProcessoPost(w http.ResponseWriter, r *http.
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro editar Processo:%v", err))
+		return
 	}
 
 	processoDTO := Processo{
@@ -130,6 +145,7 @@ func (m *ManipuladorProcesso) EditarProcessoPost(w http.ResponseWriter, r *http.
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro editar Processo:%v", err))
+		return
 	}
 
 	http.Redirect(w, r, "/processos", http.StatusSeeOther)
@@ -140,10 +156,17 @@ func (m *ManipuladorProcesso) DeletarProcessoPost(w http.ResponseWriter, r *http
 
 	strUUID := r.PathValue("UUID")
 
-	err := m.cduProcesso.DeletarProcesso(strUUID)
+	processoUUID, err := uuid.Parse(strUUID)
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("UUID do processo inválido: %v", err))
+		return
+	}
+
+	err = m.cduProcesso.DeletarProcesso(processoUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro deletar Processo: %v", err))
+		return
 	}
 
 	http.Redirect(w, r, "/processos", http.StatusSeeOther)

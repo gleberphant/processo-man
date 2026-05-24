@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao"
+	"github.com/google/uuid"
 )
 
 func ProcurarTokenEnviado(r *http.Request) (string, error) {
@@ -61,7 +62,14 @@ func AutenticadorIntermediario(proximo http.Handler, autenticador *autenticacao.
 
 		//-------------------------------------
 		// validar o token
-		err = autenticador.ValidarToken(token)
+		tokenUUID, err := uuid.Parse(token)
+		if err != nil {
+			log.Printf("Formato de token inválido: [%v] ", err)
+			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado. Token Inválido"), http.StatusSeeOther)
+			return
+		}
+
+		err = autenticador.ValidarToken(tokenUUID)
 
 		// se houver erro na validação. Redireciona para LOGIN
 		if err != nil {

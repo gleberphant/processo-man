@@ -15,11 +15,12 @@
  [x] **Visualização do Projeto**      Handler `PageVisualizar` que busca Processo + Lista + Tarefas em um único DTO.
  [x] **Entidade Fraca: Lista**        Implementar a `Lista de Tarefas` como dependente de um `ID_PROCESSO`.
  [x] **Lógica de Tarefas**            Implementar `InserirTarefa` e `AtualizarStatusTarefa` (concluída/aberta).
- [x] **Processo**                      Implementar `Editar` Processo
- [x] **Processo**                      Implementar `Deletar` Processo
- [x] **Tarefas**                       Implementar `Editar` `tarefa`
- [x] **Tarefas**                       Implementar `Deletar` tarefa
- [] **Tarefas**                       Designar um `responsável` pela tarefa
- [] **Tipos de Usuarios**             Implementar `CLiente` e `Colaborador`
- [] **Área do Cliente (HTML)**        Criar template para o caso de uso "Acompanhar Andamento".
+ [x] **Processo**                     Implementar `Editar` Processo
+ [x] **Processo**                     Implementar `Deletar` Processo
+ [x] **Tarefas**                      Implementar `Editar` `tarefa`
+ [x] **Tarefas**                      Implementar `Deletar` tarefa
+ [x] **Tarefas**                      Designar um `responsável` pela tarefa
+ [] **Tipos de Usuarios**             Implementar `Cliente` e `Colaborador`
+ [] **Autenticacao com perfil**       Inserir o perfil (`Cliente` e `Colaborador`) no token
+ [] **Área do Cliente (HTML)**        Criar template para o cliente `listar meus processo` e `ver meus processo`
  [] **Refatoração JSON**              Adicionar `w.Header().Set("Content-Type", "application/json")` nos métodos de ação.

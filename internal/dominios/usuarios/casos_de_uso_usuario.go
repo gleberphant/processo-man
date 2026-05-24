@@ -13,6 +13,10 @@ type IRepositorioUsuario interface {
 	Editar(Usuario) error
 	Deletar(uuid.UUID) error
 	BuscarPorUUID(uuid.UUID) (*Usuario, error)
+	AdicionarPerfilCliente(Cliente) error
+	AdicionarPerfilColaborador(Colaborador) error
+	ListarClientes() ([]Cliente, error)
+	ListarColaboradores() ([]Colaborador, error)
 }
 
 type CDUUsuario struct {
@@ -26,13 +30,9 @@ func NovoCDUUsuario(usuariosRepo IRepositorioUsuario) *CDUUsuario {
 	}
 }
 
-func (u *CDUUsuario) CriaUsuario(usuario Usuario) error {
+func (u *CDUUsuario) CriaUsuario(usuario *Usuario) error {
 
 	usuario.UUID = uuid.New()
-
-	for i := range usuario.Perfis {
-		usuario.Perfis[i].UUID = uuid.New()
-	}
 
 	senhaForte, err := bcrypt.GenerateFromPassword([]byte(usuario.Senha), bcrypt.DefaultCost)
 
@@ -42,10 +42,27 @@ func (u *CDUUsuario) CriaUsuario(usuario Usuario) error {
 
 	usuario.Senha = string(senhaForte)
 
-	err = u.RepoUsuarios.Criar(usuario)
+	return u.RepoUsuarios.Criar(*usuario)
+}
 
-	return err
+func (u *CDUUsuario) CriarCliente(cliente *Cliente) error {
+	// 1. Cria a entidade base usando a regra já existente (UUID é gerado aqui)
+	err := u.CriaUsuario(&cliente.Usuario)
+	if err != nil {
+		return err
+	}
 
+	// 2. Vincula os dados na tabela específica
+	return u.RepoUsuarios.AdicionarPerfilCliente(*cliente)
+}
+
+func (u *CDUUsuario) CriarColaborador(colaborador *Colaborador) error {
+	err := u.CriaUsuario(&colaborador.Usuario)
+	if err != nil {
+		return err
+	}
+
+	return u.RepoUsuarios.AdicionarPerfilColaborador(*colaborador)
 }
 
 func (u *CDUUsuario) ListarUsuarios() ([]Usuario, error) {
@@ -54,6 +71,14 @@ func (u *CDUUsuario) ListarUsuarios() ([]Usuario, error) {
 		return nil, err
 	}
 	return lista, nil
+}
+
+func (u *CDUUsuario) ListarClientes() ([]Cliente, error) {
+	return u.RepoUsuarios.ListarClientes()
+}
+
+func (u *CDUUsuario) ListarColaboradores() ([]Colaborador, error) {
+	return u.RepoUsuarios.ListarColaboradores()
 }
 
 func (u *CDUUsuario) EditarUsuario(usuario Usuario) error {
@@ -71,23 +96,14 @@ func (u *CDUUsuario) EditarUsuario(usuario Usuario) error {
 	return err
 }
 
-func (u *CDUUsuario) DeletarUsuario(strUUID string) error {
-
-	UUID, err := uuid.Parse(strUUID)
-	if err != nil {
-		return err
-	}
-
-	u.RepoUsuarios.Deletar(UUID)
-
-	return nil
+func (u *CDUUsuario) DeletarUsuario(usuarioUUID uuid.UUID) error {
+	return u.RepoUsuarios.Deletar(usuarioUUID)
 }
 
-func (u *CDUUsuario) BuscarUsuarioPorUUID(strUUID string) (*Usuario, error) {
-
-	if strUUID == "" {
+func (u *CDUUsuario) BuscarUsuarioPorUUID(usuarioUUID uuid.UUID) (*Usuario, error) {
+	if usuarioUUID == uuid.Nil {
 		return nil, errors.New("UUID nulo")
 	}
 
-	return u.RepoUsuarios.BuscarPorUUID(uuid.MustParse(strUUID))
+	return u.RepoUsuarios.BuscarPorUUID(usuarioUUID)
 }

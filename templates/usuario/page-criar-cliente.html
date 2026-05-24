@@ -1,0 +1,57 @@
+{{define "title"}}Novo Cliente{{end}}
+
+{{define "page"}}
+<main class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8 offset-md-2">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h4 mb-0">Cadastrar Novo Cliente</h2>
+                <a href="/usuarios" class="btn btn-secondary btn-sm">Voltar</a>
+            </div>
+            
+            <div class="card shadow-sm border-0">
+                <div class="card-body bg-light">
+                    <form method="POST" action="/usuarios/clientes/criar">
+                        <h6 class="mb-3 border-bottom pb-2">Dados de Acesso</h6>
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome Completo / Razão Social</label>
+                            <input type="text" class="form-control" id="nome" name="nome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">E-mail</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="senha" class="form-label">Senha Inicial</label>
+                            <input type="password" class="form-control" id="senha" name="senha" required>
+                        </div>
+
+                        <h6 class="mt-4 mb-3 border-bottom pb-2">Dados Complementares</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="tipo_pessoa" class="form-label">Tipo de Pessoa</label>
+                                <select class="form-select" id="tipo_pessoa" name="tipo_pessoa" required>
+                                    <option value="PF">Pessoa Física</option>
+                                    <option value="PJ">Pessoa Jurídica</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cpf" class="form-label">CPF / CNPJ</label>
+                                <input type="text" class="form-control" id="cpf" name="cpf" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="endereco" class="form-label">Endereço</label>
+                            <input type="text" class="form-control" id="endereco" name="endereco">
+                        </div>
+
+                        <div class="mt-4 text-end">
+                            <button type="submit" class="btn btn-primary">Salvar Cliente</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{{end}}

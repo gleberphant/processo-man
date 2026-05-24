@@ -7,12 +7,21 @@ import (
 
 	"github.com/gleberphant/ProcessoMan/internal/dominios/tarefas"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
+	"github.com/google/uuid"
 )
 
 func (m *ManipuladorProcesso) APIVisualizarProcesso(w http.ResponseWriter, r *http.Request) {
 	uuidStr := r.URL.Query().Get("uuid")
 
-	processo, err := m.cduProcesso.BuscarProcessoPorUUID(uuidStr)
+	processoUUID, err := uuid.Parse(uuidStr)
+	if err != nil {
+		erroMsg := fmt.Sprintf("UUID do processo inválido: %v", err)
+		log.Println(erroMsg)
+		http.Error(w, erroMsg, http.StatusBadRequest)
+		return
+	}
+
+	processo, err := m.cduProcesso.BuscarProcessoPorUUID(processoUUID)
 
 	if err != nil {
 		erroMsg := fmt.Sprintf("Processo não encontrado: %v", err)

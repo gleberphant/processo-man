@@ -93,6 +93,34 @@ func (r *RepositorioTarefa) ListarTarefasPorProcesso(processoUUID uuid.UUID) ([]
 
 }
 
+// Listar retorna todos os tarefas cadastrados no banco de dados.
+func (r *RepositorioTarefa) ListarTarefasPorResponsavel(responavelUUID uuid.UUID) ([]Tarefa, error) {
+
+	db := r.conn
+
+	rows, err := db.Query("SELECT uuid, processo_uuid, responsavel_uuid, nome, comentarios FROM tarefas WHERE processo_uuid=?", responavelUUID.String())
+
+	if err != nil {
+		return nil, fmt.Errorf("Error: SQLITE>ListarTarefaResponsavel>SELECT: %w", err)
+	}
+
+	defer rows.Close()
+
+	var lista []Tarefa
+
+	for rows.Next() {
+
+		tarefa := Tarefa{}
+
+		rows.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome, &tarefa.Comentarios)
+
+		lista = append(lista, tarefa)
+	}
+
+	return lista, nil
+
+}
+
 // Atular uma tarefa do banco de dados
 func (r *RepositorioTarefa) EditarTarefa(tarefa Tarefa) error {
 

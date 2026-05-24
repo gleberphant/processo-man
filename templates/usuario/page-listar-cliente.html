@@ -2,13 +2,12 @@
 <main class="container mt-5">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h4 mb-0">Lista de Usuários</h2>
-            <form id="form-criar-usuario" method="get" action="/usuario/criar" style="display:inline;">
-                <button type="submit" class="btn btn-primary mb-2">Novo</button>
+            <h2 class="h4 mb-0">Lista de Clientes</h2>
+            <form id="form-criar-cliente" method="get" action="/usuarios/clientes/criar" style="display:inline;">
+                <button type="submit" class="btn btn-primary mb-2">Novo Cliente</button>
             </form>
         </div>
         <section class="card">
-
             <div class="table-responsive">
                 <table class="table align-middle table-striped table-hover mb-0">
                     <thead>
@@ -16,20 +15,17 @@
                             <th>UUID</th>
                             <th>Nome</th>
                             <th>Email</th>
-                            <th>Perfis</th>
-
+                            <th>CPF/CNPJ</th>
                             <th>AÇÕES</th>
                         </tr>
                     </thead>
                     <tbody>
-
                         {{ range .Usuarios }}
                         <tr>
                             <td>{{ .UUID }}</td>
                             <td>{{ .Nome }}</td>
                             <td>{{ .Email }}</td>
-                            <td>{{ .Perfis }}</td>
-
+                            <td>{{ .CPF }}</td>
                             <td>
                                 <form id="form-ver-{{.UUID}}" method="get" action="/usuarios/{{ .UUID }}"
                                     style="display:inline;">
@@ -58,7 +54,7 @@
             </div>
         </section>
 
-        <!-- meus scripts javascript -->
+        <!-- scripts javascript -->
         <script>
             function onClickDeletar(id) {
                 let resposta = confirm("Tem certeza que deseja Deletar ID=" + id + " ??")
@@ -66,12 +62,10 @@
                 if (resposta) {
                     document.getElementById('form-deletar-' + id).submit();
                 }
-
             }
-
         </script>
+    </div>
 </main>
-
 {{end}}
 
-{{define "title"}} USUARIOS - Projeto Go{{end}}
+{{define "title"}} CLIENTES - Projeto Go{{end}}

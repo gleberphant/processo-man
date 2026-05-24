@@ -71,20 +71,14 @@ func (u *CDUProcesso) EditarProcesso(processo Processo) error {
 	return u.repoProcesso.Editar(processo)
 }
 
-func (u *CDUProcesso) DeletarProcesso(strUUID string) error {
+func (u *CDUProcesso) DeletarProcesso(processoUUID uuid.UUID) error {
 
-	UUID, err := uuid.Parse(strUUID)
-
+	err := u.repoProcesso.Deletar(processoUUID)
 	if err != nil {
 		return err
 	}
 
-	err = u.repoProcesso.Deletar(UUID)
-	if err != nil {
-		return err
-	}
-
-	err = u.repoTarefa.DeletarTarefasPorProcesso(UUID)
+	err = u.repoTarefa.DeletarTarefasPorProcesso(processoUUID)
 
 	if err != nil {
 		return err
@@ -93,9 +87,9 @@ func (u *CDUProcesso) DeletarProcesso(strUUID string) error {
 	return err
 }
 
-func (u *CDUProcesso) BuscarProcessoPorUUID(strUUID string) (*Processo, error) {
+func (u *CDUProcesso) BuscarProcessoPorUUID(processoUUID uuid.UUID) (*Processo, error) {
 
-	if strUUID == "" {
+	if processoUUID == uuid.Nil {
 		return nil, errors.New("UUID nulo")
 	}
 
@@ -103,7 +97,7 @@ func (u *CDUProcesso) BuscarProcessoPorUUID(strUUID string) (*Processo, error) {
 	var processo *Processo
 	var tarefas []tarefas.Tarefa
 
-	processo, err = u.repoProcesso.BuscarPorUUID(uuid.MustParse(strUUID))
+	processo, err = u.repoProcesso.BuscarPorUUID(processoUUID)
 
 	if err != nil {
 		return nil, err

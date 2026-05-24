@@ -10,6 +10,7 @@ type IRepositorioTarefa interface {
 	CriarTarefa(Tarefa) error
 	ListarTarefas() ([]Tarefa, error)
 	ListarTarefasPorProcesso(uuid.UUID) ([]Tarefa, error)
+	ListarTarefasPorResponsavel(uuid.UUID) ([]Tarefa, error)
 	EditarTarefa(Tarefa) error
 	DeletarTarefa(uuid.UUID) error
 	BuscarTarefaPorUUID(UUID uuid.UUID) (*Tarefa, error)
@@ -44,15 +45,14 @@ func (t *CDUTarefa) CriarTarefa(tarefa Tarefa) error {
 
 }
 
-func (t *CDUTarefa) ListarTarefasPorProcesso(strProcessoUUID string) ([]Tarefa, error) {
-
-	processoUUID, err := uuid.Parse(strProcessoUUID)
-
-	if err != nil {
-		return nil, err
-	}
+func (t *CDUTarefa) ListarTarefasPorProcesso(processoUUID uuid.UUID) ([]Tarefa, error) {
 
 	return t.repoTarefa.ListarTarefasPorProcesso(processoUUID)
+}
+
+func (t *CDUTarefa) ListarTarefasPorResponsavel(responsavelUUID uuid.UUID) ([]Tarefa, error) {
+
+	return t.repoTarefa.ListarTarefasPorResponsavel(responsavelUUID)
 }
 
 func (t *CDUTarefa) ListarTarefas() ([]Tarefa, error) {
@@ -65,35 +65,15 @@ func (t *CDUTarefa) EditarTarefa(tarefa Tarefa) error {
 	return t.repoTarefa.EditarTarefa(tarefa)
 }
 
-func (t *CDUTarefa) DeletarTarefa(strUUID string) error {
+func (t *CDUTarefa) DeletarTarefa(tarefaUUID uuid.UUID) error {
 
-	UUID, err := uuid.Parse(strUUID)
-
-	if err != nil {
-		return err
-	}
-
-	return t.repoTarefa.DeletarTarefa(UUID)
+	return t.repoTarefa.DeletarTarefa(tarefaUUID)
 }
 
-func (t *CDUTarefa) BuscarTarefaPorUUID(strUUID string) (*Tarefa, error) {
-	UUID, err := uuid.Parse(strUUID)
-
-	if err != nil {
-
-		return nil, err
-	}
-
-	return t.repoTarefa.BuscarTarefaPorUUID(UUID)
+func (t *CDUTarefa) BuscarTarefaPorUUID(tarefaUUID uuid.UUID) (*Tarefa, error) {
+	return t.repoTarefa.BuscarTarefaPorUUID(tarefaUUID)
 }
 
-func (t *CDUTarefa) ValidarProcesso(strUUID string) error {
-	UUID, err := uuid.Parse(strUUID)
-
-	if err != nil {
-
-		return err
-	}
-
-	return t.repoProcesso.ValidarProcesso(UUID)
+func (t *CDUTarefa) ValidarProcesso(processoUUID uuid.UUID) error {
+	return t.repoProcesso.ValidarProcesso(processoUUID)
 }

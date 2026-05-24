@@ -14,7 +14,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func Page1(w http.ResponseWriter, r *http.Request) {
+func Pagina404(w http.ResponseWriter, r *http.Request) {
 
 	apresentacao.ExibirPaginaHTML("pages/page1.html", w, nil)
 

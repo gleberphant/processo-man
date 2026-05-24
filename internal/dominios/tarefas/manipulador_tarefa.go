@@ -1,8 +1,8 @@
 package tarefas
 
 import (
+	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
@@ -17,20 +17,6 @@ type ManipuladorTarefa struct {
 	cduUsuario *usuarios.CDUUsuario
 }
 
-type ViewModelTarefa struct {
-	UUID            string
-	ProcessoUUID    string
-	ResponsavelUUID string
-	Tarefa          interface{}
-	Usuarios        interface{}
-}
-
-// usuarioDTO é privado ao pacote tarefas e define os campos exibidos na seleção.
-type usuarioDTO struct {
-	UUID string
-	Nome string
-}
-
 // NovoManipuladorTarefa cria e retorna uma nova instância de ManipuladorTarefa.
 func NovoManipuladorTarefa(CasosDeUsoTarefa *CDUTarefa, CasosDeUsoUsuario *usuarios.CDUUsuario) *ManipuladorTarefa {
 	return &ManipuladorTarefa{
@@ -39,16 +25,16 @@ func NovoManipuladorTarefa(CasosDeUsoTarefa *CDUTarefa, CasosDeUsoUsuario *usuar
 	}
 }
 
-// obterListaUsuariosDTO centraliza a busca de usuários e conversão para DTO.
-func (m *ManipuladorTarefa) obterListaUsuariosDTO() ([]usuarioDTO, error) {
+// obterListaUsuariosView centraliza a busca de usuários e conversão para DTO.
+func (m *ManipuladorTarefa) obterListaUsuariosView() ([]usuarioView, error) {
 	lista, err := m.cduUsuario.ListarUsuarios()
 	if err != nil {
 		return nil, err
 	}
 
-	var listaUsuarioDTO []usuarioDTO
+	var listaUsuarioDTO []usuarioView
 	for _, item := range lista {
-		listaUsuarioDTO = append(listaUsuarioDTO, usuarioDTO{UUID: item.UUID.String(), Nome: item.Nome})
+		listaUsuarioDTO = append(listaUsuarioDTO, usuarioView{UUID: item.UUID.String(), Nome: item.Nome})
 	}
 
 	return listaUsuarioDTO, nil
@@ -59,24 +45,31 @@ func (m *ManipuladorTarefa) PageCriarTarefa(w http.ResponseWriter, r *http.Reque
 
 	strProcessoUUID := r.URL.Query().Get("ProcessoUUID")
 
-	err := m.cduTarefa.ValidarProcesso(strProcessoUUID)
+	processoUUID, err := uuid.Parse(strProcessoUUID)
+
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("UUID do processo inválido: %v", err))
+		return
+	}
+
+	err = m.cduTarefa.ValidarProcesso(processoUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Criar Tarefa:%v", err))
 		return
 	}
 
-	listaUsuarioDTO, err := m.obterListaUsuariosDTO()
+	listaUsuarioView, err := m.obterListaUsuariosView()
+
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro ao carregar usuarios: %v", err))
 		return
 	}
 
-	processoUUID, _ := uuid.Parse(strProcessoUUID)
 	viewModel := ViewModelTarefa{
 		ProcessoUUID: strProcessoUUID,
-		Tarefa:       Tarefa{ProcessoUUID: processoUUID},
-		Usuarios:     listaUsuarioDTO,
+		Tarefa:       tarefaView{ProcessoUUID: processoUUID},
+		Usuarios:     listaUsuarioView,
 	}
 
 	apresentacao.ExibirPaginaHTML("tarefa/page-criar-tarefa.html", w, viewModel)
@@ -87,7 +80,13 @@ func (m *ManipuladorTarefa) PageListarTarefasPorProcesso(w http.ResponseWriter, 
 
 	strProcessoUUID := r.PathValue("UUID") //r.URL.Query().Get("ProcessoUUID")
 
-	lista, err := m.cduTarefa.ListarTarefasPorProcesso(strProcessoUUID)
+	processoUUID, err := uuid.Parse(strProcessoUUID)
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("UUID do processo inválido: %v", err))
+		return
+	}
+
+	lista, err := m.cduTarefa.ListarTarefasPorProcesso(processoUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Listar Tarefa: %v", err))
@@ -101,6 +100,31 @@ func (m *ManipuladorTarefa) PageListarTarefasPorProcesso(w http.ResponseWriter, 
 
 	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, viewModel)
 
+}
+
+// PageListarTarefasPorResponsavel renderiza a página contendo a listagem de tarefas de um responsável específico.
+func (m *ManipuladorTarefa) PageListarTarefasPorResponsavel(w http.ResponseWriter, r *http.Request) {
+
+	strResponsavelUUID := r.PathValue("UUID")
+
+	responsavelUUID, err := uuid.Parse(strResponsavelUUID)
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("UUID do responsável inválido: %v", err))
+		return
+	}
+
+	lista, err := m.cduTarefa.ListarTarefasPorResponsavel(responsavelUUID)
+
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Listar Tarefas Responsável: %v", err))
+		return
+	}
+
+	viewModel := ViewModelTarefa{
+		Tarefa: lista,
+	}
+
+	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, viewModel)
 }
 
 // PageListar renderiza a página contendo a listagem de todos os Tarefas.
@@ -122,9 +146,16 @@ func (m *ManipuladorTarefa) PageListarTarefas(w http.ResponseWriter, r *http.Req
 }
 
 func (m *ManipuladorTarefa) PageVerTarefa(w http.ResponseWriter, r *http.Request) {
+
 	strUUID := r.PathValue("UUID")
 
-	tarefa, err := m.cduTarefa.BuscarTarefaPorUUID(strUUID)
+	tarefaUUID, err := uuid.Parse(strUUID)
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("UUID da tarefa inválido: %v", err))
+		return
+	}
+
+	tarefa, err := m.cduTarefa.BuscarTarefaPorUUID(tarefaUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("erro PageVerTarefa:%v", err))
@@ -143,14 +174,20 @@ func (m *ManipuladorTarefa) PageVerTarefa(w http.ResponseWriter, r *http.Request
 func (m *ManipuladorTarefa) PageEditarTarefa(w http.ResponseWriter, r *http.Request) {
 	strUUID := r.PathValue("UUID")
 
-	tarefa, err := m.cduTarefa.BuscarTarefaPorUUID(strUUID)
+	tarefaUUID, err := uuid.Parse(strUUID)
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("UUID da tarefa inválido: %v", err))
+		return
+	}
+
+	tarefa, err := m.cduTarefa.BuscarTarefaPorUUID(tarefaUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Editar Tarefa:%v", err))
 		return
 	}
 
-	listaUsuarioDTO, err := m.obterListaUsuariosDTO()
+	listaUsuarioView, err := m.obterListaUsuariosView()
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro ao carregar usuarios: %v", err))
 		return
@@ -159,7 +196,7 @@ func (m *ManipuladorTarefa) PageEditarTarefa(w http.ResponseWriter, r *http.Requ
 	viewModel := ViewModelTarefa{
 		UUID:     strUUID,
 		Tarefa:   *tarefa,
-		Usuarios: listaUsuarioDTO,
+		Usuarios: listaUsuarioView,
 	}
 
 	apresentacao.ExibirPaginaHTML("tarefa/page-criar-tarefa.html", w, viewModel)
@@ -184,8 +221,8 @@ func (m *ManipuladorTarefa) CriarTarefaPost(w http.ResponseWriter, r *http.Reque
 
 	tarefa := Tarefa{
 		ProcessoUUID:    processoUUID,
-		Nome:            r.PostFormValue("Nome"),
 		ResponsavelUUID: responsavelUUID,
+		Nome:            r.PostFormValue("Nome"),
 		Comentarios:     r.PostFormValue("Comentarios"),
 	}
 
@@ -196,66 +233,52 @@ func (m *ManipuladorTarefa) CriarTarefaPost(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	http.Redirect(w, r, "/processos/"+processoUUID.String(), http.StatusSeeOther)
+	apresentacao.RedirecionarPaginaAnterior(w, r)
 
 }
 
 func (m *ManipuladorTarefa) EditarTarefaPost(w http.ResponseWriter, r *http.Request) {
 
-	UUID, err := uuid.Parse(r.PathValue("UUID"))
-	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Tarefa: %v", err))
+	dtoTarefaUUID, err1 := uuid.Parse(r.PathValue("UUID"))
+	dtoProcessoUUID, err2 := uuid.Parse(r.PostFormValue("ProcessoUUID"))
+	dtoResponsavelUUID, err3 := uuid.Parse(r.PostFormValue("ResponsavelUUID"))
+
+	if err := errors.Join(err1, err2, err3); err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro ao processar os UUIDs da tarefa: %v", err))
 		return
 	}
 
-	processoUUID, err := uuid.Parse(r.PostFormValue("ProcessoUUID"))
-	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Tarefa: %v", err))
-		return
-	}
-
-	responsavelUUID, err := uuid.Parse(r.PostFormValue("ResponsavelUUID"))
-
-	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Tarefa: %v", err))
-		return
-	}
-
-	var tarefa = Tarefa{
-		UUID:            UUID,
-		ProcessoUUID:    processoUUID,
-		ResponsavelUUID: responsavelUUID,
+	tarefa := Tarefa{
+		UUID:            dtoTarefaUUID,
+		ProcessoUUID:    dtoProcessoUUID,
+		ResponsavelUUID: dtoResponsavelUUID,
 		Nome:            r.PostFormValue("Nome"),
 		Comentarios:     r.PostFormValue("Comentarios"),
 	}
 
-	err = m.cduTarefa.EditarTarefa(tarefa)
-
-	if err != nil {
+	if err := m.cduTarefa.EditarTarefa(tarefa); err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Tarefa:%v", err))
 		return
 	}
+	apresentacao.RedirecionarPaginaAnterior(w, r)
 
-	http.Redirect(w, r, "/processos/"+processoUUID.String(), http.StatusSeeOther)
 }
 
 func (m *ManipuladorTarefa) DeletarTarefaPost(w http.ResponseWriter, r *http.Request) {
 
-	strUUID := r.PathValue("UUID")
+	tarefaUUID, err := uuid.Parse(r.PathValue("UUID"))
 
-	err := m.cduTarefa.DeletarTarefa(strUUID)
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("UUID da tarefa inválido: %v", err))
+		return
+	}
+
+	err = m.cduTarefa.DeletarTarefa(tarefaUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Deletar Tarefa: %v", err))
 		return
 	}
 
-	paginaAnterior := r.Header.Get("Referer")
-
-	if paginaAnterior == "" {
-		paginaAnterior = "/tarefas"
-	}
-	log.Printf("pagina anterior %s", paginaAnterior)
-
-	http.Redirect(w, r, paginaAnterior, http.StatusSeeOther)
+	apresentacao.RedirecionarPaginaAnterior(w, r)
 }
