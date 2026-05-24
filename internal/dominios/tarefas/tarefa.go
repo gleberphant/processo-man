@@ -11,7 +11,7 @@ type Tarefa struct {
 	ProcessoUUID    uuid.UUID
 	ResponsavelUUID uuid.UUID
 	Nome            string
-	Conclusao       bool
+	Concluida       bool
 	Comentarios     string
 	DataConclusao   time.Time
 	DataCriacao     time.Time

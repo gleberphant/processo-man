@@ -16,7 +16,7 @@ type IRepositorioTarefa interface {
 }
 
 type IRepositorioProcesso interface {
-	AutenticarProcesso(uuid.UUID) (uuid.UUID, error)
+	ValidarProcesso(uuid.UUID) error
 }
 
 type CDUTarefa struct {
@@ -87,13 +87,13 @@ func (t *CDUTarefa) BuscarTarefaPorUUID(strUUID string) (*Tarefa, error) {
 	return t.repoTarefa.BuscarTarefaPorUUID(UUID)
 }
 
-func (t *CDUTarefa) AutenticarProcesso(strUUID string) (uuid.UUID, error) {
+func (t *CDUTarefa) ValidarProcesso(strUUID string) error {
 	UUID, err := uuid.Parse(strUUID)
 
 	if err != nil {
 
-		return uuid.Nil, err
+		return err
 	}
 
-	return t.repoProcesso.AutenticarProcesso(UUID)
+	return t.repoProcesso.ValidarProcesso(UUID)
 }

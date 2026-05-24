@@ -9,29 +9,28 @@
         </div>
 
         <!-- Se o UUID for válido (edição), manda o POST para editar, senão manda para criar -->
-        <form method="POST" action="{{ if ne .UUID.String "00000000-0000-0000-0000-000000000000" }}/usuario/editar{{ else }}/usuario/criar{{ end }}">
-            
+        <form method="POST" action="{{ if .UUID }}/usuarios/{{.UUID}}/editar{{ else }}/usuarios/criar{{ end }}"> 
             <!-- Campo oculto para enviar o UUID no PostFormValue quando for edição -->
-            {{ if ne .UUID.String "00000000-0000-0000-0000-000000000000"   }}<input size="38" type="text" disabled name="uuid" value="{{ .UUID }}">{{ end }}
+            {{ if .UUID }}<input size="38" type="text" name="uuid" value="{{ .UUID }}" readonly>{{ end }}
 
             <div class="mb-3">
                 <label for="nome" class="form-label">Nome</label>
                 <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite seu nome" required
-                    value="{{ .Nome }}" autofocus>
+                    value="{{ .Usuarios.Nome }}" autofocus>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">E-mail</label>
                 <input type="email" class="form-control" id="email" name="email" placeholder="nome@exemplo.com"
-                    value="{{ .Email }}" required>
+                    value="{{ .Usuarios.Email }}" required>
             </div>
             <div class="mb-4">
                 <label for="senha" class="form-label">Senha</label>
                 <input type="text" class="form-control" id="senha" name="senha" placeholder="Sua senha secreta"
-                    value="{{ .Senha }}" required>
+                    value="{{ .Usuarios.Senha }}" required>
             </div>
             <div class="mb-4S">
             <button type="submit" class="btn btn-primary btn-lg">
-                {{ if ne .UUID.String "00000000-0000-0000-0000-000000000000"}}Salvar Alterações{{ else }} Criar Usuario{{ end }}
+                {{ if .UUID }}Salvar Alterações{{ else }} Criar Usuario{{ end }}
             </button>
 
             </div>

@@ -2,15 +2,15 @@ package usuarios
 
 import (
 	"errors"
-	"log"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type IRepositorioUsuario interface {
 	Criar(Usuario) error
 	Listar() ([]Usuario, error)
-	Atualizar(Usuario) error
+	Editar(Usuario) error
 	Deletar(uuid.UUID) error
 	BuscarPorUUID(uuid.UUID) (*Usuario, error)
 }
@@ -34,8 +34,15 @@ func (u *CDUUsuario) CriaUsuario(usuario Usuario) error {
 		usuario.Perfis[i].UUID = uuid.New()
 	}
 
-	log.Printf("Criando Usuario %v", usuario)
-	err := u.RepoUsuarios.Criar(usuario)
+	senhaForte, err := bcrypt.GenerateFromPassword([]byte(usuario.Senha), bcrypt.DefaultCost)
+
+	if err != nil {
+		return err
+	}
+
+	usuario.Senha = string(senhaForte)
+
+	err = u.RepoUsuarios.Criar(usuario)
 
 	return err
 
@@ -51,7 +58,15 @@ func (u *CDUUsuario) ListarUsuarios() ([]Usuario, error) {
 
 func (u *CDUUsuario) EditarUsuario(usuario Usuario) error {
 
-	err := u.RepoUsuarios.Atualizar(usuario)
+	senhaForte, err := bcrypt.GenerateFromPassword([]byte(usuario.Senha), bcrypt.DefaultCost)
+
+	if err != nil {
+		return err
+	}
+
+	usuario.Senha = string(senhaForte)
+
+	u.RepoUsuarios.Editar(usuario)
 
 	return err
 }

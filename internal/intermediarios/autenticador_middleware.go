@@ -7,8 +7,6 @@ import (
 	"net/url"
 
 	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao"
-
-	"github.com/google/uuid"
 )
 
 func ProcurarTokenEnviado(r *http.Request) (string, error) {
@@ -40,7 +38,7 @@ func AutenticadorIntermediario(proximo http.Handler, autenticador *autenticacao.
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		//-------------------------------------
-		// DESCARTA REQUEST DElogin e fav icon
+		// DESCARTA REQUEST DE login e fav icon
 		if r.URL.Path == "/favicon.ico" {
 			w.WriteHeader(http.StatusNoContent) // Devolve 204 (Sem Conteúdo)
 			return
@@ -63,9 +61,9 @@ func AutenticadorIntermediario(proximo http.Handler, autenticador *autenticacao.
 
 		//-------------------------------------
 		// validar o token
-		err = autenticador.ValidarToken(autenticacao.Token{UUID: uuid.MustParse(token)})
+		err = autenticador.ValidarToken(token)
 
-		// se houve erro na validação. Redireciona para LOGIN
+		// se houver erro na validação. Redireciona para LOGIN
 		if err != nil {
 			log.Printf("Token Inválido : [%v] ", err)
 			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado. Token Inválido"), http.StatusSeeOther)

@@ -7,35 +7,37 @@
         <div class="col-md-6 mb-3">
 
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <form method="get" action="/processos/{{.Processo.UUID}}/editar" style="display:inline;">
-                    <input type="hidden" name="uuid" value="{{.Processo.UUID}}" />
-                    <button type="submit" class="btn btn-primary btn-sm">Editar Processo</button>
+                <form method="get" action="/usuarios/{{.UUID}}/editar" style="display:inline;">
+                    <button type="submit" class="btn btn-primary btn-sm">Editar Usuario</button>
                 </form>
             </div>
+
+            {{ with .Usuarios }}
             <div class="card">
                 <div class="table-responsive">
                     <table class="table table-bordered mb-0">
                         <tbody>
                             <tr>
                                 <th class="bg-light w-25">UUID</th>
-                                <td>{{.Processo.UUID}}</td>
+                                <td>{{.UUID}}</td>
                             </tr>
                             <tr>
                                 <th class="bg-light">NOME</th>
-                                <td>{{.Processo.Nome}}</td>
+                                <td>{{.Nome}}</td>
                             </tr>
                             <tr>
-                                <th class="bg-light">DONO</th>
-                                <td>{{.Processo.Dono}}</td>
+                                <th class="bg-light">EMAIL</th>
+                                <td>{{.Email}}</td>
                             </tr>
                             <tr>
                                 <th class="bg-light">DATA CRIAÇÃO</th>
-                                <td>{{.Processo.DataCriacao.Format "02/01/2006"}}</td>
+                                <td>{{.DataCriacao.Format "02/01/2006"}}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+            {{ end }}
         </div>
 
         <!-- Bloco de Anexos -->
@@ -73,8 +75,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h2 class="h4 mb-0">TAREFAS</h2>
-                <a href="/tarefas/criar?ProcessoUUID={{.Processo.UUID}}" class="btn btn-primary btn-sm">Adicionar
-                    Tarefa</a>
+
             </div>
 
             <section class="card">
@@ -93,14 +94,14 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{range .Processo.Tarefas}}
+                            {{range .Tarefas}}
                             <tr>
                                 <td>{{.UUID}}</td>
-                                <!-- <td>{{.ProcessoUUID}}</td> -->
+                                <td>{{.ProcessoUUID}}</td> 
                                 <td>{{.Nome}}</td>
                                 <td>{{.DataCriacao.Format "02/01/2006"}}</td>
                                 <td>{{.ResponsavelUUID}}</td>
-                                <td>{{.Concluida}}</td>
+                                <td>{{.Conclusao}}</td>
                                 <td>{{if not .DataConclusao.IsZero}}{{.DataConclusao.Format "02/01/2006"}}{{end}}</td>
                                 <td>
                                     <form id="form-ver-{{.UUID}}" method="get" action="/tarefas/{{.UUID}}"
@@ -117,8 +118,7 @@
 
                                     <form id="form-concluir-{{.UUID}}" method="post"
                                         action="/tarefas/{{.UUID}}/concluir" style="display:inline;">
-                                        <input type="hidden" class="form-control" name="ProcessoUUID"
-                                            value="{{ .ProcessoUUID }}" required>
+                                        
                                         <button type="button" onclick="onClickConcluir('{{.UUID}}')"
                                             class="btn btn-danger mb-2">Concluir</button>
                                     </form>

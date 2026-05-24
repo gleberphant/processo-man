@@ -4,7 +4,9 @@ import (
 	"testing"
 
 	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao"
+	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/bancodedados"
+	"github.com/google/uuid"
 )
 
 func TestGerarToken(t *testing.T) {
@@ -15,19 +17,19 @@ func TestGerarToken(t *testing.T) {
 	// cria os repositorios
 	tokensRepo := autenticacao.NovoRepositorioToken(db)
 
-	//usuariosRepo := usuarios.NovoRepositorioUsuario(db)
+	usuariosRepo := usuarios.NovoRepositorioUsuario(db)
 
-	CDULogin := autenticacao.NovoCDUAutenticacao(tokensRepo)
+	CDULogin := autenticacao.NovoCDUAutenticacao(tokensRepo, usuariosRepo)
 
 	casosDeTeste := []struct {
 		Nome            string // description of this test case
-		Entrada         string
+		Entrada         *usuarios.Usuario
 		RepostaEsperada *autenticacao.Token
 		EsperaFalha     bool
 	}{
 		{
 			Nome:    "Token com usuario valido",
-			Entrada: "c3f16c59-f802-478b-8c3b-b3b6f20e0af6",
+			Entrada: &usuarios.Usuario{UUID: uuid.MustParse("c3f16c59-f802-478b-8c3b-b3b6f20e0af6")},
 			//RepostaEsperada: &Token{},
 			EsperaFalha: false,
 		},

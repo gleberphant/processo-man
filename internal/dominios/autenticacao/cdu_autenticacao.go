@@ -2,69 +2,97 @@ package autenticacao
 
 import (
 	"errors"
+	"fmt"
 
+	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type IRepositorioToken interface {
 	Fechar()
 	Criar(Token) (*Token, error)
-	BuscarPorUUID(Token) (*Token, error)
-	DeletarPorUsuarioUUID(UsuarioUUID string) error
-	AutenticarUsuario(string, string) (string, error)
+	BuscarPorUUID(UUID uuid.UUID) (*Token, error)
+	DeletarPorUsuarioUUID(uuid.UUID) error
 }
 
-// type IRepositorioUsuario interface {
-// 	Fechar()
-// 	AutenticarUsuario(string, string) (string, error)
-// }
+type IRepositorioUsuario interface {
+	Fechar()
+	BuscarPorEmail(email string) (*usuarios.Usuario, error)
+}
 
 type CDUAutenticacao struct {
-	RepoTokens IRepositorioToken
-	//RepoUsuarios IRepositorioUsuario
+	RepoTokens   IRepositorioToken
+	RepoUsuarios IRepositorioUsuario
 }
 
-func NovoCDUAutenticacao(tokensRepo IRepositorioToken) *CDUAutenticacao {
+func NovoCDUAutenticacao(tokensRepo IRepositorioToken, usuariosRepo IRepositorioUsuario) *CDUAutenticacao {
 
 	return &CDUAutenticacao{
-		RepoTokens: tokensRepo,
-		//RepoUsuarios: usuariosRepo,
+		RepoTokens:   tokensRepo,
+		RepoUsuarios: usuariosRepo,
 	}
 }
 
-func (a *CDUAutenticacao) AutenticarUsuario(email string, senha string) (*Token, error) {
+// verificar se token é valido. retorna error se token não encontrado
+func (a *CDUAutenticacao) ValidarToken(strUUID string) error {
 
-	// Verifica se o usuario existe
+	UUID, err := uuid.Parse(strUUID)
+	if err != nil {
+		return fmt.Errorf("token nulo: %w ", err)
 
+	}
+
+	_, err = a.RepoTokens.BuscarPorUUID(UUID)
+
+	if err != nil {
+		return fmt.Errorf("token invalido: %w ", err)
+	}
+
+	return nil
+}
+
+func (a *CDUAutenticacao) AutenticarUsuario(email string, senha string) (string, error) {
+
+	//valida usuario
+	// 1 Verifica se o usuario/email existe
 	if email == "" {
-		return nil, errors.New("Usuario nulo")
+		return "", errors.New("Usuario nulo")
 	}
 
-	usuarioUUID, err := a.RepoTokens.AutenticarUsuario(email, senha)
+	usuario, err := a.RepoUsuarios.BuscarPorEmail(email)
+	if err != nil {
+		return "", fmt.Errorf("usuario não encontrado: %w ", err)
+	}
+
+	// 2 verifica senha
+	err = bcrypt.CompareHashAndPassword([]byte(usuario.Senha), []byte(senha))
 
 	if err != nil {
-		return nil, err
+		if senha != usuario.Senha {
+			return "", fmt.Errorf("senha inválida : %w ", err)
+		}
+		//return "", fmt.Errorf("senha inválida : %w ", err)
 	}
 
-	// Gera token
-	token, err := a.GerarToken(usuarioUUID)
+	// Gerar token
+	token, err := a.GerarToken(usuario)
 	if err != nil {
-		return nil, err
+		return "", fmt.Errorf("erro ao gerar token: %w ", err)
 	}
 
-	//retornar o token gerado
-	return token, nil
+	//retornar o uuid do token gerado
+	return token.UUID.String(), nil
 }
 
 // gerar token
-func (a *CDUAutenticacao) GerarToken(usuarioUUID string) (*Token, error) {
-
-	if usuarioUUID == "" {
-		return nil, errors.New("usuário inválido")
-	}
+func (a *CDUAutenticacao) GerarToken(usuario *usuarios.Usuario) (*Token, error) {
 
 	// limpar tokens antigos no repositorio
-	err := a.RepoTokens.DeletarPorUsuarioUUID(usuarioUUID)
+	err := a.RepoTokens.DeletarPorUsuarioUUID(usuario.UUID)
+
+	// gerar novo token
+	tokenUUID, err := uuid.NewRandom()
 
 	if err != nil {
 		return nil, err
@@ -72,8 +100,8 @@ func (a *CDUAutenticacao) GerarToken(usuarioUUID string) (*Token, error) {
 
 	// inserir o novo token no repositorio
 	token, err := a.RepoTokens.Criar(Token{
-		UUID:        uuid.New(),
-		UsuarioUUID: uuid.MustParse(usuarioUUID),
+		UUID:        tokenUUID,
+		UsuarioUUID: usuario.UUID,
 		Validade:    "temporario",
 	})
 
@@ -83,20 +111,4 @@ func (a *CDUAutenticacao) GerarToken(usuarioUUID string) (*Token, error) {
 
 	return token, nil
 
-}
-
-// verificar se token é valido. retorna error se token não encontrado
-func (a *CDUAutenticacao) ValidarToken(token Token) error {
-
-	if token.UUID == uuid.Nil {
-		return errors.New("token inválido: UUID não fornecido")
-	}
-
-	_, err := a.RepoTokens.BuscarPorUUID(token)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

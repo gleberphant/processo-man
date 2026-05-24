@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"time"
 )
 
 func ExibirErro(w http.ResponseWriter, erroMsg string) {
@@ -37,13 +38,27 @@ func ExibirJsonApi(w http.ResponseWriter, dados interface{}) error {
 
 func ExibirPaginaHTML(page string, w http.ResponseWriter, dados interface{}) error {
 
-	tmpl, err := template.ParseFiles(
-		"../templates/_layout/_layout.html",
-		"../templates/_layout/_header.html",
-		"../templates/_layout/_navbar.html",
-		"../templates/_layout/_footer.html",
-		"../templates/"+page,
-	)
+	// 2. Crie o mapa de funções mapeando a string que será usada no HTML para a função Go
+	funcoesTemplate := template.FuncMap{
+		"formatarData": func(data time.Time) string {
+			if data.IsZero() {
+				return "Sem Data" // ou retorne "" se preferir vazio
+			}
+			// Formato padrão brasileiro
+			return data.Format("02/01/2006")
+		},
+	}
+
+	// 3. Injete o FuncMap ANTES de fazer o ParseFiles
+	tmpl, err := template.New("nome_do_template").
+		Funcs(funcoesTemplate).
+		ParseFiles(
+			"../templates/_layout/_layout.html",
+			"../templates/_layout/_header.html",
+			"../templates/_layout/_navbar.html",
+			"../templates/_layout/_footer.html",
+			"../templates/"+page,
+		)
 
 	if err != nil {
 		log.Printf("Erro ao carregar arquivos do template: %v", err)
@@ -81,4 +96,13 @@ func ExibirHTMLSemLayout(page string, w http.ResponseWriter, dados interface{}) 
 	}
 
 	return nil
+}
+
+// 1. Crie a função de formatação
+func formatarData(data time.Time) string {
+	if data.IsZero() {
+		return "Pendente" // ou retorne "" se preferir vazio
+	}
+	// Formato padrão brasileiro
+	return data.Format("02/01/2006")
 }

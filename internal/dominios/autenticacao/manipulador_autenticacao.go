@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 )
 
@@ -24,35 +23,31 @@ func NovoManipuladorLogin(cduToken *CDUAutenticacao) *ManipuladorLogin {
 func (m *ManipuladorLogin) PageLogin(w http.ResponseWriter, r *http.Request) {
 
 	// carrega dados
-	dados := struct {
+	viewModel := struct {
 		Msg string
 	}{
 		Msg: r.URL.Query().Get("msg"),
 	}
 
-	apresentacao.ExibirHTMLSemLayout("autenticacao/login.html", w, dados)
+	apresentacao.ExibirHTMLSemLayout("autenticacao/login.html", w, viewModel)
 
 }
 
 // funcao para logar
 func (m *ManipuladorLogin) LoginPost(w http.ResponseWriter, r *http.Request) {
-	// pega os dados do login
-	var usuario = usuarios.Usuario{
-		Email: r.PostFormValue("email"),
-		Senha: r.PostFormValue("senha"),
-	}
 
 	// autenticacao do usuario e retorna o token gerado
-	token, err := m.CDUAutenticacao.AutenticarUsuario(usuario.Email, usuario.Senha)
+	tokenUUID, err := m.CDUAutenticacao.AutenticarUsuario(r.PostFormValue("email"), r.PostFormValue("senha"))
 
 	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("Erro LoginPost:%v", err))
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Login Post: %v", err))
+		return
 	}
 
 	// Configura o cookie de sessão de forma segura
 	http.SetCookie(w, &http.Cookie{
 		Name:  "token",
-		Value: token.UUID.String(),
+		Value: tokenUUID,
 		//Path:     "/",
 		MaxAge:   3600,                 // Define expiração para 1 hora (em segundos)
 		HttpOnly: true,                 // Protege contra roubo via JavaScript (ataques XSS)

@@ -5,36 +5,50 @@
             <div class="container">
                 <h1 class="display-5">{{ if .UUID }}Editar Tarefa {{ else }} Nova Tarefa{{ end }}</h1>
                 <p class="lead">Insira os detalhes da tarefa</p>
-                
+
             </div>
         </div>
 
         <!-- Se o UUID for válido (edição), manda o POST para editar, senão manda para criar -->
         <form method="POST" action="{{ if .UUID }}/tarefas/{{ .UUID }}/editar{{ else }}/tarefas/criar{{ end }}">
-            
+
             <!-- Campo oculto para enviar o UUID -->
             <input type="hidden" name="uuid" value="{{ if .UUID }}{{ .UUID }}{{ end }}">
-        
+
             <div class="mb-3">
                 <label for="Nome" class="form-label">Nome</label>
-                 <input type="text" class="form-control" id="Nome" name="Nome" placeholder="Digite o nome da tarefa" required value="{{ .Tarefa.Nome }}" autofocus>
+                <input type="text" class="form-control" id="Nome" name="Nome" placeholder="Digite o nome da tarefa"
+                    required value="{{ .Tarefa.Nome }}" autofocus>
             </div>
 
             <div class="mb-3">
                 <label for="ProcessoUUID" class="form-label">UUID do Processo: {{ .Tarefa.ProcessoUUID }}</label>
-                <input type="hidden" class="form-control" id="ProcessoUUID" name="ProcessoUUID" placeholder="Informe o UUID do processo" required value="{{ .Tarefa.ProcessoUUID }}">
+                <input type="hidden" class="form-control" id="ProcessoUUID" name="ProcessoUUID"
+                    placeholder="Informe o UUID do processo" required value="{{ .Tarefa.ProcessoUUID }}">
             </div>
 
             <div class="mb-3">
                 <label for="ResponsavelUUID" class="form-label">UUID do Responsável</label>
-                 <input type="text" readonly class="form-control" id="ResponsavelUUID" name="ResponsavelUUID" placeholder="Informe o UUID do responsável" required value="{{ .Tarefa.ResponsavelUUID }}">
+
+                <select class="form-control" id="ResponsavelUUID" name="ResponsavelUUID" required>
+                    <option value="" disabled {{ if eq
+                        $.Tarefa.ResponsavelUUID.String "00000000-0000-0000-0000-000000000000" }}selected{{ end }}>
+                        Selecione um responsável...</option>
+
+                    {{ range .Usuarios }}
+                    <option value="{{.UUID}}" {{if eq .UUID $.Tarefa.ResponsavelUUID.String }}selected{{ end }}>
+                        {{.Nome}} - {{.UUID}}
+                    </option>
+                    {{ end }}
+                </select>
             </div>
 
             <div class="mb-3">
                 <label for="Comentarios" class="form-label">Comentários</label>
-                <textarea class="form-control" id="Comentarios" name="Comentarios" rows="3">{{ .Tarefa.Comentarios }}</textarea>
+                <textarea class="form-control" id="Comentarios" name="Comentarios"
+                    rows="3">{{ .Tarefa.Comentarios }}</textarea>
             </div>
-        
+
             <div class="mb-4"></div>
             <button type="submit" class="btn btn-primary btn-lg">
                 {{ if .UUID }}Salvar Alterações{{ else }}Criar Tarefa{{ end }}

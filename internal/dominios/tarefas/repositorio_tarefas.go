@@ -26,10 +26,12 @@ func (r *RepositorioTarefa) CriarTarefa(tarefa Tarefa) error {
 
 	db := r.conn
 
-	_, err := db.Exec("INSERT INTO tarefas (uuid, processo_uuid, nome) VALUES (?, ?, ?)",
+	_, err := db.Exec("INSERT INTO tarefas (uuid, processo_uuid, responsavel_uuid, nome, comentarios) VALUES (?, ?, ?, ?, ?)",
 		tarefa.UUID,
 		tarefa.ProcessoUUID,
+		tarefa.ResponsavelUUID,
 		tarefa.Nome,
+		tarefa.Comentarios,
 	)
 
 	return err
@@ -100,7 +102,7 @@ func (r *RepositorioTarefa) EditarTarefa(tarefa Tarefa) error {
 
 	db := r.conn
 
-	_, err := db.Exec("UPDATE tarefas SET nome = ?, comentarios = ? WHERE uuid = ?", tarefa.Nome, tarefa.Comentarios, tarefa.UUID)
+	_, err := db.Exec("UPDATE tarefas SET nome = ?, responsavel_uuid = ?, comentarios = ? WHERE uuid = ?", tarefa.Nome, tarefa.ResponsavelUUID, tarefa.Comentarios, tarefa.UUID)
 
 	return err
 }
@@ -137,10 +139,18 @@ func (r *RepositorioTarefa) BuscarTarefaPorUUID(UUID uuid.UUID) (*Tarefa, error)
 
 	db := r.conn
 
-	row := db.QueryRow("SELECT uuid, processo_uuid,  responsavel_uuid,nome FROM tarefas WHERE uuid=?", UUID.String())
+	row := db.QueryRow("SELECT uuid, processo_uuid,  responsavel_uuid,nome, comentarios, concluida, data_conclusao, data_criacao FROM tarefas WHERE uuid=?",
+		UUID.String())
 
 	tarefa := &Tarefa{}
-	err := row.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome)
+	err := row.Scan(&tarefa.UUID,
+		&tarefa.ProcessoUUID,
+		&tarefa.ResponsavelUUID,
+		&tarefa.Nome,
+		&tarefa.Comentarios,
+		&tarefa.Concluida,
+		&tarefa.DataConclusao,
+		&tarefa.DataCriacao)
 
 	if err != nil {
 		return nil, err

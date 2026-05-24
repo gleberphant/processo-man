@@ -76,15 +76,15 @@ func (r *RepositorioProcesso) Listar() ([]Processo, error) {
 }
 
 // Deletar remove um processo do banco de dados utilizando seu UUID.
-func (r *RepositorioProcesso) Editar(Processo Processo) error {
+func (r *RepositorioProcesso) Editar(processo Processo) error {
 
-	if Processo.UUID == uuid.Nil {
+	if processo.UUID == uuid.Nil {
 		return errors.New("UUID NULO")
 	}
 
 	db := r.conn
 
-	_, err := db.Exec("UPDATE processos SET nome = ? WHERE uuid = ?", Processo.Nome, Processo.UUID)
+	_, err := db.Exec("UPDATE processos SET nome = ? WHERE uuid = ?", processo.Nome, processo.UUID)
 
 	if err != nil {
 		return err
@@ -146,22 +146,22 @@ func (r *RepositorioProcesso) BuscarPorUUID(UUID uuid.UUID) (*Processo, error) {
 }
 
 // verifica se existe
-func (r *RepositorioProcesso) AutenticarProcesso(UUID uuid.UUID) (uuid.UUID, error) {
+func (r *RepositorioProcesso) ValidarProcesso(UUID uuid.UUID) error {
 	db := r.conn
 
 	row := db.QueryRow("SELECT EXISTS (SELECT 1 FROM processos WHERE uuid = ?)", UUID.String())
 
-	var existe bool
+	var valido bool
 
-	err := row.Scan(&existe)
+	err := row.Scan(&valido)
 
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("Erro>Autenticar Processo> SELECT > %w", err)
+		return fmt.Errorf("Erro>Autenticar Processo> SELECT > %w", err)
 	}
 
-	if !existe {
-		return uuid.Nil, errors.New("processo não encontrado")
+	if !valido {
+		return errors.New("processo não encontrado")
 	}
 
-	return UUID, nil
+	return nil
 }

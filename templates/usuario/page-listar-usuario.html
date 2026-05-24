@@ -1,7 +1,6 @@
 {{define "page"}}
 <main class="container mt-5">
     <div class="container">
-
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="h4 mb-0">Lista de Usuários</h2>
             <form id="form-criar-usuario" method="get" action="/usuario/criar" style="display:inline;">
@@ -9,9 +8,6 @@
             </form>
         </div>
         <section class="card">
-
-
-
 
             <div class="table-responsive">
                 <table class="table align-middle table-striped table-hover mb-0">
@@ -26,7 +22,7 @@
                     </thead>
                     <tbody>
 
-                        {{ range . }}
+                        {{ range .Usuarios }}
                         <tr>
                             <td>{{ .UUID }}</td>
                             <td>{{ .Nome }}</td>
@@ -34,23 +30,20 @@
                             <td>-</td>
 
                             <td>
-                                <form id="form-ver-{{.UUID}}" method="get" action="/usuario/editar"
+                                <form id="form-ver-{{.UUID}}" method="get" action="/usuarios/{{ .UUID }}"
                                     style="display:inline;">
-                                    <input type="hidden" name="uuid" value="{{.UUID}}" />
                                     <button type="submit" class="btn btn-info mb-2">
                                         Visualizar
                                     </button>
                                 </form>
-                                <form id="form-editar-{{.UUID}}" method="get" action="/usuario/editar"
+                                <form id="form-editar-{{.UUID}}" method="get" action="/usuarios/{{ .UUID }}/editar"
                                     style="display:inline;">
-                                    <input type="hidden" name="uuid" value="{{.UUID}}" />
                                     <button type="submit" class="btn btn-warning mb-2">
                                         Editar
                                     </button>
                                 </form>
-                                <form id="form-deletar-{{.UUID}}" method="post" action="/usuario/deletar"
+                                <form id="form-deletar-{{.UUID}}" method="post" action="/usuarios/{{ .UUID }}/deletar"
                                     style="display:inline;">
-                                    <input type="hidden" name="uuid" value="{{.UUID}}" />
                                     <button type="button" onclick="onClickDeletar('{{.UUID}}')"
                                         class="btn btn-danger mb-2">
                                         Deletar
@@ -80,4 +73,4 @@
 
 {{end}}
 
-{{define "title"}}Index - Projeto Go{{end}}
+{{define "title"}} USUARIOS - Projeto Go{{end}}

@@ -24,33 +24,34 @@ func (s *Roteador) ConfigurarRotas() http.Handler {
 
 	// ROTAS USUARIOS
 	//// PAGINAS GET
-	mux.HandleFunc("GET /usuario/criar", s.ManipuladorUsuario.PageCriar)
-	mux.HandleFunc("GET /usuario/listar", s.ManipuladorUsuario.PageListar)
-	mux.HandleFunc("GET /usuario/editar", s.ManipuladorUsuario.PageEditar)
+	mux.HandleFunc("GET /usuarios", s.ManipuladorUsuario.PageListarUsuarios)
+	mux.HandleFunc("GET /usuarios/criar", s.ManipuladorUsuario.PageCriarUsuario)
+	mux.HandleFunc("GET /usuarios/{UUID}", s.ManipuladorUsuario.PageVerUsuario)
+	mux.HandleFunc("GET /usuarios/{UUID}/editar", s.ManipuladorUsuario.PageEditarUsuario)
 
 	//// ACOES POST
-	mux.HandleFunc("POST /usuario/criar", s.ManipuladorUsuario.CriarUsuarioPost)
-	mux.HandleFunc("POST /usuario/deletar", s.ManipuladorUsuario.DeletarUsuarioPost)
-	mux.HandleFunc("POST /usuario/editar", s.ManipuladorUsuario.EditarUsuarioPost)
+	mux.HandleFunc("POST /usuarios/criar", s.ManipuladorUsuario.CriarUsuarioPost)
+	mux.HandleFunc("POST /usuarios/{UUID}/editar", s.ManipuladorUsuario.EditarUsuarioPost)
+	mux.HandleFunc("POST /usuarios/{UUID}/deletar", s.ManipuladorUsuario.DeletarUsuarioPost)
 
 	// ROTAS PROCESSOS
 	//// PAGINAS GET
-	mux.HandleFunc("GET /processos/criar", s.ManipuladorProcesso.PageCriar)
 	mux.HandleFunc("GET /processos", s.ManipuladorProcesso.PageListar)
+	mux.HandleFunc("GET /processos/criar", s.ManipuladorProcesso.PageCriar)
 	mux.HandleFunc("GET /processos/{UUID}", s.ManipuladorProcesso.PageVerProcesso)
 	mux.HandleFunc("GET /processos/{UUID}/editar", s.ManipuladorProcesso.PageEditar)
+	mux.HandleFunc("GET /processos/{UUID}/tarefas", s.ManipuladorTarefa.PageListarTarefasPorProcesso)
 
 	//// AÇÕES POST
 	mux.HandleFunc("POST /processos/criar", s.ManipuladorProcesso.CriarProcessoPost)
 	mux.HandleFunc("POST /processos/{UUID}/editar", s.ManipuladorProcesso.EditarProcessoPost)
 	mux.HandleFunc("POST /processos/{UUID}/deletar", s.ManipuladorProcesso.DeletarProcessoPost)
-	mux.HandleFunc("POST /tarefas/{UUID}/arquivar", s.ManipuladorTarefa.DeletarTarefaPost)
+	mux.HandleFunc("POST /processos/{UUID}/arquivar", s.ManipuladorProcesso.DeletarProcessoPost)
 
 	// ROTAS TAREFAS
 	//// PAGINAS GET
-	mux.HandleFunc("GET /tarefas/criar", s.ManipuladorTarefa.PageCriarTarefa)
 	mux.HandleFunc("GET /tarefas", s.ManipuladorTarefa.PageListarTarefas)
-	mux.HandleFunc("GET /tarefas/processo", s.ManipuladorTarefa.PageListarTarefasPorProcesso)
+	mux.HandleFunc("GET /tarefas/criar", s.ManipuladorTarefa.PageCriarTarefa)
 	mux.HandleFunc("GET /tarefas/{UUID}", s.ManipuladorTarefa.PageVerTarefa)
 	mux.HandleFunc("GET /tarefas/{UUID}/editar", s.ManipuladorTarefa.PageEditarTarefa)
 

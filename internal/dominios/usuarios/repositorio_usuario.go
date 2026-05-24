@@ -9,13 +9,13 @@ import (
 )
 
 type RepositorioUsuario struct {
-	Conn *sql.DB
+	conn *sql.DB
 }
 
 // NovoRepositorioUsuario cria uma nova instância do repositório de usuários e estabelece a conexão.
 func NovoRepositorioUsuario(conn *sql.DB) *RepositorioUsuario {
 	repo := RepositorioUsuario{
-		Conn: conn,
+		conn: conn,
 	}
 
 	return &repo
@@ -23,13 +23,13 @@ func NovoRepositorioUsuario(conn *sql.DB) *RepositorioUsuario {
 
 // Fechar encerra a conexão ativa com o banco de dados.
 func (r *RepositorioUsuario) Fechar() {
-	r.Conn.Close()
+	r.conn.Close()
 }
 
 // Criar insere um novo registro de usuário na tabela de usuários.
 func (r *RepositorioUsuario) Criar(usuario Usuario) error {
 
-	db := r.Conn
+	db := r.conn
 
 	_, err := db.Exec("INSERT INTO usuarios (uuid, nome, email, senha) VALUES (?, ?, ?, ?)",
 		usuario.UUID,
@@ -45,7 +45,7 @@ func (r *RepositorioUsuario) Criar(usuario Usuario) error {
 // Listar retorna todos os usuários cadastrados no banco de dados.
 func (r *RepositorioUsuario) Listar() ([]Usuario, error) {
 
-	db := r.Conn
+	db := r.conn
 
 	rows, err := db.Query("SELECT uuid, nome, email FROM usuarios ")
 
@@ -72,7 +72,19 @@ func (r *RepositorioUsuario) Listar() ([]Usuario, error) {
 }
 
 // Deletar remove um usuário do banco de dados utilizando seu UUID.
-func (r *RepositorioUsuario) Atualizar(usuario Usuario) error {
+func (r *RepositorioUsuario) Editar(usuario Usuario) error {
+
+	if usuario.UUID == uuid.Nil {
+		return errors.New("UUID NULO")
+	}
+
+	db := r.conn
+
+	_, err := db.Exec("UPDATE usuarios SET nome = ?, email= ?, senha = ? WHERE uuid = ?", usuario.Nome, usuario.Email, usuario.Senha, usuario.UUID)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -84,7 +96,7 @@ func (r *RepositorioUsuario) Deletar(UUID uuid.UUID) error {
 		return errors.New("UUID NULO")
 	}
 
-	db := r.Conn
+	db := r.conn
 
 	_, err := db.Exec("DELETE FROM usuarios WHERE uuid=?", UUID)
 
@@ -98,7 +110,7 @@ func (r *RepositorioUsuario) Deletar(UUID uuid.UUID) error {
 // BuscarPorUUID recupera os dados de um usuário específico através do seu identificador único.
 func (r *RepositorioUsuario) BuscarPorUUID(UUID uuid.UUID) (*Usuario, error) {
 
-	db := r.Conn
+	db := r.conn
 
 	row := db.QueryRow("SELECT uuid, nome, email FROM usuarios WHERE uuid=? ", UUID.String())
 
@@ -111,9 +123,9 @@ func (r *RepositorioUsuario) BuscarPorUUID(UUID uuid.UUID) (*Usuario, error) {
 
 func (r *RepositorioUsuario) BuscarPorEmail(email string) (*Usuario, error) {
 
-	db := r.Conn
+	db := r.conn
 
-	row := db.QueryRow("SELECT uuid, nome, email FROM usuarios WHERE email=?", email)
+	row := db.QueryRow("SELECT uuid, nome, email, senha FROM usuarios WHERE email=?", email)
 
 	usuario := &Usuario{}
 
@@ -129,7 +141,7 @@ func (r *RepositorioUsuario) BuscarPorEmail(email string) (*Usuario, error) {
 
 // verifica se existe
 func (r *RepositorioUsuario) AutenticarUsuario(email string, senha string) (string, error) {
-	db := r.Conn
+	db := r.conn
 
 	row := db.QueryRow("SELECT uuid FROM usuarios WHERE email=? AND senha=?", email, senha)
 

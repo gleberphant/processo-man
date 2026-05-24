@@ -20,6 +20,9 @@
                             <tr><th class="bg-light">PROCESSO (UUID)</th><td>{{.Tarefa.ProcessoUUID}}</td></tr>
                             <tr><th class="bg-light">RESPONSÁVEL (UUID)</th><td>{{.Tarefa.ResponsavelUUID}}</td></tr>
                             <tr><th class="bg-light">COMENTÁRIOS</th><td>{{.Tarefa.Comentarios}}</td></tr>
+                            <tr><th class="bg-light">CONCLUIDA</th><td>{{.Tarefa.Concluida}}</td></tr>
+                            <tr><th class="bg-light">DATA CRIAÇÃO</th><td>{{ formatarData .Tarefa.DataCriacao }}</td></tr>
+                            <tr><th class="bg-light">DATA CONCLUSÃO</th><td>{{ formatarData .Tarefa.DataConclusao }}</td></tr>
                         </tbody>
                     </table>
                 </div>

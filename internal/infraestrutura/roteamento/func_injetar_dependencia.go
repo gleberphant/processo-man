@@ -25,7 +25,7 @@ func (s *Roteador) InjetarDependencias() error {
 	tarefaRepo := tarefas.NovoRepositorioTarefa(db)
 
 	// injeta repositorios nos casos de uso
-	cduAutenticacao := autenticacao.NovoCDUAutenticacao(tokensRepo)
+	cduAutenticacao := autenticacao.NovoCDUAutenticacao(tokensRepo, usuariosRepo)
 	cduUsuario := usuarios.NovoCDUUsuario(usuariosRepo)
 	cduProcesso := processos.NovoCDUProcesso(processoRepo, tarefaRepo)
 	cduTarefa := tarefas.NovoCDUTarefa(tarefaRepo, processoRepo)
@@ -34,7 +34,7 @@ func (s *Roteador) InjetarDependencias() error {
 	s.LoginManipulador = autenticacao.NovoManipuladorLogin(cduAutenticacao)
 	s.ManipuladorUsuario = usuarios.NovoManipuladorUsuario(cduUsuario)
 	s.ManipuladorProcesso = processos.NovoManipuladorProcesso(cduProcesso)
-	s.ManipuladorTarefa = tarefas.NovoManipuladorTarefa(cduTarefa)
+	s.ManipuladorTarefa = tarefas.NovoManipuladorTarefa(cduTarefa, cduUsuario)
 
 	return nil
 
