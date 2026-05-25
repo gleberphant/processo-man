@@ -21,9 +21,9 @@ func NovoRepositorioToken(conn *sql.DB) *RepositorioToken {
 		"/":                        {"admin": true, "colaboradores": true},
 		"/usuarios/clientes/":      {"admin": true, "colaboradores": true},
 		"/usuarios/colaboradores/": {"admin": true, "colaboradores": true},
-		"/usuarios/":               {"admin": true, "colaboradores": true},
-		"/processos/":              {"admin": true, "colaboradores": true, "cliente": true},
-		"/tarefas/":                {"admin": true, "colaboradores": true, "cliente": true},
+		"/usuarios":                {"admin": true, "colaboradores": true},
+		"/processos":               {"admin": true, "colaboradores": true, "cliente": true},
+		"/tarefas":                 {"admin": true, "colaboradores": true, "cliente": true},
 	}
 
 	repo := RepositorioToken{
