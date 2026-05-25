@@ -12,13 +12,6 @@ type ManipuladorUsuario struct {
 	cduUsario *CDUUsuario
 }
 
-type ViewModelUsuario struct {
-	UUID     string
-	Usuarios interface{}
-	Tarefas  interface{}
-	Anexos   interface{}
-}
-
 func NovoManipuladorUsuario(casosDeUsoUsuario *CDUUsuario) *ManipuladorUsuario {
 
 	return &ManipuladorUsuario{
@@ -49,6 +42,7 @@ func (m *ManipuladorUsuario) PageCriarColaborador(w http.ResponseWriter, r *http
 func (m *ManipuladorUsuario) PageListarUsuarios(w http.ResponseWriter, r *http.Request) {
 
 	lista, err := m.cduUsario.ListarUsuarios()
+
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro PageListar:%v", err))
 		return

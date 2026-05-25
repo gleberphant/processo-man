@@ -47,7 +47,7 @@ func (u *CDUProcesso) CriarProcesso(processo Processo) error {
 	}
 
 	if processo.UUID == uuid.Nil {
-		processo.UUID = uuid.New()
+		processo.UUID, _ = uuid.NewV7()
 
 		return u.repoProcesso.Criar(processo)
 

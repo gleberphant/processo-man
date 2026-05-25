@@ -11,7 +11,7 @@ type Usuario struct {
 	Nome        string
 	Email       string
 	Senha       string
-	Perfis      string
+	Perfis      []string
 	DataCriacao time.Time
 }
 

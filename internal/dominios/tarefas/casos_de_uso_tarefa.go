@@ -35,7 +35,7 @@ func NovoCDUTarefa(TarefasRepo IRepositorioTarefa, ProcessoRepo IRepositorioProc
 
 func (t *CDUTarefa) CriarTarefa(tarefa Tarefa) error {
 
-	tarefa.UUID = uuid.New()
+	tarefa.UUID, _ = uuid.NewV7()
 
 	if tarefa.ProcessoUUID == uuid.Nil {
 		return errors.New("Informe o processo a qual pertence a tarefa ")

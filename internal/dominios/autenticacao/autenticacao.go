@@ -12,11 +12,10 @@ type Token struct {
 	DataCriacao time.Time
 	Validade    string
 	Comentarios string
-	Perfis      string
+	Perfis      []string
 }
 
 type Permissoes struct {
-	UUID      uuid.UUID
-	Perfil    string
-	Permissao string
+	Rota   string
+	Perfis []string
 }

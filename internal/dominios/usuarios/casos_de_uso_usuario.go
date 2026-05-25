@@ -9,14 +9,17 @@ import (
 
 type IRepositorioUsuario interface {
 	Criar(Usuario) error
-	Listar() ([]Usuario, error)
+	ListarUsuarios() ([]Usuario, error)
 	Editar(Usuario) error
 	Deletar(uuid.UUID) error
+	DeletarCliente(uuid.UUID) error
+	DeletarColaborador(uuid.UUID) error
 	BuscarPorUUID(uuid.UUID) (*Usuario, error)
 	AdicionarPerfilCliente(Cliente) error
 	AdicionarPerfilColaborador(Colaborador) error
 	ListarClientes() ([]Cliente, error)
 	ListarColaboradores() ([]Colaborador, error)
+	MudarSenha(string, uuid.UUID) error
 }
 
 type CDUUsuario struct {
@@ -32,7 +35,7 @@ func NovoCDUUsuario(usuariosRepo IRepositorioUsuario) *CDUUsuario {
 
 func (u *CDUUsuario) CriaUsuario(usuario *Usuario) error {
 
-	usuario.UUID = uuid.New()
+	usuario.UUID, _ = uuid.NewV7()
 
 	senhaForte, err := bcrypt.GenerateFromPassword([]byte(usuario.Senha), bcrypt.DefaultCost)
 
@@ -66,7 +69,7 @@ func (u *CDUUsuario) CriarColaborador(colaborador *Colaborador) error {
 }
 
 func (u *CDUUsuario) ListarUsuarios() ([]Usuario, error) {
-	lista, err := u.RepoUsuarios.Listar()
+	lista, err := u.RepoUsuarios.ListarUsuarios()
 	if err != nil {
 		return nil, err
 	}
@@ -83,21 +86,38 @@ func (u *CDUUsuario) ListarColaboradores() ([]Colaborador, error) {
 
 func (u *CDUUsuario) EditarUsuario(usuario Usuario) error {
 
-	senhaForte, err := bcrypt.GenerateFromPassword([]byte(usuario.Senha), bcrypt.DefaultCost)
+	err := u.RepoUsuarios.Editar(usuario) // edição não altera senha
 
 	if err != nil {
 		return err
 	}
 
-	usuario.Senha = string(senhaForte)
+	if usuario.Senha != "" {
+		senhaForte, err := bcrypt.GenerateFromPassword([]byte(usuario.Senha), bcrypt.DefaultCost)
 
-	u.RepoUsuarios.Editar(usuario)
+		if err != nil {
+			return err
+		}
 
-	return err
+		u.RepoUsuarios.MudarSenha(string(senhaForte), usuario.UUID)
+	}
+
+	return nil
 }
 
 func (u *CDUUsuario) DeletarUsuario(usuarioUUID uuid.UUID) error {
-	return u.RepoUsuarios.Deletar(usuarioUUID)
+
+	err1 := u.RepoUsuarios.Deletar(usuarioUUID)
+
+	err2 := u.RepoUsuarios.DeletarCliente(usuarioUUID)
+
+	err3 := u.RepoUsuarios.DeletarColaborador(usuarioUUID)
+
+	if err := errors.Join(err1, err2, err3); err != nil {
+
+		return err
+	}
+	return nil
 }
 
 func (u *CDUUsuario) BuscarUsuarioPorUUID(usuarioUUID uuid.UUID) (*Usuario, error) {

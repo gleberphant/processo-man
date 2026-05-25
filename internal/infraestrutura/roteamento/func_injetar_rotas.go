@@ -3,8 +3,8 @@ package roteamento
 import (
 	"net/http"
 
+	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao"
 	"github.com/gleberphant/ProcessoMan/internal/dominios/paginasestaticas"
-	"github.com/gleberphant/ProcessoMan/internal/intermediarios"
 )
 
 // configurar as rotas e devolver MUX configurado
@@ -34,7 +34,7 @@ func (s *Roteador) ConfigurarRotas() http.Handler {
 	mux.Handle("/tarefas/", http.StripPrefix("/tarefas", tarefasMux))
 
 	// INJETA INTERMEDIÁRIOS - Middlewares
-	roteador := intermediarios.AutenticadorIntermediario(intermediarios.LogIntermediario(mux), s.LoginManipulador.CDUAutenticacao)
+	roteador := autenticacao.LogIntermediario(autenticacao.AutenticadorIntermediario(mux, s.LoginManipulador.CDUAutenticacao))
 	return roteador
 
 }

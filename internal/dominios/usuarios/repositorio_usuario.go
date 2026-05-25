@@ -65,23 +65,16 @@ func (r *RepositorioUsuario) AdicionarPerfilColaborador(colaborador Colaborador)
 }
 
 // Listar retorna todos os usuários cadastrados no banco de dados.
-func (r *RepositorioUsuario) Listar() ([]Usuario, error) {
+func (r *RepositorioUsuario) ListarUsuarios() ([]Usuario, error) {
 
 	db := r.conn
 
-	query := `
-		SELECT 
-			u.uuid, 
-			u.nome, 
-			u.email,
-			CASE WHEN c.usuario_uuid IS NOT NULL THEN 'Cliente' ELSE '' END,
-			CASE WHEN col.usuario_uuid IS NOT NULL THEN 'Colaborador' ELSE '' END
+	rows, err := db.Query(`
+		SELECT u.uuid, u.nome, u.email,	cli.usuario_uuid, col.usuario_uuid
 		FROM usuarios u
-		LEFT JOIN clientes c ON u.uuid = c.usuario_uuid
+		LEFT JOIN clientes cli ON u.uuid = cli.usuario_uuid
 		LEFT JOIN colaboradores col ON u.uuid = col.usuario_uuid
-	`
-
-	rows, err := db.Query(query)
+	`)
 
 	// se erro na consulta
 	if err != nil {
@@ -94,28 +87,27 @@ func (r *RepositorioUsuario) Listar() ([]Usuario, error) {
 
 	for rows.Next() {
 
-		usuario := Usuario{}
-		var perfilCliente, perfilColab string
+		var uuidCliente, uuidColaborador sql.NullString
 
-		err := rows.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email, &perfilCliente, &perfilColab)
+		usuario := Usuario{}
+
+		err := rows.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email, &uuidCliente, &uuidColaborador)
+
 		if err != nil {
 			return nil, err
 		}
 
-		perfis := ""
-		if perfilCliente != "" {
-			perfis += perfilCliente
+		if uuidCliente.Valid {
+			usuario.Perfis = append(usuario.Perfis, "Cliente")
 		}
-		if perfilColab != "" {
-			if perfis != "" {
-				perfis += " / "
-			}
-			perfis += perfilColab
+
+		if uuidColaborador.Valid {
+			usuario.Perfis = append(usuario.Perfis, "Colaborador")
 		}
-		if perfis == "" {
-			perfis = "Usuário"
+
+		if len(usuario.Perfis) == 0 {
+			usuario.Perfis = append(usuario.Perfis, "Usuario")
 		}
-		usuario.Perfis = perfis
 
 		listaUsuario = append(listaUsuario, usuario)
 	}
@@ -184,8 +176,27 @@ func (r *RepositorioUsuario) Editar(usuario Usuario) error {
 	}
 
 	db := r.conn
+	var err error
 
-	_, err := db.Exec("UPDATE usuarios SET nome = ?, email= ?, senha = ? WHERE uuid = ?", usuario.Nome, usuario.Email, usuario.Senha, usuario.UUID)
+	_, err = db.Exec("UPDATE usuarios SET nome = ?, email= ? WHERE uuid = ?", usuario.Nome, usuario.Email, usuario.UUID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// altera senha
+func (r *RepositorioUsuario) MudarSenha(novaSenha string, usuarioUUID uuid.UUID) error {
+
+	if usuarioUUID == uuid.Nil {
+		return errors.New("UUID NULO")
+	}
+
+	db := r.conn
+
+	_, err := db.Exec("UPDATE usuarios SET senha = ? WHERE uuid = ?", novaSenha, usuarioUUID)
 
 	if err != nil {
 		return err
@@ -212,17 +223,76 @@ func (r *RepositorioUsuario) Deletar(UUID uuid.UUID) error {
 	return nil
 }
 
+func (r *RepositorioUsuario) DeletarCliente(UUID uuid.UUID) error {
+
+	if UUID == uuid.Nil {
+		return errors.New("UUID NULO")
+	}
+
+	db := r.conn
+
+	_, err := db.Exec("DELETE FROM clientes WHERE usuario_uuid=?", UUID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *RepositorioUsuario) DeletarColaborador(UUID uuid.UUID) error {
+
+	if UUID == uuid.Nil {
+		return errors.New("UUID NULO")
+	}
+
+	db := r.conn
+
+	_, err := db.Exec("DELETE FROM colaboradores WHERE usuario_uuid=?", UUID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // BuscarPorUUID recupera os dados de um usuário específico através do seu identificador único.
 func (r *RepositorioUsuario) BuscarPorUUID(UUID uuid.UUID) (*Usuario, error) {
 
 	db := r.conn
 
-	row := db.QueryRow("SELECT uuid, nome, email FROM usuarios WHERE uuid=? ", UUID.String())
+	row := db.QueryRow(`
+		SELECT u.uuid, u.nome, u.email, cli.usuario_uuid, col.usuario_uuid
+		FROM usuarios u
+		LEFT JOIN clientes cli ON u.uuid = cli.usuario_uuid
+		LEFT JOIN colaboradores col ON u.uuid = col.usuario_uuid
+		WHERE u.uuid=?
+	`, UUID)
 
-	usuario := &Usuario{}
-	row.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email)
+	var uuidCliente, uuidColaborador sql.NullString
 
-	return usuario, nil
+	usuario := Usuario{}
+
+	err := row.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email, &uuidCliente, &uuidColaborador)
+
+	if err != nil {
+		return nil, err
+	}
+	// define a lista de perfis
+	if uuidCliente.Valid {
+		usuario.Perfis = append(usuario.Perfis, "Cliente")
+	}
+
+	if uuidColaborador.Valid {
+		usuario.Perfis = append(usuario.Perfis, "Colaborador")
+	}
+
+	if len(usuario.Perfis) == 0 {
+		usuario.Perfis = append(usuario.Perfis, "Usuario")
+	}
+
+	return &usuario, nil
 
 }
 
@@ -230,17 +300,37 @@ func (r *RepositorioUsuario) BuscarPorEmail(email string) (*Usuario, error) {
 
 	db := r.conn
 
-	row := db.QueryRow("SELECT uuid, nome, email, senha FROM usuarios WHERE email=?", email)
+	row := db.QueryRow(`
+		SELECT u.uuid, u.nome, u.email,	u.senha, cli.usuario_uuid, col.usuario_uuid
+		FROM usuarios u
+		LEFT JOIN clientes cli ON u.uuid = cli.usuario_uuid
+		LEFT JOIN colaboradores col ON u.uuid = col.usuario_uuid
+		WHERE u.email=?
+	`, email)
 
-	usuario := &Usuario{}
+	var uuidCliente, uuidColaborador sql.NullString
 
-	err := row.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email, &usuario.Senha)
+	usuario := Usuario{}
+
+	err := row.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email, &usuario.Senha, &uuidCliente, &uuidColaborador)
 
 	if err != nil {
 		return nil, err
 	}
+	// define a lista de perfis
+	if uuidCliente.Valid {
+		usuario.Perfis = append(usuario.Perfis, "Cliente")
+	}
 
-	return usuario, nil
+	if uuidColaborador.Valid {
+		usuario.Perfis = append(usuario.Perfis, "Colaborador")
+	}
+
+	if len(usuario.Perfis) == 0 {
+		usuario.Perfis = append(usuario.Perfis, "Usuario")
+	}
+
+	return &usuario, nil
 
 }
 

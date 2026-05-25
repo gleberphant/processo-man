@@ -30,7 +30,7 @@
                             </tr>
                             <tr>
                                 <th class="bg-light">DATA CRIAÇÃO</th>
-                                <td>{{.Processo.DataCriacao.Format "02/01/2006"}}</td>
+                                <td>{{ formatarData .Processo.DataCriacao }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -98,10 +98,11 @@
                                 <td>{{.UUID}}</td>
                                 <!-- <td>{{.ProcessoUUID}}</td> -->
                                 <td>{{.Nome}}</td>
-                                <td>{{.DataCriacao.Format "02/01/2006"}}</td>
+                                <td>{{ formatarData .DataCriacao }}</td>
                                 <td>{{.ResponsavelUUID}}</td>
                                 <td>{{.Concluida}}</td>
-                                <td>{{if not .DataConclusao.IsZero}}{{.DataConclusao.Format "02/01/2006"}}{{end}}</td>
+                                <td>{{if .DataConclusao.IsZero}}Aberto{{else }}{{ formatarData .DataConclusao}}{{end}}
+                                </td>
                                 <td>
                                     <form id="form-ver-{{.UUID}}" method="get" action="/tarefas/{{.UUID}}"
                                         style="display:inline;">
