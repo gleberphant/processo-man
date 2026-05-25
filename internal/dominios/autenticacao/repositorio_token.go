@@ -10,13 +10,25 @@ import (
 )
 
 type RepositorioToken struct {
-	Conn *sql.DB
+	Conn           *sql.DB
+	MapaPermissoes map[string]map[string]bool
 }
 
 // NovoRepositorioToken cria uma nova instância do repositório de tokens e estabelece a conexão.
 func NovoRepositorioToken(conn *sql.DB) *RepositorioToken {
+	// rota - pefis, acersso
+	permissoes := map[string]map[string]bool{
+		"/":                        {"admin": true, "colaboradores": true},
+		"/usuarios/clientes/":      {"admin": true, "colaboradores": true},
+		"/usuarios/colaboradores/": {"admin": true, "colaboradores": true},
+		"/usuarios/":               {"admin": true, "colaboradores": true},
+		"/processos/":              {"admin": true, "colaboradores": true, "cliente": true},
+		"/tarefas/":                {"admin": true, "colaboradores": true, "cliente": true},
+	}
+
 	repo := RepositorioToken{
-		Conn: conn,
+		Conn:           conn,
+		MapaPermissoes: permissoes,
 	}
 
 	return &repo
@@ -28,8 +40,20 @@ func (r *RepositorioToken) Fechar() {
 	r.Conn.Close()
 }
 
+func (r *RepositorioToken) ObterMapaPermissoes(rota string) map[string]bool {
+
+	return r.MapaPermissoes[strings.ToLower(rota)]
+
+}
+
+func (r *RepositorioToken) VerificarPermissaoPerfil(perfil string, rota string) bool {
+
+	return r.MapaPermissoes[strings.ToLower(rota)][strings.ToLower(perfil)]
+
+}
+
 // Criar insere um novo registro de token na tabela de tokens.
-func (r *RepositorioToken) Criar(token Token) (*Token, error) {
+func (r *RepositorioToken) Criar(token *Token) (*Token, error) {
 
 	db := r.Conn
 
@@ -53,7 +77,7 @@ func (r *RepositorioToken) Criar(token Token) (*Token, error) {
 		return nil, fmt.Errorf("[Erro no SELECT de confirmacao da criacao do token ]: %w", err)
 	}
 
-	return &token, nil
+	return token, nil
 
 }
 

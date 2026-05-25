@@ -3,7 +3,6 @@ package autenticacao
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
 	"github.com/google/uuid"
@@ -12,9 +11,11 @@ import (
 
 type IRepositorioToken interface {
 	Fechar()
-	Criar(Token) (*Token, error)
+	Criar(*Token) (*Token, error)
 	BuscarPorUUID(UUID uuid.UUID) (*Token, error)
 	DeletarPorUsuarioUUID(uuid.UUID) error
+	VerificarPermissaoPerfil(string, string) bool
+	//ObterMapaPermissoes(rota string) map[string]bool
 }
 
 type IRepositorioUsuario interface {
@@ -24,79 +25,33 @@ type IRepositorioUsuario interface {
 }
 
 type CDUAutenticacao struct {
-	RepoTokens     IRepositorioToken
-	RepoUsuarios   IRepositorioUsuario
-	MapaPermissoes map[string][]string
+	RepoTokens   IRepositorioToken
+	RepoUsuarios IRepositorioUsuario
 }
 
 func NovoCDUAutenticacao(tokensRepo IRepositorioToken, usuariosRepo IRepositorioUsuario) *CDUAutenticacao {
 
-	permissoes := map[string][]string{
-		"/":                        {"usuario", "colaborador"},
-		"/usuarios/clientes/":      {"usuario", "colaborador"},
-		"/usuarios/colaboradores/": {"usuario", "colaborador"},
-		"/usuarios/":               {"usuario", "colaborador"},
-		"/processos/":              {"usuario", "colaborador", "cliente"},
-		"/tarefas/":                {"usuario", "colaborador"},
-	}
-
 	return &CDUAutenticacao{
-		RepoTokens:     tokensRepo,
-		RepoUsuarios:   usuariosRepo,
-		MapaPermissoes: permissoes,
+		RepoTokens:   tokensRepo,
+		RepoUsuarios: usuariosRepo,
 	}
 }
 
-// verificar se token é valido. retorna error se token não encontrado
-func (a *CDUAutenticacao) ValidarToken(tokenUUID uuid.UUID) error {
-
-	_, err := a.RepoTokens.BuscarPorUUID(tokenUUID)
-
-	if err != nil {
-		return fmt.Errorf("token invalido: %w ", err)
-	}
-
-	return nil
-}
-
-// verificar se token é valido. retorna error se token não encontrado
+// verificar se token tem permissão para acessar uma rota
 func (a *CDUAutenticacao) VerificarPermissao(tokenUUID uuid.UUID, rota string) error {
 
-	var perfisPermitidos []string
-	var matchEncontrado bool
-	tamanhoMatch := 0
-
-	// Busca o prefixo de rota mais longo que corresponde à URL requisitada
-	for chave, perfis := range a.MapaPermissoes {
-		if strings.HasPrefix(rota, chave) {
-			if len(chave) > tamanhoMatch {
-				tamanhoMatch = len(chave)
-				perfisPermitidos = perfis
-				matchEncontrado = true
-			}
-		}
-	}
-
-	if !matchEncontrado {
-		return errors.New("rota não mapeada no sistema de permissões")
-	}
-
+	// busca o token completo
 	token, err := a.RepoTokens.BuscarPorUUID(tokenUUID)
 
 	if err != nil {
-		return fmt.Errorf("token invalido: %w ", err)
+		return fmt.Errorf("Token não encontrado: %w ", err)
 	}
 
+	// verificar permissao
 	for _, perfil := range token.Perfis {
-
-		for _, perfilPermitido := range perfisPermitidos {
-
-			if strings.EqualFold(perfil, perfilPermitido) {
-				return nil
-			}
-
+		if a.RepoTokens.VerificarPermissaoPerfil(perfil, rota) {
+			return nil
 		}
-
 	}
 
 	return fmt.Errorf("perfil [%v] não autorizado a rota [%s]", token.Perfis, rota)
@@ -106,11 +61,10 @@ func (a *CDUAutenticacao) VerificarPermissao(tokenUUID uuid.UUID, rota string) e
 func (a *CDUAutenticacao) AutenticarUsuario(email string, senha string) (string, error) {
 
 	//valida usuario
-	// 1 Verifica se o usuario/email existe
 	if email == "" {
 		return "", errors.New("Usuario nulo")
 	}
-
+	// 1 Verifica se o usuario/email existe
 	usuario, err := a.RepoUsuarios.BuscarPorEmail(email)
 	if err != nil {
 		return "", fmt.Errorf("usuario não encontrado: %w ", err)
@@ -120,7 +74,8 @@ func (a *CDUAutenticacao) AutenticarUsuario(email string, senha string) (string,
 	err = bcrypt.CompareHashAndPassword([]byte(usuario.Senha), []byte(senha))
 
 	if err != nil {
-		if senha != usuario.Senha {
+		//fallback para usuario teste
+		if senha != usuario.Senha && usuario.UUID.String() == "00000000-0000-0000-0000-000000000000" {
 			return "", fmt.Errorf("senha inválida : %w ", err)
 		}
 	}
@@ -141,6 +96,10 @@ func (a *CDUAutenticacao) GerarToken(usuario *usuarios.Usuario) (*Token, error) 
 	// limpar tokens antigos no repositorio
 	err := a.RepoTokens.DeletarPorUsuarioUUID(usuario.UUID)
 
+	if err != nil {
+		return nil, err
+	}
+
 	// gerar novo uuid do token
 	tokenUUID, err := uuid.NewV7()
 
@@ -149,12 +108,13 @@ func (a *CDUAutenticacao) GerarToken(usuario *usuarios.Usuario) (*Token, error) 
 	}
 
 	// inserir o novo token no repositorio
-	token, err := a.RepoTokens.Criar(Token{
-		UUID:        tokenUUID,
-		UsuarioUUID: usuario.UUID,
-		Validade:    "temporario",
-		Perfis:      usuario.Perfis,
-	})
+	token, err := a.RepoTokens.Criar(
+		&Token{
+			UUID:        tokenUUID,
+			UsuarioUUID: usuario.UUID,
+			Validade:    "temporario",
+			Perfis:      usuario.Perfis,
+		})
 
 	if err != nil {
 		return nil, err

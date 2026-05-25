@@ -319,15 +319,15 @@ func (r *RepositorioUsuario) BuscarPorEmail(email string) (*Usuario, error) {
 	}
 	// define a lista de perfis
 	if uuidCliente.Valid {
-		usuario.Perfis = append(usuario.Perfis, "Cliente")
+		usuario.Perfis = append(usuario.Perfis, "cliente")
 	}
 
 	if uuidColaborador.Valid {
-		usuario.Perfis = append(usuario.Perfis, "Colaborador")
+		usuario.Perfis = append(usuario.Perfis, "colaborador")
 	}
 
 	if len(usuario.Perfis) == 0 {
-		usuario.Perfis = append(usuario.Perfis, "Usuario")
+		usuario.Perfis = append(usuario.Perfis, "admin")
 	}
 
 	return &usuario, nil

@@ -45,19 +45,17 @@ func AutenticadorIntermediario(proximo http.Handler, autenticador *CDUAutenticac
 			return
 		}
 		log.Printf("\n -------------- Verificando permissao ----------------")
-		log.Printf("\n PATTERN:  [%s] URL : [%v] ", r.Pattern, r.URL)
+		log.Printf("\n  uri : [%s] PATTERN:  [%s] URL : [%s] ", r.RequestURI, r.Pattern, r.URL.Path)
 
-		err = autenticador.VerificarPermissao(tokenUUID, r.URL.String())
-
-		log.Printf("\n -------------- fim verificacao ----------------")
+		err = autenticador.VerificarPermissao(tokenUUID, r.URL.Path)
 
 		// se houver erro na validação. Redireciona para LOGIN
 		if err != nil {
-			log.Printf("Token [%s] Inválido : [%v] ", tokenUUID, err)
+			log.Printf("Erro Permissão: token [%s] : Erro  [%v] ", tokenUUID, err)
 			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado <br> Usuario sem permissão"), http.StatusSeeOther)
 			return
 		}
-
+		log.Printf("\n -------------- fim verificacao ----------------")
 		// iniciar seção
 		proximo.ServeHTTP(w, r)
 	})
