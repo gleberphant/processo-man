@@ -38,7 +38,7 @@ func NovoCDUAutenticacao(tokensRepo IRepositorioToken, usuariosRepo IRepositorio
 }
 
 // verificar se token tem permissão para acessar uma rota
-func (a *CDUAutenticacao) VerificarPermissao(tokenUUID uuid.UUID, rota string) error {
+func (a *CDUAutenticacao) VerificarPermissao(tokenUUID uuid.UUID, rota string, metodo string) error {
 
 	// busca o token completo
 	token, err := a.RepoTokens.BuscarPorUUID(tokenUUID)
@@ -47,14 +47,15 @@ func (a *CDUAutenticacao) VerificarPermissao(tokenUUID uuid.UUID, rota string) e
 		return fmt.Errorf("Token não encontrado: %w ", err)
 	}
 
+	chaveRota := metodo + ":" + rota
 	// verificar permissao
 	for _, perfil := range token.Perfis {
-		if a.RepoTokens.VerificarPermissaoPerfil(perfil, rota) {
+		if a.RepoTokens.VerificarPermissaoPerfil(perfil, chaveRota) {
 			return nil
 		}
 	}
 
-	return fmt.Errorf("perfil [%v] não autorizado a rota [%s]", token.Perfis, rota)
+	return fmt.Errorf("perfil [%v] não autorizado a rota [%s]", token.Perfis, chaveRota)
 
 }
 

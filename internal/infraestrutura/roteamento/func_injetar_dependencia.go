@@ -11,15 +11,23 @@ import (
 
 func (s *Roteador) InjetarDependencias() error {
 
-	// conexao com o banco de dados
-	db, err := bancodedados.ConectarSQLITE()
+	// conexao com bancos de dadoss
+	db, err := bancodedados.ConectarSQLITE("../database/sqlite.db?_foreign_keys=on")
+
+	if err != nil {
+		return err
+	}
+
+	dbAuth, err := bancodedados.ConectarSQLITE("../database/autenticacao.db?_foreign_keys=on")
 
 	if err != nil {
 		return err
 	}
 
 	// cria os repositorios
-	tokensRepo := autenticacao.NovoRepositorioToken(db)
+
+	tokensRepo := autenticacao.NovoRepositorioToken(dbAuth)
+
 	usuariosRepo := usuarios.NovoRepositorioUsuario(db)
 	processoRepo := processos.NovoRepositorioProcesso(db)
 	tarefaRepo := tarefas.NovoRepositorioTarefa(db)

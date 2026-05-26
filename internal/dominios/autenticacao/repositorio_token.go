@@ -2,60 +2,140 @@ package autenticacao
 
 import (
 	"database/sql"
+	_ "embed"
 	"errors"
 	"fmt"
+	"log"
+	"os"
 	"strings"
 
+	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/bancodedados"
 	"github.com/google/uuid"
 )
 
+/*
+* possui uma conexao persistente para carregar o mapa de
+* permissoes em memoria e atualizar as permissoes e possui tambem uma
+* conexao EM memoria para os tokens
+ */
+
 type RepositorioToken struct {
-	Conn           *sql.DB
-	MapaPermissoes map[string]map[string]bool
+	connPermissoes *sql.DB                    // conexao persisente para carregar permissoes
+	connToken      *sql.DB                    // conexao em memoria
+	mapaPermissoes map[string]map[string]bool // mapa carregado em memoria
 }
 
 // NovoRepositorioToken cria uma nova instância do repositório de tokens e estabelece a conexão.
-func NovoRepositorioToken(conn *sql.DB) *RepositorioToken {
-	// rota - pefis, acersso
-	permissoes := map[string]map[string]bool{
-		"/":                        {"admin": true, "colaboradores": true},
-		"/usuarios/clientes/":      {"admin": true, "colaboradores": true},
-		"/usuarios/colaboradores/": {"admin": true, "colaboradores": true},
-		"/usuarios":                {"admin": true, "colaboradores": true},
-		"/processos":               {"admin": true, "colaboradores": true, "cliente": true},
-		"/tarefas":                 {"admin": true, "colaboradores": true, "cliente": true},
-	}
+func NovoRepositorioToken(connPermissoes *sql.DB) *RepositorioToken {
 
 	repo := RepositorioToken{
-		Conn:           conn,
-		MapaPermissoes: permissoes,
+		connPermissoes: connPermissoes,
+	}
+
+	err := repo.carregarBancoDeTokensEmMemoria()
+	if err != nil {
+		panic(fmt.Errorf("Erro ao carregar Banco de Tokens em Memoria %w", err))
+	}
+
+	err = repo.carregarMapaPermissoesEmMemoria()
+	if err != nil {
+		panic(fmt.Errorf("Erro ao carregar mapa de Permissoes %w", err))
 	}
 
 	return &repo
+}
 
+// carrega o banco de dados em memoria. acoplado ao objeto para evitar falhas
+func (r *RepositorioToken) carregarBancoDeTokensEmMemoria() error {
+
+	log.Printf("Carregando repositorio token: banco de tokens em memoria")
+	// carregar schema do banco de dados de tokens
+	schemaDatabase, err := os.ReadFile("../database/schema_tokens.sql")
+
+	if err != nil {
+		return err
+	}
+
+	// carregar banco em memoria
+	connEmMemoria, err := bancodedados.ConectarSQLITE()
+
+	if err != nil {
+		return err
+	}
+
+	// executar configuração do banco de  em memoria
+	_, err = connEmMemoria.Exec(string(schemaDatabase))
+
+	if err != nil {
+		return err
+	}
+
+	r.connToken = connEmMemoria
+
+	return nil
+}
+
+// carrega carrega o Mapa de Permissoes na memoria
+func (r *RepositorioToken) carregarMapaPermissoesEmMemoria() error {
+
+	log.Printf("Carregando repositorio token: mapa de permissoes")
+	rows, err := r.connPermissoes.Query("SELECT rota, perfil, metodo FROM permissoes")
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	permissoes := make(map[string]map[string]bool)
+
+	for rows.Next() {
+		var rota, perfis, metodos string
+		if err := rows.Scan(&rota, &perfis, &metodos); err != nil {
+			return err
+		}
+
+		listaPerfil := strings.Split(strings.ToLower(perfis), ";")
+		listaMetodo := strings.Split(strings.ToLower(metodos), ";")
+
+		for _, perfil := range listaPerfil {
+
+			for _, metodo := range listaMetodo {
+				chave := metodo + ":" + rota
+				if permissoes[chave] == nil {
+					permissoes[chave] = make(map[string]bool)
+				}
+				permissoes[chave][perfil] = true
+			}
+		}
+	}
+
+	r.mapaPermissoes = permissoes
+
+	for key, value := range r.mapaPermissoes {
+		for key2, value2 := range value {
+			log.Printf("\n rota [%s] perfil [%s] valor [%v]", key, key2, value2)
+		}
+	}
+	return nil
 }
 
 // Fechar encerra a conexão ativa com o banco de dados.
 func (r *RepositorioToken) Fechar() {
-	r.Conn.Close()
-}
 
-func (r *RepositorioToken) ObterMapaPermissoes(rota string) map[string]bool {
-
-	return r.MapaPermissoes[strings.ToLower(rota)]
+	r.connToken.Close()
+	r.connPermissoes.Close()
 
 }
 
 func (r *RepositorioToken) VerificarPermissaoPerfil(perfil string, rota string) bool {
 
-	return r.MapaPermissoes[strings.ToLower(rota)][strings.ToLower(perfil)]
+	return r.mapaPermissoes[strings.ToLower(rota)][strings.ToLower(perfil)]
 
 }
 
 // Criar insere um novo registro de token na tabela de tokens.
 func (r *RepositorioToken) Criar(token *Token) (*Token, error) {
 
-	db := r.Conn
+	db := r.connToken
 
 	listaPerfis := strings.Join(token.Perfis, ",")
 
@@ -89,7 +169,7 @@ func (r *RepositorioToken) DeletarPorUsuarioUUID(UsuarioUUID uuid.UUID) error {
 	if strUUID == "" {
 		return errors.New("UUID do usuario vazio")
 	}
-	db := r.Conn
+	db := r.connToken
 
 	_, err := db.Exec("DELETE FROM tokens WHERE usuario_uuid=?", strUUID)
 
@@ -103,7 +183,7 @@ func (r *RepositorioToken) DeletarPorUsuarioUUID(UsuarioUUID uuid.UUID) error {
 // Ver busca os detalhes de um token específico através do seu UUID.
 func (r *RepositorioToken) BuscarPorUUID(UUID uuid.UUID) (*Token, error) {
 
-	db := r.Conn
+	db := r.connToken
 	row := db.QueryRow("SELECT uuid, usuario_uuid, validade, perfis, data_criacao FROM tokens WHERE uuid=?; ", UUID.String())
 
 	var token Token = Token{}
@@ -118,4 +198,26 @@ func (r *RepositorioToken) BuscarPorUUID(UUID uuid.UUID) (*Token, error) {
 
 	return &token, nil
 
+}
+
+// ListarTodos busca todos os tokens ativos no banco. Recomendado apenas para ambiente de debug.
+func (r *RepositorioToken) ListarTodos() ([]*Token, error) {
+	rows, err := r.connToken.Query("SELECT uuid, usuario_uuid, validade, perfis, data_criacao FROM tokens")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tokens []*Token
+	for rows.Next() {
+		var t Token
+		var perfis string
+		if err := rows.Scan(&t.UUID, &t.UsuarioUUID, &t.Validade, &perfis, &t.DataCriacao); err != nil {
+			return nil, err
+		}
+		t.Perfis = strings.Split(perfis, ",")
+		tokens = append(tokens, &t)
+	}
+
+	return tokens, nil
 }

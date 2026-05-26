@@ -15,7 +15,7 @@ func ConectarSQLITE(args ...string) (*sql.DB, error) {
 	if len(args) > 0 {
 		caminho = args[0]
 	} else {
-		caminho = "../database/sqlite.db?_foreign_keys=on"
+		caminho = "file::memory:?cache=shared" // se nenhum caminho for informado carrega o banco em memoria
 
 	}
 	var err error

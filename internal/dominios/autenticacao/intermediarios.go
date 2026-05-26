@@ -52,7 +52,7 @@ func AutenticadorIntermediario(proximo http.Handler, autenticador *CDUAutenticac
 		recursoBase := "/" + partes[0]
 		log.Printf("\n  uri : [%s]", recursoBase)
 
-		err = autenticador.VerificarPermissao(tokenUUID, recursoBase)
+		err = autenticador.VerificarPermissao(tokenUUID, recursoBase, r.Method)
 
 		// se houver erro na validação. Redireciona para LOGIN
 		if err != nil {
