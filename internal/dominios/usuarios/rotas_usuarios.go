@@ -6,42 +6,32 @@ import (
 
 //func (m *ManipuladorUsuario) Rotas(handlerTarefas http.HandlerFunc) *http.ServeMux
 
-func (m *ManipuladorUsuario) DefinirRotasUsuarios() *http.ServeMux {
-
-	// ROTEADOR:ROTEADOR: USUARIOS
-	usuariosMux := http.NewServeMux()
-	usuariosMux.HandleFunc("GET /{$}", m.PageListarUsuarios)
-	usuariosMux.HandleFunc("GET /criar", m.PageCriarUsuario)
-	usuariosMux.HandleFunc("GET /{UUID}", m.PageVerUsuario)
-	usuariosMux.HandleFunc("GET /{UUID}/editar", m.PageEditarUsuario)
-	usuariosMux.HandleFunc("POST /criar", m.CriarUsuarioPost)
-	usuariosMux.HandleFunc("POST /{UUID}/editar", m.EditarUsuarioPost)
-	usuariosMux.HandleFunc("POST /{UUID}/deletar", m.DeletarUsuarioPost)
-	//mux.HandleFunc("POST /{UUID}/tarefas", handlerTarefas)
-
-	return usuariosMux
+func (m *ManipuladorUsuario) InjetarRotasUsuarios(mux *http.ServeMux) {
+	// ROTAS DE USUÁRIOS
+	mux.HandleFunc("GET /usuarios/{$}", m.PageListarUsuarios)
+	mux.HandleFunc("GET /usuarios/criar", m.PageCriarUsuario)
+	mux.HandleFunc("GET /usuarios/{UUID}", m.PageVerUsuario)
+	mux.HandleFunc("GET /usuarios/{UUID}/editar", m.PageEditarUsuario)
+	mux.HandleFunc("POST /usuarios/criar", m.CriarUsuarioPost)
+	mux.HandleFunc("POST /usuarios/{UUID}/editar", m.EditarUsuarioPost)
+	mux.HandleFunc("POST /usuarios/{UUID}/deletar", m.DeletarUsuarioPost)
 }
 
-func (m *ManipuladorUsuario) DefinirRotasClientes() *http.ServeMux {
-	// ROTEADOR: CLIENTES
-	clientesMux := http.NewServeMux()
-	clientesMux.HandleFunc("GET /{$}", m.PageListarClientes)
-	clientesMux.HandleFunc("GET /criar", m.PageCriarCliente)
-	//clientesMux.HandleFunc("GET /{UUID}", m.PageVerCliente)
-	//clientesMux.HandleFunc("GET /{UUID}/editar", m.PageEditarCliente)
-	clientesMux.HandleFunc("POST /criar", m.CriarClientePost)
-	//clientesMux.HandleFunc("POST /{UUID}/editar", m.EditarClientePost)
-	//clientesMux.HandleFunc("POST /{UUID}/deletar", m.DeletarClientePost)
-
-	return clientesMux
+func (m *ManipuladorUsuario) InjetarRotasClientes(mux *http.ServeMux) {
+	// ROTAS DE CLIENTES
+	mux.HandleFunc("GET /usuarios/clientes/{$}", m.PageListarClientes)
+	mux.HandleFunc("GET /usuarios/clientes/criar", m.PageCriarCliente)
+	mux.HandleFunc("POST /usuarios/clientes/criar", m.CriarClientePost)
 }
 
-func (m *ManipuladorUsuario) DefinirRotasColaboradores() *http.ServeMux {
-	// ROTEADOR: COLABORADORES
-	colaboradoresMux := http.NewServeMux()
-	colaboradoresMux.HandleFunc("GET /{$}", m.PageListarColaboradores)
-	colaboradoresMux.HandleFunc("GET /criar", m.PageCriarColaborador)
-	colaboradoresMux.HandleFunc("POST /criar", m.CriarColaboradorPost)
+func (m *ManipuladorUsuario) InjetarRotasColaboradores(mux *http.ServeMux) {
+	// rotas da area do colaborador -- temporario depois mudar para o local correto
+	mux.HandleFunc("GET /colaboradores/{$}", m.PageListarColaboradores)
+	mux.HandleFunc("GET /colaboradores/criar", m.PageCriarColaborador)
+	mux.HandleFunc("POST /colaboradores/criar", m.CriarColaboradorPost)
 
-	return colaboradoresMux
+	// ROTAS DE GESTÃO DOS COLABORADORES
+	mux.HandleFunc("GET /usuarios/colaboradores/{$}", m.PageListarColaboradores)
+	mux.HandleFunc("GET /usuarios/colaboradores/criar", m.PageCriarColaborador)
+	mux.HandleFunc("POST /usuarios/colaboradores/criar", m.CriarColaboradorPost)
 }

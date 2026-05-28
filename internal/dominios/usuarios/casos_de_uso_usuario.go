@@ -3,22 +3,24 @@ package usuarios
 import (
 	"errors"
 
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type IRepositorioUsuario interface {
-	Criar(Usuario) error
-	ListarUsuarios() ([]Usuario, error)
-	Editar(Usuario) error
+	Fechar()
+	Criar(entidades.Usuario) error
+	ListarUsuarios() ([]entidades.Usuario, error)
+	Editar(entidades.Usuario) error
 	Deletar(uuid.UUID) error
 	DeletarCliente(uuid.UUID) error
 	DeletarColaborador(uuid.UUID) error
-	BuscarPorUUID(uuid.UUID) (*Usuario, error)
-	AdicionarPerfilCliente(Cliente) error
-	AdicionarPerfilColaborador(Colaborador) error
-	ListarClientes() ([]Cliente, error)
-	ListarColaboradores() ([]Colaborador, error)
+	BuscarPorUUID(uuid.UUID) (*entidades.Usuario, error)
+	AdicionarPerfilCliente(entidades.Cliente) error
+	AdicionarPerfilColaborador(entidades.Colaborador) error
+	ListarClientes() ([]entidades.Cliente, error)
+	ListarColaboradores() ([]entidades.Colaborador, error)
 	MudarSenha(string, uuid.UUID) error
 }
 
@@ -33,7 +35,13 @@ func NovoCDUUsuario(usuariosRepo IRepositorioUsuario) *CDUUsuario {
 	}
 }
 
-func (u *CDUUsuario) CriaUsuario(usuario *Usuario) error {
+func (a *CDUUsuario) Fechar() error {
+	a.RepoUsuarios.Fechar()
+
+	return nil
+}
+
+func (u *CDUUsuario) CriaUsuario(usuario *entidades.Usuario) error {
 
 	usuario.UUID, _ = uuid.NewV7()
 
@@ -48,7 +56,7 @@ func (u *CDUUsuario) CriaUsuario(usuario *Usuario) error {
 	return u.RepoUsuarios.Criar(*usuario)
 }
 
-func (u *CDUUsuario) CriarCliente(cliente *Cliente) error {
+func (u *CDUUsuario) CriarCliente(cliente *entidades.Cliente) error {
 	// 1. Cria a entidade base usando a regra já existente (UUID é gerado aqui)
 	err := u.CriaUsuario(&cliente.Usuario)
 	if err != nil {
@@ -59,7 +67,7 @@ func (u *CDUUsuario) CriarCliente(cliente *Cliente) error {
 	return u.RepoUsuarios.AdicionarPerfilCliente(*cliente)
 }
 
-func (u *CDUUsuario) CriarColaborador(colaborador *Colaborador) error {
+func (u *CDUUsuario) CriarColaborador(colaborador *entidades.Colaborador) error {
 	err := u.CriaUsuario(&colaborador.Usuario)
 	if err != nil {
 		return err
@@ -68,7 +76,7 @@ func (u *CDUUsuario) CriarColaborador(colaborador *Colaborador) error {
 	return u.RepoUsuarios.AdicionarPerfilColaborador(*colaborador)
 }
 
-func (u *CDUUsuario) ListarUsuarios() ([]Usuario, error) {
+func (u *CDUUsuario) ListarUsuarios() ([]entidades.Usuario, error) {
 	lista, err := u.RepoUsuarios.ListarUsuarios()
 	if err != nil {
 		return nil, err
@@ -76,15 +84,15 @@ func (u *CDUUsuario) ListarUsuarios() ([]Usuario, error) {
 	return lista, nil
 }
 
-func (u *CDUUsuario) ListarClientes() ([]Cliente, error) {
+func (u *CDUUsuario) ListarClientes() ([]entidades.Cliente, error) {
 	return u.RepoUsuarios.ListarClientes()
 }
 
-func (u *CDUUsuario) ListarColaboradores() ([]Colaborador, error) {
+func (u *CDUUsuario) ListarColaboradores() ([]entidades.Colaborador, error) {
 	return u.RepoUsuarios.ListarColaboradores()
 }
 
-func (u *CDUUsuario) EditarUsuario(usuario Usuario) error {
+func (u *CDUUsuario) EditarUsuario(usuario entidades.Usuario) error {
 
 	err := u.RepoUsuarios.Editar(usuario) // edição não altera senha
 
@@ -120,7 +128,7 @@ func (u *CDUUsuario) DeletarUsuario(usuarioUUID uuid.UUID) error {
 	return nil
 }
 
-func (u *CDUUsuario) BuscarUsuarioPorUUID(usuarioUUID uuid.UUID) (*Usuario, error) {
+func (u *CDUUsuario) BuscarUsuarioPorUUID(usuarioUUID uuid.UUID) (*entidades.Usuario, error) {
 	if usuarioUUID == uuid.Nil {
 		return nil, errors.New("UUID nulo")
 	}

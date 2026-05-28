@@ -2,13 +2,10 @@ package autenticacao
 
 import "net/http"
 
-func (m *ManipuladorLogin) DefinirRotasAutenticacao() *http.ServeMux {
-
-	mux := http.NewServeMux()
+func (m *ManipuladorLogin) DefinirRotasAutenticacao(mux *http.ServeMux) {
 
 	// AUTENTICACAO
 	mux.HandleFunc("GET /login", m.PageLogin)
 	mux.HandleFunc("POST /login", m.LoginPost)
 
-	return mux
 }

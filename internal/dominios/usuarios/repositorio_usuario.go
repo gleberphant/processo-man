@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/google/uuid"
 )
 
@@ -27,7 +28,7 @@ func (r *RepositorioUsuario) Fechar() {
 }
 
 // Criar insere um novo registro de usuário na tabela de usuários.
-func (r *RepositorioUsuario) Criar(usuario Usuario) error {
+func (r *RepositorioUsuario) Criar(usuario entidades.Usuario) error {
 
 	db := r.conn
 
@@ -44,7 +45,7 @@ func (r *RepositorioUsuario) Criar(usuario Usuario) error {
 
 // AdicionarPerfilCliente vincula os dados específicos de cliente a um usuário já existente.
 // Exige que a struct Cliente contenha o UUID válido do Usuario base.
-func (r *RepositorioUsuario) AdicionarPerfilCliente(cliente Cliente) error {
+func (r *RepositorioUsuario) AdicionarPerfilCliente(cliente entidades.Cliente) error {
 	db := r.conn
 
 	_, err := db.Exec("INSERT INTO clientes (usuario_uuid, cpf, endereco, tipo_pessoa) VALUES (?, ?, ?, ?)",
@@ -55,7 +56,7 @@ func (r *RepositorioUsuario) AdicionarPerfilCliente(cliente Cliente) error {
 
 // AdicionarPerfilColaborador vincula os dados específicos de colaborador a um usuário já existente.
 // Exige que a struct Colaborador contenha o UUID válido do Usuario base.
-func (r *RepositorioUsuario) AdicionarPerfilColaborador(colaborador Colaborador) error {
+func (r *RepositorioUsuario) AdicionarPerfilColaborador(colaborador entidades.Colaborador) error {
 	db := r.conn
 
 	_, err := db.Exec("INSERT INTO colaboradores (usuario_uuid, cargo) VALUES (?, ?)",
@@ -65,7 +66,7 @@ func (r *RepositorioUsuario) AdicionarPerfilColaborador(colaborador Colaborador)
 }
 
 // Listar retorna todos os usuários cadastrados no banco de dados.
-func (r *RepositorioUsuario) ListarUsuarios() ([]Usuario, error) {
+func (r *RepositorioUsuario) ListarUsuarios() ([]entidades.Usuario, error) {
 
 	db := r.conn
 
@@ -83,13 +84,13 @@ func (r *RepositorioUsuario) ListarUsuarios() ([]Usuario, error) {
 
 	defer rows.Close()
 
-	var listaUsuario []Usuario
+	var listaUsuario []entidades.Usuario
 
 	for rows.Next() {
 
 		var uuidCliente, uuidColaborador sql.NullString
 
-		usuario := Usuario{}
+		usuario := entidades.Usuario{}
 
 		err := rows.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email, &uuidCliente, &uuidColaborador)
 
@@ -117,7 +118,7 @@ func (r *RepositorioUsuario) ListarUsuarios() ([]Usuario, error) {
 }
 
 // ListarClientes retorna todos os usuários que possuem o perfil de cliente.
-func (r *RepositorioUsuario) ListarClientes() ([]Cliente, error) {
+func (r *RepositorioUsuario) ListarClientes() ([]entidades.Cliente, error) {
 	db := r.conn
 
 	query := `
@@ -131,9 +132,9 @@ func (r *RepositorioUsuario) ListarClientes() ([]Cliente, error) {
 	}
 	defer rows.Close()
 
-	var lista []Cliente
+	var lista []entidades.Cliente
 	for rows.Next() {
-		var c Cliente
+		var c entidades.Cliente
 		if err := rows.Scan(&c.UUID, &c.Nome, &c.Email, &c.CPF); err != nil {
 			return nil, err
 		}
@@ -143,7 +144,7 @@ func (r *RepositorioUsuario) ListarClientes() ([]Cliente, error) {
 }
 
 // ListarColaboradores retorna todos os usuários que possuem o perfil de colaborador.
-func (r *RepositorioUsuario) ListarColaboradores() ([]Colaborador, error) {
+func (r *RepositorioUsuario) ListarColaboradores() ([]entidades.Colaborador, error) {
 	db := r.conn
 
 	query := `
@@ -157,9 +158,9 @@ func (r *RepositorioUsuario) ListarColaboradores() ([]Colaborador, error) {
 	}
 	defer rows.Close()
 
-	var lista []Colaborador
+	var lista []entidades.Colaborador
 	for rows.Next() {
-		var c Colaborador
+		var c entidades.Colaborador
 		if err := rows.Scan(&c.UUID, &c.Nome, &c.Email, &c.Cargo); err != nil {
 			return nil, err
 		}
@@ -169,7 +170,7 @@ func (r *RepositorioUsuario) ListarColaboradores() ([]Colaborador, error) {
 }
 
 // Deletar remove um usuário do banco de dados utilizando seu UUID.
-func (r *RepositorioUsuario) Editar(usuario Usuario) error {
+func (r *RepositorioUsuario) Editar(usuario entidades.Usuario) error {
 
 	if usuario.UUID == uuid.Nil {
 		return errors.New("UUID NULO")
@@ -258,7 +259,7 @@ func (r *RepositorioUsuario) DeletarColaborador(UUID uuid.UUID) error {
 }
 
 // BuscarPorUUID recupera os dados de um usuário específico através do seu identificador único.
-func (r *RepositorioUsuario) BuscarPorUUID(UUID uuid.UUID) (*Usuario, error) {
+func (r *RepositorioUsuario) BuscarPorUUID(UUID uuid.UUID) (*entidades.Usuario, error) {
 
 	db := r.conn
 
@@ -272,7 +273,7 @@ func (r *RepositorioUsuario) BuscarPorUUID(UUID uuid.UUID) (*Usuario, error) {
 
 	var uuidCliente, uuidColaborador sql.NullString
 
-	usuario := Usuario{}
+	usuario := entidades.Usuario{}
 
 	err := row.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email, &uuidCliente, &uuidColaborador)
 
@@ -296,7 +297,7 @@ func (r *RepositorioUsuario) BuscarPorUUID(UUID uuid.UUID) (*Usuario, error) {
 
 }
 
-func (r *RepositorioUsuario) BuscarPorEmail(email string) (*Usuario, error) {
+func (r *RepositorioUsuario) BuscarPorEmail(email string) (*entidades.Usuario, error) {
 
 	db := r.conn
 
@@ -310,7 +311,7 @@ func (r *RepositorioUsuario) BuscarPorEmail(email string) (*Usuario, error) {
 
 	var uuidCliente, uuidColaborador sql.NullString
 
-	usuario := Usuario{}
+	usuario := entidades.Usuario{}
 
 	err := row.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email, &usuario.Senha, &uuidCliente, &uuidColaborador)
 

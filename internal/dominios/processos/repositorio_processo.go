@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/google/uuid"
 )
 
@@ -28,7 +29,7 @@ func (r *RepositorioProcesso) Fechar() {
 }
 
 // Criar insere um novo registro de processo na tabela de processos.
-func (r *RepositorioProcesso) Criar(Processo Processo) error {
+func (r *RepositorioProcesso) Criar(Processo entidades.Processo) error {
 
 	db := r.conn
 
@@ -47,7 +48,7 @@ func (r *RepositorioProcesso) Criar(Processo Processo) error {
 }
 
 // Listar retorna todos os processos cadastrados no banco de dados.
-func (r *RepositorioProcesso) Listar() ([]Processo, error) {
+func (r *RepositorioProcesso) Listar() ([]entidades.Processo, error) {
 
 	db := r.conn
 
@@ -60,11 +61,11 @@ func (r *RepositorioProcesso) Listar() ([]Processo, error) {
 
 	defer rows.Close()
 
-	var listaProcesso []Processo
+	var listaProcesso []entidades.Processo
 
 	for rows.Next() {
 
-		Processo := Processo{}
+		Processo := entidades.Processo{}
 
 		rows.Scan(&Processo.UUID, &Processo.Nome)
 
@@ -75,8 +76,36 @@ func (r *RepositorioProcesso) Listar() ([]Processo, error) {
 
 }
 
+func (r *RepositorioProcesso) ListarProcessosPorCliente(cliente_uuid uuid.UUID) ([]entidades.Processo, error) {
+
+	db := r.conn
+
+	rows, err := db.Query("SELECT uuid, nome, cliente_uuid, colaborador_uuid  FROM processos WHERE cliente_uuid=?", cliente_uuid.String())
+
+	// se erro na consulta
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var listaProcesso []entidades.Processo
+
+	for rows.Next() {
+
+		Processo := entidades.Processo{}
+
+		rows.Scan(&Processo.UUID, &Processo.Nome, &Processo.Dono.UUID, &Processo.Responsavel.UUID)
+
+		listaProcesso = append(listaProcesso, Processo)
+	}
+
+	return listaProcesso, nil
+
+}
+
 // Deletar remove um processo do banco de dados utilizando seu UUID.
-func (r *RepositorioProcesso) Editar(processo Processo) error {
+func (r *RepositorioProcesso) Editar(processo entidades.Processo) error {
 
 	if processo.UUID == uuid.Nil {
 		return errors.New("UUID NULO")
@@ -112,7 +141,7 @@ func (r *RepositorioProcesso) Deletar(UUID uuid.UUID) error {
 }
 
 // BuscarPorUUID recupera os dados de um processo específico através do seu identificador único.
-func (r *RepositorioProcesso) BuscarPorUUID(UUID uuid.UUID) (*Processo, error) {
+func (r *RepositorioProcesso) BuscarPorUUID(UUID uuid.UUID) (*entidades.Processo, error) {
 
 	db := r.conn
 
@@ -126,7 +155,7 @@ func (r *RepositorioProcesso) BuscarPorUUID(UUID uuid.UUID) (*Processo, error) {
 		return nil, fmt.Errorf("Erro ao ler dados do banco: %w", err)
 	}
 
-	processo := &Processo{}
+	processo := &entidades.Processo{}
 
 	processo.UUID = UUID
 	processo.Nome = nome

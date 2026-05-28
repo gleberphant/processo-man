@@ -3,25 +3,28 @@ package processos
 import (
 	"errors"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/tarefas"
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/google/uuid"
 )
 
 type IRepositorioProcesso interface {
-	Criar(Processo) error
-	Listar() ([]Processo, error)
-	Editar(Processo) error
+	Fechar()
+	Criar(entidades.Processo) error
+	Listar() ([]entidades.Processo, error)
+	Editar(entidades.Processo) error
 	Deletar(uuid.UUID) error
-	BuscarPorUUID(uuid.UUID) (*Processo, error)
+	BuscarPorUUID(uuid.UUID) (*entidades.Processo, error)
+	ListarProcessosPorCliente(uuid.UUID) ([]entidades.Processo, error)
 }
 
 type IRepositorioTarefa interface {
-	CriarTarefa(tarefas.Tarefa) error
-	ListarTarefas() ([]tarefas.Tarefa, error)
-	ListarTarefasPorProcesso(uuid.UUID) ([]tarefas.Tarefa, error)
-	EditarTarefa(tarefas.Tarefa) error
+	Fechar()
+	CriarTarefa(entidades.Tarefa) error
+	ListarTarefas() ([]entidades.Tarefa, error)
+	ListarTarefasPorProcesso(uuid.UUID) ([]entidades.Tarefa, error)
+	EditarTarefa(entidades.Tarefa) error
 	DeletarTarefa(uuid.UUID) error
-	BuscarTarefaPorUUID(UUID uuid.UUID) (*tarefas.Tarefa, error)
+	BuscarTarefaPorUUID(UUID uuid.UUID) (*entidades.Tarefa, error)
 	DeletarTarefasPorProcesso(UUID uuid.UUID) error
 }
 
@@ -38,7 +41,13 @@ func NovoCDUProcesso(ProcessosRepo IRepositorioProcesso, TarefasRepo IRepositori
 	}
 }
 
-func (u *CDUProcesso) CriarProcesso(processo Processo) error {
+func (a *CDUProcesso) Fechar() error {
+	a.repoProcesso.Fechar()
+	a.repoTarefa.Fechar()
+	return nil
+}
+
+func (u *CDUProcesso) CriarProcesso(processo entidades.Processo) error {
 
 	for i := range processo.Tarefas {
 		if processo.Tarefas[i].UUID == uuid.Nil {
@@ -57,12 +66,19 @@ func (u *CDUProcesso) CriarProcesso(processo Processo) error {
 
 }
 
-func (u *CDUProcesso) ListarProcessos() ([]Processo, error) {
+func (u *CDUProcesso) ListarProcessos() ([]entidades.Processo, error) {
 
 	return u.repoProcesso.Listar()
+
 }
 
-func (u *CDUProcesso) EditarProcesso(processo Processo) error {
+func (u *CDUProcesso) ListarProcessosPorCliente(UUID uuid.UUID) ([]entidades.Processo, error) {
+
+	return u.repoProcesso.ListarProcessosPorCliente(UUID)
+
+}
+
+func (u *CDUProcesso) EditarProcesso(processo entidades.Processo) error {
 
 	if processo.UUID == uuid.Nil {
 		return errors.New("não é possível atualizar um processo sem UUID")
@@ -87,15 +103,15 @@ func (u *CDUProcesso) DeletarProcesso(processoUUID uuid.UUID) error {
 	return err
 }
 
-func (u *CDUProcesso) BuscarProcessoPorUUID(processoUUID uuid.UUID) (*Processo, error) {
+func (u *CDUProcesso) BuscarProcessoPorUUID(processoUUID uuid.UUID) (*entidades.Processo, error) {
 
 	if processoUUID == uuid.Nil {
 		return nil, errors.New("UUID nulo")
 	}
 
 	var err error
-	var processo *Processo
-	var tarefas []tarefas.Tarefa
+	var processo *entidades.Processo
+	var tarefas []entidades.Tarefa
 
 	processo, err = u.repoProcesso.BuscarPorUUID(processoUUID)
 

@@ -1,26 +1,51 @@
 package main
 
 import (
+	"database/sql"
+	"encoding/json"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
-	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/bancodedados"
+	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/google/uuid"
+	bolt "go.etcd.io/bbolt"
 	// Assumindo que InserirUsuario esteja aqui
 )
 
 func main() {
 
-	// carregar banco de dados
-	log.Printf("Conectando ao repositório")
-	db, err := bancodedados.ConectarSQLITE()
+	// Configurar Banco de Dados SQLITE
+	// dbSqlite, err := bancodedados.ConectarSQLITE()
+	// if err != nil {
+	// 	log.Fatalf("Erro na conexao com SQLITE: %v", err)
+	// }
+	// defer dbSqlite.Close()
+
+	// // rodar migracoes
+	// RodarMigrations(dbSqlite)
+
+	// configurar permissões
+	dbBolt, err := bolt.Open("../database/autenticacao.boltdb", 0600, nil)
 
 	if err != nil {
-		log.Fatalf("Erro na conexao com o banco de dados: %v", err)
+		log.Fatalf("Erro na conexao com BoltDB: %v", err)
+
 	}
+
+	defer dbBolt.Close()
+
+	ConfigurarTokensEPermissoesDefault(dbBolt)
+
+}
+
+func RodarMigrations(db *sql.DB) {
 
 	// carregar a lsita de arquivops do diretario de migracoes
 	log.Printf("Carregando diretorio de migracões")
+
 	diretorio := "../migracoes/"
 	listaDeArquivos, err := os.ReadDir(diretorio)
 
@@ -57,59 +82,66 @@ func main() {
 		}
 
 	}
-
-	// // inserir USUARIO TESTE
-	// log.Printf("Inserindo USUARIO TESTE")
-	// usuario := mockarUsuarios(1)
-
-	// // inserir TOKEN TESTE
-	// log.Printf("Gerar TOKEN TESTE")
-
-	// // Instancia o caso de uso antes de chamar o método (conforme sua refatoração de Injeção de Dependência)
-	// //repo, _ := repositorios.NovoTokenRepo()
-	// authCDU := autenticacao.NovoAutenticacaoCDU()
-
-	// token, err := authCDU.GerarToken(&usuario)
-
-	// if err != nil {
-	// 	log.Printf("Erro na execução : %v", err)
-	// }
-
-	// log.Printf("TOKEN GERADO : %s", token.UUID)
-
 }
 
-//func mockarUsuarios(args ...int) entidades.Usuario {
+func InserirUsuarioTeste(db *sql.DB) {
 
-// numUsuario := 0
+	repo := usuarios.NovoRepositorioUsuario(db)
 
-// if len(args) > 0 {
-// 	numUsuario = args[0]
-// }
+	usuario := entidades.Usuario{
+		UUID:  uuid.Nil,
+		Nome:  "Nome",
+		Email: "teste@teste",
+		Senha: "teste",
+	}
 
-// var usuario entidades.Usuario
+	repo.Criar(usuario)
+}
 
-// for i := 0; i < numUsuario+1; i++ {
+func ConfigurarTokensEPermissoesDefault(db *bolt.DB) {
+	// inserir permissoes default
 
-// 	nome := "teste" + strconv.Itoa(i)
+	permissoes := map[string]map[string]bool{
+		"post:/":              {"admin": true, "colaborador": true},
+		"post:/login":         {"admin": true, "colaborador": true},
+		"post:/usuarios":      {"admin": true, "colaborador": true},
+		"post:/clientes":      {"admin": true, "colaborador": true},
+		"post:/colaboradores": {"admin": true, "colaborador": true},
+		"post:/processos":     {"admin": true, "colaborador": true, "cliente": true},
+		"post:/tarefas":       {"admin": true, "colaborador": true, "cliente": true},
+		"get:/":               {"admin": true, "colaborador": true},
+		"get:/login":          {"admin": true, "colaborador": true},
+		"get:/usuarios":       {"admin": true, "colaborador": true},
+		"get:/clientes":       {"admin": true, "colaborador": true},
+		"get:/colaboradores":  {"admin": true, "colaborador": true},
+		"get:/processos":      {"admin": true, "colaborador": true, "cliente": true},
+		"get:/tarefas":        {"admin": true, "colaborador": true, "cliente": true},
+	}
 
-// 	usuario = entidades.Usuario{
-// 		UUID:  uuid.New().String(),
-// 		Nome:  nome,
-// 		Email: nome + "@teste",
-// 		Senha: nome,
-// 	}
-// 	log.Printf("Inserindo USUARIO %s EMAIL %s", usuario.Nome, usuario.Email)
+	err := db.Update(func(tx *bolt.Tx) error {
 
-// 	err := usuarios.InserirUsuario(usuario)
+		bucket, err := tx.CreateBucketIfNotExists([]byte("permissoes"))
 
-// 	if err != nil {
-// 		log.Printf("Erro : %v", err)
-// 	}
+		if err != nil {
+			return err
+		}
 
-// 	log.Printf("Usuario Gerado: %s Email: %s", usuario.UUID, usuario.Email)
-// }
+		for rota, perfis := range permissoes {
+			bytePerfis, err := json.Marshal(perfis)
 
-// return usuario
+			if err != nil {
+				return err
+			}
+			rota = strings.ToLower(rota)
 
-//}
+			bucket.Put([]byte(rota), bytePerfis)
+			log.Printf("chave %s, valor %v", rota, perfis)
+		}
+
+		return nil
+	})
+	if err != nil {
+		panic(err)
+
+	}
+}

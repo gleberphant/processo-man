@@ -27,10 +27,10 @@
                             <td>{{ .Email }}</td>
                             <td>{{ .Cargo }}</td>
                             <td>
-                                <form id="form-ver-{{.UUID}}" method="get" action="/usuarios/{{ .UUID }}"
+                                <form id="form-ver-{{.UUID}}" method="get" action="/processos/{{ .UUID }}/tarefas"
                                     style="display:inline;">
                                     <button type="submit" class="btn btn-info mb-2">
-                                        Visualizar
+                                        MINHAS TAREFAS
                                     </button>
                                 </form>
                                 <form id="form-editar-{{.UUID}}" method="get" action="/usuarios/{{ .UUID }}/editar"

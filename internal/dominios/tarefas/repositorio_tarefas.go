@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/google/uuid"
 )
 
@@ -21,8 +22,12 @@ func NovoRepositorioTarefa(conn *sql.DB) *RepositorioTarefa {
 	return &repo
 }
 
+func (r *RepositorioTarefa) Fechar() {
+	r.conn.Close()
+}
+
 // Criar insere um novo registro de tarefa na tabela de tarefas.
-func (r *RepositorioTarefa) CriarTarefa(tarefa Tarefa) error {
+func (r *RepositorioTarefa) CriarTarefa(tarefa entidades.Tarefa) error {
 
 	db := r.conn
 
@@ -38,7 +43,7 @@ func (r *RepositorioTarefa) CriarTarefa(tarefa Tarefa) error {
 
 }
 
-func (r *RepositorioTarefa) ListarTarefas() ([]Tarefa, error) {
+func (r *RepositorioTarefa) ListarTarefas() ([]entidades.Tarefa, error) {
 
 	db := r.conn
 
@@ -50,11 +55,11 @@ func (r *RepositorioTarefa) ListarTarefas() ([]Tarefa, error) {
 
 	defer rows.Close()
 
-	var lista []Tarefa
+	var lista []entidades.Tarefa
 
 	for rows.Next() {
 
-		tarefa := Tarefa{}
+		tarefa := entidades.Tarefa{}
 
 		rows.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome, &tarefa.Comentarios)
 
@@ -66,7 +71,7 @@ func (r *RepositorioTarefa) ListarTarefas() ([]Tarefa, error) {
 }
 
 // Listar retorna todos os tarefas cadastrados no banco de dados.
-func (r *RepositorioTarefa) ListarTarefasPorProcesso(processoUUID uuid.UUID) ([]Tarefa, error) {
+func (r *RepositorioTarefa) ListarTarefasPorProcesso(processoUUID uuid.UUID) ([]entidades.Tarefa, error) {
 
 	db := r.conn
 
@@ -78,11 +83,11 @@ func (r *RepositorioTarefa) ListarTarefasPorProcesso(processoUUID uuid.UUID) ([]
 
 	defer rows.Close()
 
-	var lista []Tarefa
+	var lista []entidades.Tarefa
 
 	for rows.Next() {
 
-		tarefa := Tarefa{}
+		tarefa := entidades.Tarefa{}
 
 		rows.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome, &tarefa.Comentarios)
 
@@ -94,11 +99,11 @@ func (r *RepositorioTarefa) ListarTarefasPorProcesso(processoUUID uuid.UUID) ([]
 }
 
 // Listar retorna todos os tarefas cadastrados no banco de dados.
-func (r *RepositorioTarefa) ListarTarefasPorResponsavel(responavelUUID uuid.UUID) ([]Tarefa, error) {
+func (r *RepositorioTarefa) ListarTarefasPorResponsavel(responavelUUID uuid.UUID) ([]entidades.Tarefa, error) {
 
 	db := r.conn
 
-	rows, err := db.Query("SELECT uuid, processo_uuid, responsavel_uuid, nome, comentarios FROM tarefas WHERE processo_uuid=?", responavelUUID.String())
+	rows, err := db.Query("SELECT uuid, processo_uuid, responsavel_uuid, nome, comentarios FROM tarefas WHERE responsavel_uuid=?", responavelUUID.String())
 
 	if err != nil {
 		return nil, fmt.Errorf("Error: SQLITE>ListarTarefaResponsavel>SELECT: %w", err)
@@ -106,11 +111,11 @@ func (r *RepositorioTarefa) ListarTarefasPorResponsavel(responavelUUID uuid.UUID
 
 	defer rows.Close()
 
-	var lista []Tarefa
+	var lista []entidades.Tarefa
 
 	for rows.Next() {
 
-		tarefa := Tarefa{}
+		tarefa := entidades.Tarefa{}
 
 		rows.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome, &tarefa.Comentarios)
 
@@ -122,7 +127,7 @@ func (r *RepositorioTarefa) ListarTarefasPorResponsavel(responavelUUID uuid.UUID
 }
 
 // Atular uma tarefa do banco de dados
-func (r *RepositorioTarefa) EditarTarefa(tarefa Tarefa) error {
+func (r *RepositorioTarefa) EditarTarefa(tarefa entidades.Tarefa) error {
 
 	if tarefa.UUID == uuid.Nil {
 		return errors.New("UUID NULO")
@@ -163,14 +168,14 @@ func (r *RepositorioTarefa) DeletarTarefasPorProcesso(ProcessoUUID uuid.UUID) er
 }
 
 // BuscarPorUUID recupera os dados de um tarefa específico através do seu identificador único.
-func (r *RepositorioTarefa) BuscarTarefaPorUUID(UUID uuid.UUID) (*Tarefa, error) {
+func (r *RepositorioTarefa) BuscarTarefaPorUUID(UUID uuid.UUID) (*entidades.Tarefa, error) {
 
 	db := r.conn
 
 	row := db.QueryRow("SELECT uuid, processo_uuid,  responsavel_uuid,nome, comentarios, concluida, data_conclusao, data_criacao FROM tarefas WHERE uuid=?",
 		UUID.String())
 
-	tarefa := &Tarefa{}
+	tarefa := &entidades.Tarefa{}
 	err := row.Scan(&tarefa.UUID,
 		&tarefa.ProcessoUUID,
 		&tarefa.ResponsavelUUID,

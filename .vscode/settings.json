@@ -9,5 +9,9 @@
             "database": "${workspaceFolder:processo-man}/database/sqlite.db",
             "name": "sqlite"
         }
-    ]
+    ],
+    "go.toolsEnvVars": {
+        "GOBIN": "",
+        "GOPATH": "C:\\Users\\glebe\\go\\bin"
+    }
 }

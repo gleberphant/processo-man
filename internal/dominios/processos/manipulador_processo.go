@@ -4,33 +4,38 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/google/uuid"
 )
 
+type ICDUUsuario interface {
+	ListarClientes() ([]entidades.Cliente, error)
+}
+
 // servindo como interface entre a camada de apresentação e os casos de uso.
 type ManipuladorProcesso struct {
 	cduProcesso *CDUProcesso
-}
-
-type ViewModelProcesso struct {
-	UUID     string
-	Processo interface{}
-	Anexos   []string
+	cduUsuario  ICDUUsuario
 }
 
 // NovoManipuladorProcesso cria e retorna uma nova instância de ManipuladorProcesso.
-func NovoManipuladorProcesso(CasosDeUsoProcesso *CDUProcesso) *ManipuladorProcesso {
+func NovoManipuladorProcesso(CasosDeUsoProcesso *CDUProcesso, CasosDeUsoUsuario ICDUUsuario) *ManipuladorProcesso {
 	return &ManipuladorProcesso{
 		cduProcesso: CasosDeUsoProcesso,
+		cduUsuario:  CasosDeUsoUsuario,
 	}
+}
+
+func (m *ManipuladorProcesso) Fechar() {
+	m.cduProcesso.Fechar()
 }
 
 // PageCriar renderiza o formulário para criação de um novo processo.
 func (m *ManipuladorProcesso) PageCriar(w http.ResponseWriter, r *http.Request) {
 
 	viewModel := ViewModelProcesso{
-		Processo: Processo{},
+		Processos: entidades.Processo{},
 	}
 
 	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, viewModel)
@@ -47,7 +52,7 @@ func (m *ManipuladorProcesso) PageListar(w http.ResponseWriter, r *http.Request)
 	}
 
 	viewModel := ViewModelProcesso{
-		Processo: lista,
+		Processos: lista,
 	}
 
 	apresentacao.ExibirPaginaHTML("processo/page-listar-processos.html", w, viewModel)
@@ -72,9 +77,9 @@ func (m *ManipuladorProcesso) PageVerProcesso(w http.ResponseWriter, r *http.Req
 	}
 
 	viewModel := ViewModelProcesso{
-		UUID:     strUUID,
-		Processo: *processo,
-		Anexos:   []string{"arquivo1.doc", "arquivo2.doc"},
+		UUID:      strUUID,
+		Processos: *processo,
+		Anexos:    []string{"arquivo1.doc", "arquivo2.doc"},
 	}
 
 	apresentacao.ExibirPaginaHTML("processo/page-ver-processo.html", w, viewModel)
@@ -98,8 +103,8 @@ func (m *ManipuladorProcesso) PageEditar(w http.ResponseWriter, r *http.Request)
 	}
 
 	viewModel := ViewModelProcesso{
-		UUID:     strUUID,
-		Processo: processo,
+		UUID:      strUUID,
+		Processos: processo,
 		//Anexos:   []string{"arquivo1.doc", "arquivo2.doc"},
 	}
 
@@ -109,7 +114,7 @@ func (m *ManipuladorProcesso) PageEditar(w http.ResponseWriter, r *http.Request)
 // CriarProcessoPost processa a submissão do formulário para persistir um novo processo.
 func (m *ManipuladorProcesso) CriarProcessoPost(w http.ResponseWriter, r *http.Request) {
 
-	var Processo = Processo{
+	var Processo = entidades.Processo{
 		Nome: r.PostFormValue("nome"),
 	}
 
@@ -136,7 +141,7 @@ func (m *ManipuladorProcesso) EditarProcessoPost(w http.ResponseWriter, r *http.
 		return
 	}
 
-	processoDTO := Processo{
+	processoDTO := entidades.Processo{
 		UUID: UUID,
 		Nome: r.PostFormValue("nome"),
 	}

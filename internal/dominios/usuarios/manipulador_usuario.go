@@ -4,19 +4,32 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/google/uuid"
 )
 
-type ManipuladorUsuario struct {
-	cduUsario *CDUUsuario
+type ICDUTarefas interface {
+	Fechar() error
+	ListarTarefasPorResponsavel(responsavelUUID uuid.UUID) ([]entidades.Tarefa, error)
 }
 
-func NovoManipuladorUsuario(casosDeUsoUsuario *CDUUsuario) *ManipuladorUsuario {
+type ManipuladorUsuario struct {
+	cduUsario *CDUUsuario
+	cduTarefa ICDUTarefas
+}
+
+func NovoManipuladorUsuario(casosDeUsoUsuario *CDUUsuario, casosDeUsoTarefa ICDUTarefas) *ManipuladorUsuario {
 
 	return &ManipuladorUsuario{
 		cduUsario: casosDeUsoUsuario,
+		cduTarefa: casosDeUsoTarefa,
 	}
+}
+
+func (m *ManipuladorUsuario) Fechar() {
+	m.cduUsario.Fechar()
+
 }
 
 func (m *ManipuladorUsuario) PageCriarUsuario(w http.ResponseWriter, r *http.Request) {
@@ -112,6 +125,33 @@ func (m *ManipuladorUsuario) PageEditarUsuario(w http.ResponseWriter, r *http.Re
 
 }
 
+func (m *ManipuladorUsuario) obterListaTarefasViewModel(usuarioUUID uuid.UUID) ([]tarefasView, error) {
+
+	tarefas, err := m.cduTarefa.ListarTarefasPorResponsavel(usuarioUUID)
+
+	if err != nil {
+		return nil, err
+	}
+	listaTarefasView := []tarefasView{}
+
+	for _, tarefa := range tarefas {
+		tarefaView := tarefasView{
+			UUID:            tarefa.UUID,
+			ProcessoUUID:    tarefa.ProcessoUUID,
+			ResponsavelUUID: tarefa.ResponsavelUUID,
+			Nome:            tarefa.Nome,
+			Concluida:       tarefa.Concluida,
+			Comentarios:     tarefa.Comentarios,
+			DataConclusao:   tarefa.DataConclusao,
+			DataCriacao:     tarefa.DataCriacao,
+		}
+
+		listaTarefasView = append(listaTarefasView, tarefaView)
+	}
+
+	return listaTarefasView, nil
+}
+
 func (m *ManipuladorUsuario) PageVerUsuario(w http.ResponseWriter, r *http.Request) {
 
 	strUUID := r.PathValue("UUID")
@@ -123,16 +163,22 @@ func (m *ManipuladorUsuario) PageVerUsuario(w http.ResponseWriter, r *http.Reque
 	}
 
 	usuario, err := m.cduUsario.BuscarUsuarioPorUUID(usuarioUUID)
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Editar:%v", err))
+		return
+	}
 
+	listaTarefasView, err := m.obterListaTarefasViewModel(usuarioUUID)
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Editar:%v", err))
 		return
 	}
 
 	viewModel := ViewModelUsuario{
+		UUID:     strUUID,
 		Usuarios: usuario,
 		Anexos:   []string{"documento1", "document2"},
-		//Tarefas:  []tarefas.Tarefa{},
+		Tarefas:  listaTarefasView,
 	}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-ver-usuario.html", w, viewModel)
@@ -141,7 +187,7 @@ func (m *ManipuladorUsuario) PageVerUsuario(w http.ResponseWriter, r *http.Reque
 
 func (m *ManipuladorUsuario) CriarUsuarioPost(w http.ResponseWriter, r *http.Request) {
 
-	var usuario = Usuario{
+	var usuario = entidades.Usuario{
 		Nome:  r.PostFormValue("nome"),
 		Email: r.PostFormValue("email"),
 		Senha: r.PostFormValue("senha"),
@@ -159,8 +205,8 @@ func (m *ManipuladorUsuario) CriarUsuarioPost(w http.ResponseWriter, r *http.Req
 }
 
 func (m *ManipuladorUsuario) CriarClientePost(w http.ResponseWriter, r *http.Request) {
-	cliente := Cliente{
-		Usuario: Usuario{
+	cliente := entidades.Cliente{
+		Usuario: entidades.Usuario{
 			Nome:  r.PostFormValue("nome"),
 			Email: r.PostFormValue("email"),
 			Senha: r.PostFormValue("senha"),
@@ -180,8 +226,8 @@ func (m *ManipuladorUsuario) CriarClientePost(w http.ResponseWriter, r *http.Req
 }
 
 func (m *ManipuladorUsuario) CriarColaboradorPost(w http.ResponseWriter, r *http.Request) {
-	colaborador := Colaborador{
-		Usuario: Usuario{
+	colaborador := entidades.Colaborador{
+		Usuario: entidades.Usuario{
 			Nome:  r.PostFormValue("nome"),
 			Email: r.PostFormValue("email"),
 			Senha: r.PostFormValue("senha"),
@@ -208,7 +254,7 @@ func (m *ManipuladorUsuario) EditarUsuarioPost(w http.ResponseWriter, r *http.Re
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro editar Processo:%v", err))
 	}
 
-	var usuario = Usuario{
+	var usuario = entidades.Usuario{
 		UUID:  UUID,
 		Nome:  r.PostFormValue("nome"),
 		Email: r.PostFormValue("email"),

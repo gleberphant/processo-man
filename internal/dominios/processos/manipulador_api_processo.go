@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/tarefas"
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/google/uuid"
 )
@@ -36,9 +36,9 @@ func (m *ManipuladorProcesso) APIVisualizarProcesso(w http.ResponseWriter, r *ht
 	}{
 		Msg: "OK",
 		Payload: struct {
-			Processo Processo
+			Processo entidades.Processo
 			Anexos   []string
-			Tarefas  []tarefas.Tarefa
+			Tarefas  []entidades.Tarefa
 		}{
 			Processo: *processo,
 			Anexos:   []string{"arquivo1.doc", "arquivo2.doc"},

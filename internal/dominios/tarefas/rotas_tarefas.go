@@ -2,18 +2,19 @@ package tarefas
 
 import "net/http"
 
-func (m *ManipuladorTarefa) DefinirRotasTarefas() *http.ServeMux {
+func (m *ManipuladorTarefa) InjetarRotasTarefas(mux *http.ServeMux) {
 
 	// SUB-ROTEADOR: TAREFAS
-	tarefasMux := http.NewServeMux()
-	tarefasMux.HandleFunc("GET /{$}", m.PageListarTarefas)
-	tarefasMux.HandleFunc("GET /criar", m.PageCriarTarefa)
-	tarefasMux.HandleFunc("GET /{UUID}", m.PageVerTarefa)
-	tarefasMux.HandleFunc("GET /{UUID}/editar", m.PageEditarTarefa)
-	tarefasMux.HandleFunc("POST /criar", m.CriarTarefaPost)
-	tarefasMux.HandleFunc("POST /{UUID}/editar", m.EditarTarefaPost)
-	tarefasMux.HandleFunc("POST /{UUID}/deletar", m.DeletarTarefaPost)
-	tarefasMux.HandleFunc("POST /{UUID}/concluir", m.DeletarTarefaPost)
+	mux.HandleFunc("GET /tarefas/{$}", m.PageListarTarefas)
+	mux.HandleFunc("GET /tarefas/criar", m.PageCriarTarefa)
+	mux.HandleFunc("GET /tarefas/{UUID}", m.PageVerTarefa)
+	mux.HandleFunc("GET /tarefas/{UUID}/editar", m.PageEditarTarefa)
 
-	return tarefasMux
+	mux.HandleFunc("POST /tarefas/criar", m.CriarTarefaPost)
+	mux.HandleFunc("POST /tarefas/{UUID}/editar", m.EditarTarefaPost)
+	mux.HandleFunc("POST /tarefas/{UUID}/deletar", m.DeletarTarefaPost)
+	mux.HandleFunc("POST /tarefas/{UUID}/concluir", m.DeletarTarefaPost)
+
+	//mux.HandleFunc("GET /processos/{processo_uuid}/tarefas", m.PageListarTarefasPorProcesso)
+	mux.HandleFunc("GET /processos/{colaborador_uuid}/tarefas", m.PageListarTarefasPorResponsavel)
 }

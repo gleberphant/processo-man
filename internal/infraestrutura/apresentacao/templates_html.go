@@ -23,8 +23,8 @@ func ExibirPaginaHTML(page string, w http.ResponseWriter, viewModel interface{})
 	tmpl, err = tmpl.ParseFiles(
 		"../templates/_layout/_layout.html",
 		"../templates/_layout/_header.html",
-		"../templates/_layout/_navbar.html",
 		"../templates/_layout/_footer.html",
+		"../templates/menu/_navbar.html",
 		"../templates/"+page,
 	)
 

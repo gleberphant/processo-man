@@ -21,8 +21,9 @@
  [x] **Tarefas**                      Implementar `Deletar` tarefa
  [x] **Tarefas**                      Designar um `responsável` pela tarefa
  [x] **Tipos de Usuarios**            Implementar `Cliente` e `Colaborador`
- [x] **Autenticacao com perfil**       Inserir o perfil (`Cliente` e `Colaborador`) no token
- [x] **Controle Acesso RBAC**          Implementar Mapa de acessos e verificacao do acesso no intermediarios
- [] **Repositorio em memoria**        Implementar repositorio em memoria para autenticação
+ [x] **Autenticacao com perfil**      Inserir o perfil (`Cliente` e `Colaborador`) no token
+ [x] **Controle Acesso RBAC**         Implementar Mapa de acessos e verificacao do acesso no intermediarios
+ [x] **Repositorio em memoria**       Implementar repositorio em memoria para autenticação
+ [x] **Tarefas de um Usuario**         Listar as tarefas atribuidas a um colaborador na área de visualizar usuario
  [] **Área do Cliente (HTML)**        Criar template para o cliente `listar meus processo` e `ver meus processo`
  [] **Refatoração JSON**              Adicionar `w.Header().Set("Content-Type", "application/json")` nos métodos de ação.

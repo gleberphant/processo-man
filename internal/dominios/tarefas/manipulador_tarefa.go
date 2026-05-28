@@ -5,39 +5,51 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/google/uuid"
 )
 
 // ManipuladorTarefa gerencia as requisições HTTP relacionadas ao domínio de Tarefas,
 // servindo como interface entre a camada de apresentação e os casos de uso.
+type ICDUUsuario interface {
+	Fechar() error
+	ListarUsuarios() ([]entidades.Usuario, error)
+}
+
 type ManipuladorTarefa struct {
 	cduTarefa  *CDUTarefa
-	cduUsuario *usuarios.CDUUsuario
+	cduUsuario ICDUUsuario
 }
 
 // NovoManipuladorTarefa cria e retorna uma nova instância de ManipuladorTarefa.
-func NovoManipuladorTarefa(CasosDeUsoTarefa *CDUTarefa, CasosDeUsoUsuario *usuarios.CDUUsuario) *ManipuladorTarefa {
+func NovoManipuladorTarefa(CasosDeUsoTarefa *CDUTarefa, CasosDeUsoUsuario ICDUUsuario) *ManipuladorTarefa {
 	return &ManipuladorTarefa{
 		cduTarefa:  CasosDeUsoTarefa,
 		cduUsuario: CasosDeUsoUsuario,
 	}
 }
 
+func (m *ManipuladorTarefa) Fechar() {
+	m.cduTarefa.Fechar()
+	m.cduUsuario.Fechar()
+}
+
 // obterListaUsuariosView centraliza a busca de usuários e conversão para DTO.
 func (m *ManipuladorTarefa) obterListaUsuariosView() ([]usuarioView, error) {
+
 	lista, err := m.cduUsuario.ListarUsuarios()
+
 	if err != nil {
 		return nil, err
 	}
 
-	var listaUsuarioDTO []usuarioView
+	var listaUsuarioView []usuarioView
 	for _, item := range lista {
-		listaUsuarioDTO = append(listaUsuarioDTO, usuarioView{UUID: item.UUID.String(), Nome: item.Nome})
+		listaUsuarioView = append(listaUsuarioView, usuarioView{UUID: item.UUID.String(), Nome: item.Nome})
 	}
 
-	return listaUsuarioDTO, nil
+	return listaUsuarioView, nil
 }
 
 // PageCriar renderiza o formulário para criação de um novo Tarefa.
@@ -78,7 +90,7 @@ func (m *ManipuladorTarefa) PageCriarTarefa(w http.ResponseWriter, r *http.Reque
 // PageListar renderiza a página contendo a listagem de todos os Tarefas.
 func (m *ManipuladorTarefa) PageListarTarefasPorProcesso(w http.ResponseWriter, r *http.Request) {
 
-	strProcessoUUID := r.PathValue("UUID") //r.URL.Query().Get("ProcessoUUID")
+	strProcessoUUID := r.PathValue("processo_uuid") //r.URL.Query().Get("ProcessoUUID")
 
 	processoUUID, err := uuid.Parse(strProcessoUUID)
 	if err != nil {
@@ -105,7 +117,7 @@ func (m *ManipuladorTarefa) PageListarTarefasPorProcesso(w http.ResponseWriter, 
 // PageListarTarefasPorResponsavel renderiza a página contendo a listagem de tarefas de um responsável específico.
 func (m *ManipuladorTarefa) PageListarTarefasPorResponsavel(w http.ResponseWriter, r *http.Request) {
 
-	strResponsavelUUID := r.PathValue("UUID")
+	strResponsavelUUID := r.PathValue("colaborador_uuid")
 
 	responsavelUUID, err := uuid.Parse(strResponsavelUUID)
 	if err != nil {
@@ -219,7 +231,7 @@ func (m *ManipuladorTarefa) CriarTarefaPost(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	tarefa := Tarefa{
+	tarefa := entidades.Tarefa{
 		ProcessoUUID:    processoUUID,
 		ResponsavelUUID: responsavelUUID,
 		Nome:            r.PostFormValue("Nome"),
@@ -248,7 +260,7 @@ func (m *ManipuladorTarefa) EditarTarefaPost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	tarefa := Tarefa{
+	tarefa := entidades.Tarefa{
 		UUID:            dtoTarefaUUID,
 		ProcessoUUID:    dtoProcessoUUID,
 		ResponsavelUUID: dtoResponsavelUUID,

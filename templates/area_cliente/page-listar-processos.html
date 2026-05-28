@@ -1,0 +1,79 @@
+{{define "page"}}
+<main class="container mt-5">
+    <div class="container">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h4 mb-0">Lista de Processo</h2>
+            <form id="form-criar-usuario" method="get" action="/processos/criar" style="display:inline;">
+                <button onclick="onClickNovo()" class="btn btn-primary mb-2">Novo</button>
+            </form>
+        </div>
+        <section class="card">
+
+
+
+
+            <div class="table-responsive">
+                <table class="table align-middle table-striped table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Dono</th>
+                            <th>DataCriacao</th>
+                            <th></th>
+                            <th>AÇÕES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {{ range .Processos }}
+                        <tr>
+                            <td>{{ .UUID }}</td>
+                            <td>{{ .Nome }}</td>
+                            <td>{{ .Dono.Nome }}</td>
+                            <td>{{ formatarData .DataCriacao }}</td>
+                            <td>-</td>
+
+                            <td>
+                                <form id="form-ver-{{.UUID}}" method="get" action="/processos/{{.UUID}}"
+                                    style="display:inline;">
+                                    
+                                    <button type="submit" class="btn btn-info mb-2">
+                                        Visualizar
+                                    </button>
+                                </form>
+
+                                <form id="form-deletar-{{.UUID}}" method="post" action="/processos/{{.UUID}}/deletar"
+                                    style="display:inline;">
+                                    
+                                    <button type="button" onclick="onClickDeletar('{{.UUID}}')"
+                                        class="btn btn-danger mb-2">
+                                        Deletar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- meus scripts javascript -->
+        <script>
+            function onClickDeletar(id) {
+                let resposta = confirm("Tem certeza que deseja Deletar ID=" + id + " ??")
+
+                if (resposta) {
+                    document.getElementById('form-deletar-' + id).submit();
+                }
+
+            }
+
+        </script>
+</main>
+
+{{end}}
+
+{{define "title"}}Index - Projeto Go{{end}}

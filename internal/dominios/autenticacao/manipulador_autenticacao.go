@@ -19,6 +19,10 @@ func NovoManipuladorLogin(cduToken *CDUAutenticacao) *ManipuladorLogin {
 
 }
 
+func (m *ManipuladorLogin) Fechar() {
+	m.CDUAutenticacao.Fechar()
+}
+
 // formulario de login
 func (m *ManipuladorLogin) PageLogin(w http.ResponseWriter, r *http.Request) {
 

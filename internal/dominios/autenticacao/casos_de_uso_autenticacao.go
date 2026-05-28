@@ -3,16 +3,18 @@ package autenticacao
 import (
 	"errors"
 	"fmt"
+	"log"
+	"strings"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type IRepositorioToken interface {
 	Fechar()
-	Criar(*Token) (*Token, error)
-	BuscarPorUUID(UUID uuid.UUID) (*Token, error)
+	Criar(*entidades.Token) (*entidades.Token, error)
+	BuscarPorUUID(UUID uuid.UUID) (*entidades.Token, error)
 	DeletarPorUsuarioUUID(uuid.UUID) error
 	VerificarPermissaoPerfil(string, string) bool
 	//ObterMapaPermissoes(rota string) map[string]bool
@@ -20,8 +22,8 @@ type IRepositorioToken interface {
 
 type IRepositorioUsuario interface {
 	Fechar()
-	BuscarPorEmail(string) (*usuarios.Usuario, error)
-	BuscarPorUUID(uuid.UUID) (*usuarios.Usuario, error)
+	BuscarPorEmail(string) (*entidades.Usuario, error)
+	BuscarPorUUID(uuid.UUID) (*entidades.Usuario, error)
 }
 
 type CDUAutenticacao struct {
@@ -37,20 +39,27 @@ func NovoCDUAutenticacao(tokensRepo IRepositorioToken, usuariosRepo IRepositorio
 	}
 }
 
+func (a *CDUAutenticacao) Fechar() error {
+	a.RepoTokens.Fechar()
+	a.RepoUsuarios.Fechar()
+	return nil
+}
+
 // verificar se token tem permissão para acessar uma rota
 func (a *CDUAutenticacao) VerificarPermissao(tokenUUID uuid.UUID, rota string, metodo string) error {
 
 	// busca o token completo
+	log.Printf("buscando token por uuid")
 	token, err := a.RepoTokens.BuscarPorUUID(tokenUUID)
-
+	log.Printf("fim da busca")
 	if err != nil {
 		return fmt.Errorf("Token não encontrado: %w ", err)
 	}
 
-	chaveRota := metodo + ":" + rota
+	chaveRota := strings.ToLower(metodo + ":" + rota)
 	// verificar permissao
 	for _, perfil := range token.Perfis {
-		if a.RepoTokens.VerificarPermissaoPerfil(perfil, chaveRota) {
+		if a.RepoTokens.VerificarPermissaoPerfil(chaveRota, strings.ToLower(perfil)) {
 			return nil
 		}
 	}
@@ -92,7 +101,7 @@ func (a *CDUAutenticacao) AutenticarUsuario(email string, senha string) (string,
 }
 
 // gerar token
-func (a *CDUAutenticacao) GerarToken(usuario *usuarios.Usuario) (*Token, error) {
+func (a *CDUAutenticacao) GerarToken(usuario *entidades.Usuario) (*entidades.Token, error) {
 
 	// limpar tokens antigos no repositorio
 	err := a.RepoTokens.DeletarPorUsuarioUUID(usuario.UUID)
@@ -110,7 +119,7 @@ func (a *CDUAutenticacao) GerarToken(usuario *usuarios.Usuario) (*Token, error) 
 
 	// inserir o novo token no repositorio
 	token, err := a.RepoTokens.Criar(
-		&Token{
+		&entidades.Token{
 			UUID:        tokenUUID,
 			UsuarioUUID: usuario.UUID,
 			Validade:    "temporario",

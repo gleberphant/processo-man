@@ -27,12 +27,12 @@ func AutenticadorIntermediario(proximo http.Handler, autenticador *CDUAutenticac
 		}
 
 		//-------------------------------------
-		// procurar token
+		// procurar token enviado
 		strTokenUUID, err := procurarTokenEnviado(r)
 
 		if err != nil {
 			log.Printf("Token não encontrado : [%v] ", err)
-			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado. Token não encontrado"), http.StatusSeeOther)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
@@ -44,23 +44,20 @@ func AutenticadorIntermediario(proximo http.Handler, autenticador *CDUAutenticac
 			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado. Token Inválido"), http.StatusSeeOther)
 			return
 		}
-		log.Printf("\n -------------- Verificando permissao ----------------")
 
-		// Extrai apenas o recurso principal da URL
-		caminhoLimpo := strings.Trim(r.URL.Path, "/")
-		partes := strings.Split(caminhoLimpo, "/")
-		recursoBase := "/" + partes[0]
-		log.Printf("\n  uri : [%s]", recursoBase)
+		// Extrai apenas a rota principal da URL -- implementação provisoria
+		partes := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+		rotaBase := "/" + partes[0]
 
-		err = autenticador.VerificarPermissao(tokenUUID, recursoBase, r.Method)
+		// verifica a permissão do token
+		err = autenticador.VerificarPermissao(tokenUUID, rotaBase, r.Method)
 
-		// se houver erro na validação. Redireciona para LOGIN
 		if err != nil {
-			log.Printf("Erro Permissão: token [%s] : Erro  [%v] ", tokenUUID, err)
-			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado <br> Usuario sem permissão"), http.StatusSeeOther)
+			log.Printf("Erro Permissao: [%v] ", err)
+			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado. Usuario sem permissão"), http.StatusSeeOther)
 			return
 		}
-		log.Printf("\n -------------- fim verificacao ----------------")
+
 		// iniciar seção
 		proximo.ServeHTTP(w, r)
 	})
@@ -73,7 +70,7 @@ func LogIntermediario(proximo http.Handler) http.Handler {
 		proximo.ServeHTTP(w, r)
 
 		log.Printf("| Requisao: %s |  Metodo: %s | ",
-			r.URL,
+			r.URL.Path,
 			r.Method,
 		)
 	})

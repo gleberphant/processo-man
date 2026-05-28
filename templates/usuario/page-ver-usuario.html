@@ -1,4 +1,4 @@
-{{define "title"}} Ver Processo {{end}}
+{{define "title"}} Ver Usuario {{end}}
 
 {{define "page"}}
 <main class="container mt-5">
@@ -7,7 +7,7 @@
         <div class="col-md-6 mb-3">
 
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <form method="get" action="/usuarios/{{.UUID}}/editar" style="display:inline;">
+                <form method="get" action="/usuarios/{{ .Usuarios.UUID}}/editar" style="display:inline;">
                     <button type="submit" class="btn btn-primary btn-sm">Editar Usuario</button>
                 </form>
             </div>
@@ -28,6 +28,10 @@
                             <tr>
                                 <th class="bg-light">EMAIL</th>
                                 <td>{{.Email}}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Perfis</th>
+                                <td>{{.Perfis}}</td>
                             </tr>
                             <tr>
                                 <th class="bg-light">DATA CRIAÇÃO</th>
@@ -84,9 +88,9 @@
                         <thead>
                             <tr>
                                 <th>UUID</th>
+                                <!-- <th>PROCESSO</th> -->
                                 <th>NOME TAREFA</th>
                                 <th>DATA CRIACAO</th>
-                                <!-- <th>PROCESSO</th> -->
                                 <th>RESPONSÁVEL</th>
                                 <th>SITUAÇÃO</th>
                                 <th>DATA CONCLUSÃO</th>
@@ -97,11 +101,11 @@
                             {{range .Tarefas}}
                             <tr>
                                 <td>{{.UUID}}</td>
-                                <td>{{.ProcessoUUID}}</td> 
+                                <!-- <td>{{.ProcessoUUID}}</td>  -->
                                 <td>{{.Nome}}</td>
                                 <td>{{formatarData .DataCriacao}}</td>
                                 <td>{{.ResponsavelUUID}}</td>
-                                <td>{{.Conclusao}}</td>
+                                <td>{{.Concluida}}</td>
                                 <td>{{if .DataConclusao.IsZero}}Aberta {{else }}{{formatarData .DataConclusao}}{{end}}</td>
                                 <td>
                                     <form id="form-ver-{{.UUID}}" method="get" action="/tarefas/{{.UUID}}"
