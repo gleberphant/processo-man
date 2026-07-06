@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/roteamento"
 )
 
@@ -14,10 +15,15 @@ func main() {
 	r := roteamento.Roteador{}
 
 	defer r.Fechar()
+
 	log.Printf("INJETAR DEPENDENCIAS")
 	r.InjetarDependencias()
+
 	log.Printf("INJETAR ROTAS")
 	r.InjetarRotas()
+
+	log.Printf("Carregar Templates")
+	apresentacao.CarregarTemplates()
 
 	server := http.Server{
 		Addr:    ":8080",

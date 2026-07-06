@@ -7,25 +7,25 @@ import (
 )
 
 // configurar as rotas e devolver MUX configurado
-func (s *Roteador) InjetarRotas() {
+func (r *Roteador) InjetarRotas() {
 
 	// configurar mux
 	mux := http.NewServeMux()
 
 	// PAGINAS ESTÁTICAS
-	mux.HandleFunc("/{$}", s.Index)
-	mux.HandleFunc("/", s.Pagina404)
+	mux.HandleFunc("/{$}", r.Index)
+	mux.HandleFunc("/", r.Pagina404)
 
-	s.ManipuladorAutenticacao.DefinirRotasAutenticacao(mux)
-	s.ManipuladorProcesso.InjetarRotasProcessos(mux)
-	s.ManipuladorUsuario.InjetarRotasUsuarios(mux)
-	s.ManipuladorUsuario.InjetarRotasClientes(mux)
-	s.ManipuladorUsuario.InjetarRotasColaboradores(mux)
-	s.ManipuladorTarefa.InjetarRotasTarefas(mux)
+	r.ManipuladorAutenticacao.DefinirRotasAutenticacao(mux)
+	r.ManipuladorProcesso.InjetarRotasProcessos(mux)
+	r.ManipuladorUsuario.InjetarRotasUsuarios(mux)
+	r.ManipuladorUsuario.InjetarRotasClientes(mux)
+	r.ManipuladorUsuario.InjetarRotasColaboradores(mux)
+	r.ManipuladorTarefa.InjetarRotasTarefas(mux)
 
 	// INJETA INTERMEDIÁRIOS - Middlewares
-	roteador := autenticacao.LogIntermediario(autenticacao.AutenticadorIntermediario(mux, s.ManipuladorAutenticacao.CDUAutenticacao))
+	roteador := autenticacao.LogIntermediario(autenticacao.AutenticadorIntermediario(mux, r.ManipuladorAutenticacao.CDUAutenticacao))
 
-	s.Handler = &roteador
+	r.Handler = &roteador
 
 }

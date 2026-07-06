@@ -1,5 +1,6 @@
 package autenticacao
 
+// tokens e permissões estão armazenadas no Bolt Database
 import (
 	"encoding/json"
 	"errors"
@@ -57,7 +58,7 @@ func (r *RepositorioTokenBolt) VerificarPermissaoPerfil(chaveRota string, perfil
 		if perfis[perfil] {
 			return nil
 		}
-		return fmt.Errorf("perfil %v", perfis[perfil])
+		return fmt.Errorf("perfil inválido %v", perfis[perfil])
 
 	})
 
