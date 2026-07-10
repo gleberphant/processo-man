@@ -22,6 +22,7 @@ func (m *ManipuladorUsuario) InjetarRotasClientes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /usuarios/clientes/{$}", m.PageListarClientes)
 	mux.HandleFunc("GET /usuarios/clientes/criar", m.PageCriarCliente)
 	mux.HandleFunc("POST /usuarios/clientes/criar", m.CriarClientePost)
+	mux.HandleFunc("GET /clientes/{$}", m.PageListarClientes)
 }
 
 func (m *ManipuladorUsuario) InjetarRotasColaboradores(mux *http.ServeMux) {

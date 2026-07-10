@@ -1,26 +1,35 @@
 # Visão
 
+## descrição
+
+Sistemas para controle de processos. 
+
 ## Requisitos
 
-| check | **Sprint** | **Módulo**   | **ID** | **Tarefa Técnica**              | **Detalhamento / Critério de Aceite**                                               |
-| --------------------------------- | ---------- | ------------ | ------ | ------------------------------- | ----------------------------------------------------------------------------------- |
-| [x]                               | **1**      | **Infra**    | 1.1    | **Configuração do projeto**     | Iniciar `go mod`, instalar pacotes `uuid`, `chi` (ou router escolhido) e `sqlite3`. |
-| [x]                               | **1**      | **Infra**    | 1.2    | **Router Base**                 | Implementar o `Roteador` para gerenciar as rotas iniciais.                          |
-| [x]                               | **1**      | **Infra**    | 1.2    | **Singleton do Banco de Dados** | Criar struct `BancoDeDados` e função `Conectar()` que retorna `*sql.DB`.            |
-| [x]                               | **1**      | **Entidade** | 1.3    | **Structs de Usuário/Perfil**   | Implementar as structs `Usuario`, `Perfil` e `Permissao` com tags JSON.             |
-| []                                | **1**      | **Manip**    | 1.4    | **Handler de Login (GET)**      | Método `PageLogin`: Carregar e renderizar o template HTML de login.                 |
-| []                                | **1**      | **Serviço**  | 1.5    | **Lógica de Auth**              | No `ServicoUsuario`, criar método `Autenticar(email, senha)`.                       |
-| []                                | **2**      | **Entidade** | 2.1    | **Structs de Negócio**          | Implementar `Cliente`, `Processo` e `Tarefa` com Embedding de Usuario.              |
-| []                                | **2**      | **Serviço**  | 2.2    | **CRUD de Clientes**            | Implementar `CriarCliente` e `ListarClientes` no `ServicoUsuario`.                  |
-| []                                | **2**      | **Manip**    | 2.3    | **Página de Cadastro Cliente**  | Método `PageCriarCliente` e `CriarCliente` (POST) no manipulador.                   |
-| []                                | **2**      | **Infra**    | 2.4    | **Middleware de Sessão**        | Criar função que verifica se o usuário está logado antes de acessar rotas "Page".   |
-| []                                | **3**      | **Serviço**  | 3.1    | **Gestão de Processos**         | Implementar `CriarProcesso` vinculando o `ID` do cliente.                           |
-| []                                | **3**      | **Manip**    | 3.2    | **Fluxo de Novo Processo**      | Handler `PageCriarProcesso` e lógica de persistência no `ControleProcesso`.         |
-| []                                | **3**      | **Entidade** | 3.3    | **Entidade Fraca: Lista**       | Implementar a `Lista de Tarefas` como dependente de um `ID_PROCESSO`.               |
-| []                                | **4**      | **Serviço**  | 4.1    | **Lógica de Tarefas**           | Implementar `InserirTarefa` e `AtualizarStatusTarefa` (concluída/aberta).           |
-| []                                | **4**      | **Manip**    | 4.2    | **Visualização do Projeto**     | Handler `PageVisualizar` que busca Processo + Lista + Tarefas em um único DTO.      |
-| []                                | **4**      | **Front**    | 4.3    | **Área do Cliente (HTML)**      | Criar template para o caso de uso "Acompanhar Andamento".                           |
-| []                                | **5**      | **API**      | 5.1    | **Refatoração JSON**            | Adicionar `w.Header().Set("Content-Type", "application/json")` nos métodos de ação. |
+| ID Requisito | Módulo / Área | Requisito Funcional (Descrição) | Ator Principal | Dependências / Vínculos (`<<inclui>>`) |
+| :--- | :--- | :--- | :--- | :--- |
+| **RF-01** | Área de Administração | Manter usuário (Cadastrar, Alterar, Consultar, Excluir) | Administrador do Sistema | - |
+| **RF-02** | Área de Administração | Atribuir perfil a um usuário | Administrador do Sistema | - |
+| **RF-03** | Secretaria | Manter clientes | Secretaria | - |
+| **RF-04** | Secretaria | Manter documentos de um cliente | Secretaria | - |
+| **RF-05** | Secretaria | Manter processos | Secretaria | - |
+| **RF-06** | Secretaria / Cliente | Atribuir cliente a um processo | Secretaria / Cliente | - |
+| **RF-07** | Área do Colaborador | Ver detalhes de um processo | Colaborador | Inclui **RF-08** e **RF-15** |
+| **RF-08** | Área do Colaborador | Listar tarefas no processo | Colaborador | *(Invocado por RF-07)* |
+| **RF-09** | Área do Colaborador | Adicionar tarefa a um processo | Colaborador | Inclui **RF-10** |
+| **RF-10** | Área do Colaborador | Atribuir um responsável para uma tarefa | Colaborador | *(Invocado por RF-09)* |
+| **RF-11** | Área do Colaborador | Manter suas tarefas | Colaborador | - |
+| **RF-12** | Área do Colaborador | Concluir uma tarefa (Marcar como concluída) | Colaborador | - |
+| **RF-13** | Área do Colaborador | Adicionar documento a um processo | Colaborador | - |
+| **RF-14** | Área do Colaborador | Manter seus documentos | Colaborador | - |
+| **RF-15** | Área do Colaborador | Listar documento no processo | Colaborador | *(Invocado por RF-07)* |
+| **RF-16** | Área do Cliente | Listar seus processos | Cliente | - |
+| **RF-17** | Área do Cliente | Ver detalhes dos seus processos | Cliente | - |
+| **RF-18** | Área do Cliente | Ver seus documentos | Cliente | - |
+| **RF-19** | Área do Usuário (Geral) | Ver seus dados | Usuário (Todos) | - |
+| **RF-20** | Área do Usuário (Geral) | Corrigir seus dados | Usuário (Todos) | - |
+| **RF-21** | Autenticação | Efetuar Login (Validar credenciais e Token) | Usuário (Todos) | - |
+| **RF-22** | Autenticação | Efetuar Logout | Usuário (Todos) | - |
 
 ## **Instruções para o Desenvolvimento**
 

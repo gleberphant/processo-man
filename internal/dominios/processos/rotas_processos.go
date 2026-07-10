@@ -15,9 +15,4 @@ func (m *ManipuladorProcesso) InjetarRotasProcessos(mux *http.ServeMux) {
 	mux.HandleFunc("POST /processos/{UUID}/deletar", m.DeletarProcessoPost)
 	mux.HandleFunc("POST /processos/{UUID}/arquivar", m.DeletarProcessoPost)
 
-	// ROTAS RESTFUL: RECURSOS ANINHADOS (CLIENTES -> PROCESSOS)
-	mux.HandleFunc("GET /clientes/", m.AreaClienteListarClientes)
-	mux.HandleFunc("GET /clientes/{cliente_uuid}/processos/{$}", m.AreaClientePageListarProcessos)
-	mux.HandleFunc("GET /clientes/{cliente_uuid}/processos/{ProcessoUUID}", m.AreaClientePageVerProcesso)
-
 }

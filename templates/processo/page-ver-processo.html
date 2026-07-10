@@ -2,6 +2,8 @@
 
 {{define "page"}}
 <main class="container mt-5">
+
+
     <div class="row mb-4">
         <!-- Bloco do Processo -->
         <div class="col-md-6 mb-3">
@@ -135,16 +137,19 @@
                 </div>
             </section>
 
-            <script>
-                function onClickConcluir(id) {
-                    let resposta = confirm("Tem certeza que deseja deletar a Tarefa ID=" + id + " ??")
-                    if (resposta) {
-                        document.getElementById('form-concluir-' + id).submit();
-                    }
-                }
-            </script>
+
         </div>
     </div>
+
+
+    <script>
+        function onClickConcluir(id) {
+            let resposta = confirm("Tem certeza que deseja deletar a Tarefa ID=" + id + " ??")
+            if (resposta) {
+                document.getElementById('form-concluir-' + id).submit();
+            }
+        }
+    </script>
 </main>
 
 {{end}}

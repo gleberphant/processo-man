@@ -2,14 +2,14 @@ package bancodedados
 
 import (
 	"database/sql"
-	"log"
+	"fmt"
 
 	"go.etcd.io/bbolt"
 	_ "modernc.org/sqlite" // Driver SQLite
 )
 
 // conectar ao banco
-func ConectarSQLITE(args ...string) (*sql.DB, error) {
+func ConectarSQLITE(args ...string) *sql.DB {
 
 	var caminho string
 	// abrir a conexao
@@ -25,21 +25,22 @@ func ConectarSQLITE(args ...string) (*sql.DB, error) {
 
 	// 1º verifica se houver erro na conexao
 	if err != nil {
-		log.Printf("Erro ao conectar-se ao banco de dados : %v", err)
-		return nil, err
+		panic(fmt.Errorf("Erro ao conectar-se ao banco de dados: %v", err))
+
 	}
 
 	// 2º verifica se conexao está ativa
 	if err = conn.Ping(); err != nil {
-		return nil, err
+		panic(fmt.Errorf("Erro ao conectar-se ao banco de dados: %v", err))
+
 	}
 
 	// retorna a conexao para query
 
-	return conn, nil
+	return conn
 }
 
-func ConectarBBOLT(args ...string) (*bbolt.DB, error) {
+func ConectarBBOLT(args ...string) *bbolt.DB {
 
 	var caminho string
 
@@ -55,10 +56,9 @@ func ConectarBBOLT(args ...string) (*bbolt.DB, error) {
 
 	// 1º verifica se houver erro na conexao
 	if err != nil {
-		log.Printf("Erro ao conectar-se ao banco de dados : %v", err)
-		return nil, err
+		panic(fmt.Errorf("Erro ao conectar-se ao banco de dados: %v", err))
 	}
 
 	// retorna a conexao para query
-	return conn, nil
+	return conn
 }

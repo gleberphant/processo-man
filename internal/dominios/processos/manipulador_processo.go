@@ -44,7 +44,7 @@ func (m *ManipuladorProcesso) PageCriar(w http.ResponseWriter, r *http.Request) 
 // PageListar renderiza a página contendo a listagem de todos os processos.
 func (m *ManipuladorProcesso) PageListar(w http.ResponseWriter, r *http.Request) {
 
-	lista, err := m.cduProcesso.ListarProcessos()
+	listaProcessos, err := m.cduProcesso.ListarProcessos()
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("erro Page Listar Processo:%v", err))
@@ -52,7 +52,7 @@ func (m *ManipuladorProcesso) PageListar(w http.ResponseWriter, r *http.Request)
 	}
 
 	viewModel := ViewModelProcesso{
-		Processos: lista,
+		Processos: listaProcessos,
 	}
 
 	apresentacao.ExibirPaginaHTML("processo/page-listar-processos.html", w, viewModel)
@@ -77,9 +77,9 @@ func (m *ManipuladorProcesso) PageVerProcesso(w http.ResponseWriter, r *http.Req
 	}
 
 	viewModel := ViewModelProcesso{
-		UUID:      strUUID,
-		Processos: *processo,
-		Anexos:    []string{"arquivo1.doc", "arquivo2.doc"},
+		UUID:     strUUID,
+		Processo: *processo,
+		Anexos:   []string{"arquivo1.doc", "arquivo2.doc"},
 	}
 
 	apresentacao.ExibirPaginaHTML("processo/page-ver-processo.html", w, viewModel)

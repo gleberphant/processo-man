@@ -32,6 +32,10 @@ func main() {
 
 	fmt.Println("Servidor rodando na porta 8080")
 
-	server.ListenAndServe()
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("Erro ao iniciar o servidor: %v", err)
+	}
+
+	fmt.Println("Encerrando servidor")
 
 }

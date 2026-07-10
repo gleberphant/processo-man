@@ -55,10 +55,11 @@ func (r *RepositorioTokenBolt) VerificarPermissaoPerfil(chaveRota string, perfil
 			return err
 		}
 
-		if perfis[perfil] {
-			return nil
+		if !perfis[perfil] {
+			return fmt.Errorf("perfil não autorizado %v", perfis[perfil])
+
 		}
-		return fmt.Errorf("perfil inválido %v", perfis[perfil])
+		return nil
 
 	})
 

@@ -10,7 +10,22 @@ import (
 	"github.com/google/uuid"
 )
 
-func (m *ManipuladorProcesso) APIVisualizarProcesso(w http.ResponseWriter, r *http.Request) {
+type ICDUUsuario interface {
+	ListarClientes() ([]entidades.Cliente, error)
+}
+
+type ICDUProcesso interface {
+	ListarProcessosPorCliente(uuid.UUID) ([]entidades.Processo, error)
+	BuscarProcessoPorUUID(uuid.UUID) (*entidades.Processo, error)
+}
+
+// servindo como interface entre a camada de apresentação e os casos de uso.
+type ManipuladorProcessoApi struct {
+	cduProcesso ICDUProcesso
+	cduUsuario  ICDUUsuario
+}
+
+func (m *ManipuladorProcessoApi) APIVisualizarProcesso(w http.ResponseWriter, r *http.Request) {
 	uuidStr := r.URL.Query().Get("uuid")
 
 	processoUUID, err := uuid.Parse(uuidStr)

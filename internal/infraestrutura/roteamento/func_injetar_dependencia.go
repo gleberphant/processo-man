@@ -16,22 +16,15 @@ func (r *Roteador) InjetarDependencias() error {
 	// Conectar aos bancos de dados
 
 	log.Printf("Conectando bancos de dados ")
-	dbAuth, err := bancodedados.ConectarBBOLT("../database/autenticacao.boltdb")
-	if err != nil {
-		return err
-	}
-
-	db, err := bancodedados.ConectarSQLITE("../database/sqlite.db")
-	if err != nil {
-		return err
-	}
+	connDBAuth := bancodedados.ConectarBBOLT("../database/autenticacao.boltdb")
+	connDBEntidades := bancodedados.ConectarSQLITE("../database/sqlite.db")
 
 	// injeta banco de dados nos repositórios
 	log.Printf("Configurando repositorios")
-	tokensRepo := autenticacao.NovoRepositorioTokenBolt(dbAuth)
-	usuariosRepo := usuarios.NovoRepositorioUsuario(db)
-	processoRepo := processos.NovoRepositorioProcesso(db)
-	tarefaRepo := tarefas.NovoRepositorioTarefa(db)
+	tokensRepo := autenticacao.NovoRepositorioTokenBolt(connDBAuth)
+	usuariosRepo := usuarios.NovoRepositorioUsuario(connDBEntidades)
+	processoRepo := processos.NovoRepositorioProcesso(connDBEntidades)
+	tarefaRepo := tarefas.NovoRepositorioTarefa(connDBEntidades)
 
 	// injeta repositorios nos casos de uso
 	log.Printf("Configurando servicos")
