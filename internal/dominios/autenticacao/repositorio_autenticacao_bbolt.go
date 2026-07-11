@@ -72,7 +72,7 @@ func (r *RepositorioTokenBolt) VerificarPermissaoPerfil(chaveRota string, perfil
 
 }
 
-// Criar insere um novo registro de token na tabela de tokens.
+// Criar insere um novo token na tabela de tokens.
 func (r *RepositorioTokenBolt) Criar(token *entidades.Token) (*entidades.Token, error) {
 	db := r.Conn
 
@@ -86,9 +86,9 @@ func (r *RepositorioTokenBolt) Criar(token *entidades.Token) (*entidades.Token, 
 			return err
 		}
 
-		binaryToken, _ := json.MarshalIndent(token, "", "	")
+		bytesToken, _ := json.MarshalIndent(token, "", "	")
 
-		bucket.Put([]byte(token.UUID.String()), binaryToken)
+		bucket.Put([]byte(token.UUID.String()), bytesToken)
 
 		return nil
 

@@ -3,7 +3,6 @@ package autenticacao
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/gleberphant/ProcessoMan/internal/entidades"
@@ -46,18 +45,24 @@ func (a *CDUAutenticacao) Fechar() error {
 }
 
 // verificar se token tem permissão para acessar uma rota
-func (a *CDUAutenticacao) VerificarPermissao(tokenUUID uuid.UUID, rota string, metodo string) error {
+func (a *CDUAutenticacao) VerificarExisteToken(tokenUUID uuid.UUID) (*entidades.Token, error) {
 
-	// busca o token completo
-	log.Printf("buscando token por uuid")
+	// Verifica se o token Existe
 	token, err := a.RepoTokens.BuscarPorUUID(tokenUUID)
-	log.Printf("fim da busca")
 	if err != nil {
-		return fmt.Errorf("Token não encontrado: %w ", err)
+		return nil, fmt.Errorf("Token não encontrado: %w ", err)
 	}
 
+	return token, nil
+
+}
+
+// verificar se token tem permissão para acessar uma rota
+func (a *CDUAutenticacao) VerificarPermissao(token *entidades.Token, rota string, metodo string) error {
+
+	// verificar a permissão do permissao
 	chaveRota := strings.ToLower(metodo + ":" + rota)
-	// verificar permissao
+
 	for _, perfil := range token.Perfis {
 		if a.RepoTokens.VerificarPermissaoPerfil(chaveRota, strings.ToLower(perfil)) {
 			return nil
@@ -68,30 +73,32 @@ func (a *CDUAutenticacao) VerificarPermissao(tokenUUID uuid.UUID, rota string, m
 
 }
 
+/* função para autenticar o usuario, recebe o login e a senha, verifica se o usuario existe criar um um token associado a ele */
 func (a *CDUAutenticacao) AutenticarUsuario(email string, senha string) (string, error) {
 
-	//valida usuario
+	// valida formato do login
 	if email == "" {
 		return "", errors.New("Usuario nulo")
 	}
-	// 1 Verifica se o usuario/email existe
+
+	// 1. Verifica se o usuario/email existe
 	usuario, err := a.RepoUsuarios.BuscarPorEmail(email)
 	if err != nil {
 		return "", fmt.Errorf("usuario não encontrado: %w ", err)
 	}
 
-	// 2 verifica senha
+	// 2. Verifica se a senha é correta
 	err = bcrypt.CompareHashAndPassword([]byte(usuario.Senha), []byte(senha))
 
 	if err != nil {
-		//fallback para usuario teste
+		// DEV fallback para usuario teste
 		if senha != usuario.Senha && usuario.UUID.String() == "00000000-0000-0000-0000-000000000000" {
 			return "", fmt.Errorf("senha inválida : %w ", err)
 		}
 	}
 
 	// Gerar token
-	token, err := a.GerarToken(usuario)
+	token, err := a.gerarToken(usuario)
 	if err != nil {
 		return "", fmt.Errorf("erro ao gerar token: %w ", err)
 	}
@@ -101,7 +108,7 @@ func (a *CDUAutenticacao) AutenticarUsuario(email string, senha string) (string,
 }
 
 // gerar token
-func (a *CDUAutenticacao) GerarToken(usuario *entidades.Usuario) (*entidades.Token, error) {
+func (a *CDUAutenticacao) gerarToken(usuario *entidades.Usuario) (*entidades.Token, error) {
 
 	// limpar tokens antigos no repositorio
 	err := a.RepoTokens.DeletarPorUsuarioUUID(usuario.UUID)
@@ -122,6 +129,7 @@ func (a *CDUAutenticacao) GerarToken(usuario *entidades.Usuario) (*entidades.Tok
 		&entidades.Token{
 			UUID:        tokenUUID,
 			UsuarioUUID: usuario.UUID,
+			UsuarioNome: usuario.Nome,
 			Validade:    "temporario",
 			Perfis:      usuario.Perfis,
 		})

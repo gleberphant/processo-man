@@ -24,7 +24,8 @@ func (r *Roteador) InjetarRotas() {
 	r.ManipuladorTarefa.InjetarRotasTarefas(mux)
 
 	// INJETA INTERMEDIÁRIOS - Middlewares
-	roteador := autenticacao.LogIntermediario(autenticacao.AutenticadorIntermediario(mux, r.ManipuladorAutenticacao.CDUAutenticacao))
+	roteador := autenticacao.AutenticadorIntermediario(mux, r.ManipuladorAutenticacao.CDUAutenticacao)
+	roteador = autenticacao.LogIntermediario(roteador)
 
 	r.Handler = &roteador
 

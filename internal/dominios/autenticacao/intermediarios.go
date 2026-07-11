@@ -1,6 +1,7 @@
 package autenticacao
 
 import (
+	"context"
 	"errors"
 	"log"
 	"net/http"
@@ -27,7 +28,7 @@ func AutenticadorIntermediario(proximo http.Handler, autenticador *CDUAutenticac
 		}
 
 		//-------------------------------------
-		// procurar token enviado
+		// Extrai o token enviado
 		strTokenUUID, err := procurarTokenEnviado(r)
 
 		if err != nil {
@@ -37,7 +38,7 @@ func AutenticadorIntermediario(proximo http.Handler, autenticador *CDUAutenticac
 		}
 
 		//-------------------------------------
-		// validar o token
+		// Converte o token para formato UUID
 		tokenUUID, err := uuid.Parse(strTokenUUID)
 		if err != nil {
 			log.Printf("Formato de token inválido: [%v] ", err)
@@ -45,12 +46,20 @@ func AutenticadorIntermediario(proximo http.Handler, autenticador *CDUAutenticac
 			return
 		}
 
+		//Verifica se o token existe
+		token, err := autenticador.VerificarExisteToken(tokenUUID)
+		if err != nil {
+			log.Printf("Token inexistente: [%v] ", err)
+			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado. Token Expirado"), http.StatusSeeOther)
+			return
+		}
+
+		// Verifica a permissão do token
 		// Extrai apenas a rota principal da URL -- implementação provisoria
 		partes := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
-		rotaBase := "/" + partes[0]
+		rota := "/" + partes[0]
 
-		// verifica a permissão do token
-		err = autenticador.VerificarPermissao(tokenUUID, rotaBase, r.Method)
+		err = autenticador.VerificarPermissao(token, rota, r.Method)
 
 		if err != nil {
 			log.Printf("Erro Permissao: [%v] ", err)
@@ -58,8 +67,11 @@ func AutenticadorIntermediario(proximo http.Handler, autenticador *CDUAutenticac
 			return
 		}
 
+		// token autorizado. injeta usuario.
+		ctxAutenticacao := context.WithValue(r.Context(), "Token", token)
+
 		// iniciar seção
-		proximo.ServeHTTP(w, r)
+		proximo.ServeHTTP(w, r.WithContext(ctxAutenticacao))
 	})
 
 }

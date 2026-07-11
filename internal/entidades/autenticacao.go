@@ -9,6 +9,7 @@ import (
 type Token struct {
 	UUID        uuid.UUID
 	UsuarioUUID uuid.UUID
+	UsuarioNome string
 	DataCriacao time.Time
 	Validade    string
 	Comentarios string

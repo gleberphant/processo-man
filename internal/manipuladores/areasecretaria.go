@@ -1,4 +1,4 @@
-package area_cliente
+package manipuladores
 
 import (
 	"net/http"
@@ -8,33 +8,22 @@ import (
 	"github.com/google/uuid"
 )
 
-type ICDUUsuario interface {
-	ListarClientes() ([]entidades.Cliente, error)
-}
-
-type ICDUProcesso interface {
-	ListarProcessosPorCliente(uuid.UUID) ([]entidades.Processo, error)
-}
-
-type ViewModel struct {
-}
-
 // servindo como interface entre a camada de apresentação e os casos de uso.
-type ManipuladorAreaCliente struct {
+type ManipuladorAreaSecretaria struct {
 	cduProcesso ICDUProcesso
 	cduUsuario  ICDUUsuario
 }
 
-// NovoManipuladorAreaCliente cria e retorna uma nova instância de ManipuladorAreaCliente.
-func NovoManipuladorAreaCliente(CasosDeUsoProcesso ICDUProcesso, CasosDeUsoUsuario ICDUUsuario) *ManipuladorAreaCliente {
-	return &ManipuladorAreaCliente{
+// NovoManipuladorAreaSecretaria cria e retorna uma nova instância de ManipuladorAreaSecretaria.
+func NovoManipuladorAreaSecretaria(CasosDeUsoProcesso ICDUProcesso, CasosDeUsoUsuario ICDUUsuario) *ManipuladorAreaSecretaria {
+	return &ManipuladorAreaSecretaria{
 		cduProcesso: CasosDeUsoProcesso,
 		cduUsuario:  CasosDeUsoUsuario,
 	}
 }
 
 // area do cliente
-func (m *ManipuladorAreaCliente) AreaClientePageListarProcessos(w http.ResponseWriter, r *http.Request) {
+func (m *ManipuladorAreaSecretaria) AreaSecretariaPageListarProcessos(w http.ResponseWriter, r *http.Request) {
 
 	cliente_uuid, err := uuid.Parse(r.PathValue("cliente_uuid"))
 
@@ -54,7 +43,7 @@ func (m *ManipuladorAreaCliente) AreaClientePageListarProcessos(w http.ResponseW
 }
 
 // area do cliente
-func (m *ManipuladorAreaCliente) AreaClientePageVerProcesso(w http.ResponseWriter, r *http.Request) {
+func (m *ManipuladorAreaSecretaria) AreaSecretariaPageVerProcesso(w http.ResponseWriter, r *http.Request) {
 
 	viewModel := struct {
 		Processos []entidades.Processo

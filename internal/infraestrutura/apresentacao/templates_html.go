@@ -16,36 +16,37 @@ func CarregarTemplates() error {
 		cacheTemplates = make(map[string]*template.Template)
 	}
 
-	// buscar todos arquivos que começam com a palavra page
-
-	paginas, err := filepath.Glob("../templates/**/*.html")
+	// buscar todos arquivos em templates que terminam com html
+	listaFilepathPaginas, err := filepath.Glob("../templates/**/*.html")
 
 	if err != nil {
 		return err
 	}
 
-	for _, page := range paginas {
-
+	for _, filepathPagina := range listaFilepathPaginas {
 		// cria novo template
-		tmpl := template.New(filepath.Base(page))
+		tmpl := template.New(filepath.Base(filepathPagina))
 
 		// Mapeia funções para a interface
-		tmpl = tmpl.Funcs(template.FuncMap{
-			"formatarData": formatarData, //função de formatação de formatação de data
-		})
+		mapaFuncoes := template.FuncMap{
+			"formatarData":  formatarData,
+			"usuarioLogado": usuarioLogado, //função de formatação de formatação de data
+		}
 
-		if page == "../templates/autenticacao/login.html" {
-			tmpl, err = tmpl.ParseFiles(page)
-		} else {
+		tmpl = tmpl.Funcs(mapaFuncoes)
 
-			tmpl, err = tmpl.ParseFiles(
+		layout := []string{filepathPagina}
+
+		if filepathPagina != "../templates/autenticacao/login.html" {
+			layout = append(layout,
 				"../templates/_layout/_layout.html",
 				"../templates/_layout/_header.html",
 				"../templates/_layout/_footer.html",
-				"../templates/menu/_navbar.html",
-				page,
+				"../templates/_layout/_navbar.html",
 			)
 		}
+
+		tmpl, err = tmpl.ParseFiles(layout...)
 
 		if err != nil {
 			log.Printf("Erro ao carregar arquivos do templates: %v", err)
@@ -53,21 +54,23 @@ func CarregarTemplates() error {
 		}
 
 		// 1. Remove o "..\templates\" do início
-		chave := strings.TrimPrefix(page, `..\templates\`)
+		chave := strings.TrimPrefix(filepathPagina, `..\templates\`)
 
 		// 2. Substitui as barras invertidas (\) por barras normais (/)
 		chave = strings.ReplaceAll(chave, `\`, `/`)
 		cacheTemplates[chave] = tmpl
 
-		log.Printf("Template carregado e cacheado: %s", page)
+		log.Printf("Template carregado e cacheado: %s", filepathPagina)
 
 	}
 	return nil
 }
 
-func ExibirPaginaHTML(chave string, w http.ResponseWriter, viewModel interface{}) error {
+func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dados interface{}) error {
+	// injetar dados globais da requisição
 
 	// Busca o template pré-compilado do cache.
+
 	tmpl, ok := cacheTemplates[chave]
 	if !ok {
 		log.Printf("Erro ao carregar pagina: template não encontrado no cache %v", ok)
@@ -75,8 +78,18 @@ func ExibirPaginaHTML(chave string, w http.ResponseWriter, viewModel interface{}
 		return nil // ou um erro específico
 	}
 
+	// injetar dados globais no viewModel
+
+	viewModeComContexto := struct {
+		UsuarioLogado string
+		Dados         interface{}
+	}{
+		UsuarioLogado: "Usuario",
+		Dados:         dados,
+	}
+
 	//executa o template
-	err := tmpl.ExecuteTemplate(w, "_layout", viewModel)
+	err := tmpl.ExecuteTemplate(w, "_layout", viewModeComContexto)
 
 	if err != nil {
 		log.Printf("erro ao executar template: %v", err)
