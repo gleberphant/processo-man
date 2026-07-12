@@ -3,6 +3,7 @@ package apresentacao
 import (
 	"html/template"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -15,54 +16,67 @@ func CarregarTemplates() error {
 		cacheTemplates = make(map[string]*template.Template)
 	}
 
-	// buscar todos arquivos em templates que terminam com html
-	listaFilepathPaginas, err := filepath.Glob("../templates/**/*.html")
+	baseDir := filepath.Join("..", "templates")
 
-	if err != nil {
-		return err
+	// Mapeia funções para a interface
+	mapaFuncoes := template.FuncMap{
+		"formatarData": formatarData,
 	}
 
-	for _, filepathPagina := range listaFilepathPaginas {
-		// cria novo template
-		tmpl := template.New(filepath.Base(filepathPagina))
+	// Mapeia Layout
+	arquivosLayout := []string{
+		filepath.Join(baseDir, "_layout", "_layout.html"),
+		filepath.Join(baseDir, "_layout", "_header.html"),
+		filepath.Join(baseDir, "_layout", "_footer.html"),
+		filepath.Join(baseDir, "_layout", "_navbar.html"),
+	}
 
-		// Mapeia funções para a interface
-		mapaFuncoes := template.FuncMap{
-			"formatarData": formatarData,
-		}
+	// Mapeia paginas sem login
+	caminhoLogin := filepath.Join(baseDir, "autenticacao", "login.html")
 
-		tmpl = tmpl.Funcs(mapaFuncoes)
-
-		var layout []string
-
-		if filepathPagina != "../templates/autenticacao/login.html" {
-			layout = []string{
-				"../templates/_layout/_layout.html",
-				"../templates/_layout/_header.html",
-				"../templates/_layout/_footer.html",
-				"../templates/_layout/_navbar.html",
-				filepathPagina,
-			}
-		} else {
-			layout = []string{filepathPagina}
-		}
-
-		tmpl, err = tmpl.ParseFiles(layout...)
-
+	// 3. Substituição do Glob pelo WalkDir (Recursividade Real e Segura)
+	err := filepath.WalkDir(baseDir, func(caminho string, d os.DirEntry, err error) error {
 		if err != nil {
-			log.Printf("Erro ao carregar arquivos do templates: %v", err)
 			return err
 		}
 
-		// 1. Remove o "..\templates\" do início
-		chave := strings.TrimPrefix(filepathPagina, `..\templates\`)
+		// Ignora diretórios e arquivos que não são HTML
+		if d.IsDir() || filepath.Ext(caminho) != ".html" {
+			return nil
+		}
 
-		// 2. Substitui as barras invertidas (\) por barras normais (/)
-		chave = strings.ReplaceAll(chave, `\`, `/`)
-		cacheTemplates[chave] = tmpl
+		// Impede que os fragmentos de layout sejam mapeados como páginas renderizáveis
+		if strings.Contains(caminho, "_layout") {
+			return nil
+		}
 
-		log.Printf("Chave: %s , Template: %s", chave, filepathPagina)
+		tmpl := template.New(filepath.Base(caminho)).Funcs(mapaFuncoes)
 
-	}
-	return nil
+		var arquivosAlvo []string
+		if caminho != caminhoLogin { // Comparação agora funciona em qualquer SO
+			arquivosAlvo = append(arquivosLayout, caminho)
+		} else {
+			arquivosAlvo = []string{caminho}
+		}
+
+		tmpl, err = tmpl.ParseFiles(arquivosAlvo...)
+		if err != nil {
+			log.Printf("erro ao compilar template %s . Error %v", caminho, err.Error())
+			return err
+		}
+
+		// 4. Extração segura da chave (Relativo + ToSlash para compatibilidade Linux/Windows)
+		chaveRelativa, err := filepath.Rel(baseDir, caminho)
+		if err != nil {
+			return err
+		}
+
+		chaveFinal := filepath.ToSlash(chaveRelativa)
+		cacheTemplates[chaveFinal] = tmpl
+
+		log.Printf("Chave %s Template %s", chaveFinal, caminho)
+		return nil
+	})
+
+	return err
 }

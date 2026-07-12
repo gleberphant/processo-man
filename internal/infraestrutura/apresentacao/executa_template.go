@@ -20,25 +20,28 @@ func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dado
 	// injetar dados globais da requisição
 
 	var usuarioLogado string = "sem usuario"
+	var token entidades.Token = entidades.Token{}
 
 	// Tenta obter o token do contexto da requisição.
 	if tokenCtx := r.Context().Value("TokenContext"); tokenCtx != nil {
 
 		// Faz a asserção de tipo para entidades.Token e verifica se foi bem-sucedida.
-		if token, ok := tokenCtx.(entidades.Token); ok {
-
-			usuarioLogado = token.UsuarioNome
-		}
+		token, _ = tokenCtx.(entidades.Token)
 
 	}
 
+	usuarioLogado = token.UsuarioNome
+
 	log.Printf("Usuario logado: %s", usuarioLogado)
 	// Injetar dados globais no viewModel
+
 	viewModeComContexto := struct {
+		Token         entidades.Token
 		UsuarioLogado string
 		Dados         interface{}
 	}{
 		// Se o token não for encontrado ou o tipo for inválido, UsuarioLogado será uma string vazia.
+		Token:         token,
 		UsuarioLogado: usuarioLogado,
 		Dados:         dados,
 	}
@@ -59,7 +62,7 @@ func ExibirHTMLSemLayout(chave string, w http.ResponseWriter, viewModel interfac
 	// Busca o template pré-compilado do cache.
 	tmpl, ok := cacheTemplates[chave]
 	if !ok {
-		log.Printf("Erro ao carregar pagina sem layout: template não encontrado no cache %v", ok)
+		log.Printf("Erro ao carregar %s: template não encontrado no cache %v", chave, ok)
 		http.Error(w, "Erro ao carregar pagina sem layout: template não encontrado no cache", http.StatusInternalServerError)
 		return nil
 	}
