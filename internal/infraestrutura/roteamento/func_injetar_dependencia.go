@@ -40,6 +40,10 @@ func (r *Roteador) InjetarDependencias() error {
 	r.ManipuladorProcesso = processos.NovoManipuladorProcesso(servicoProcesso, servicoUsuario)
 	r.ManipuladorTarefa = tarefas.NovoManipuladorTarefa(servicoTarefa, servicoUsuario)
 
+
+	// manipuladores de API
+
+	
 	// injetar intermediarios
 	//	r.IntermediarioAutenticador = intermediarios.NovoAutenticador(*r.Handler, cduAutenticacao)
 	//	r.IntermediarioLogger = intermediarios.NovoIntermediarioLogger(r.IntermediarioAutenticador)

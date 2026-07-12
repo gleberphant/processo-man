@@ -1,4 +1,4 @@
-package processos
+package api
 
 import (
 	"fmt"

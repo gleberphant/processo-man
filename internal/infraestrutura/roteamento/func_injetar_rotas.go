@@ -3,8 +3,8 @@ package roteamento
 import (
 	"net/http"
 
+	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/gleberphant/ProcessoMan/internal/intermediarios"
-	"github.com/gleberphant/ProcessoMan/internal/manipuladores"
 )
 
 // configurar as rotas e devolver MUX configurado
@@ -15,14 +15,21 @@ func (r *Roteador) InjetarRotas() {
 
 	// PAGINAS ESTÁTICAS
 	// index
-	mux.HandleFunc("/{$}", manipuladores.Index)
+	mux.HandleFunc("/{$}", func(w http.ResponseWriter, r *http.Request) {
+		apresentacao.ExibirPaginaHTML("pages/index.html", w, r, nil)
+	})
 
-	// ferramentas dev do google chrome
+	// fallback para pagina 404
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		apresentacao.ExibirPaginaHTML("pages/page404.html", w, r, nil)
+	})
+
+	// Not found para o DevTool do google chrome
 	mux.HandleFunc("/.well-known/*", func(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 	})
 
-	// retornar o favicon
+	// retornar o favicon da aplicação
 	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "../static/favicon.ico") // Ajuste o caminho do seu arquivo
 	})
@@ -34,10 +41,6 @@ func (r *Roteador) InjetarRotas() {
 	r.ManipuladorTarefa.InjetarRotas(mux)
 
 	// INJETA INTERMEDIÁRIOS - Middlewares
-	//r.IntermediarioAutenticador = intermediarios.NovoAutenticador(mux, r.ManipuladorAutenticacao.CDUAutenticacao)
-	//r.IntermediarioLogger = intermediarios.NovoLogger(r.IntermediarioAutenticador)
-	//r.Handler = r.IntermediarioLogger
-
 	roteador := intermediarios.AutenticadorFunc(mux, r.ManipuladorAutenticacao.CDUAutenticacao)
 	roteador = intermediarios.LoggerFunc(roteador)
 
