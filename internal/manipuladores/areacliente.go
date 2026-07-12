@@ -46,7 +46,7 @@ func (m *ManipuladorAreaCliente) PageListarMeusProcessos(w http.ResponseWriter, 
 		Processos: listaProcesso,
 	}
 
-	apresentacao.ExibirPaginaHTML("area_cliente/page-listar-processos.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("area_cliente/page-listar-processos.html", w, r, viewModel)
 }
 
 // area do cliente
@@ -58,5 +58,5 @@ func (m *ManipuladorAreaCliente) AreaClientePageVerProcesso(w http.ResponseWrite
 		Processos: []entidades.Processo{},
 	}
 
-	apresentacao.ExibirPaginaHTML("area_cliente/page-ver-processo.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("area_cliente/page-ver-processo.html", w, r, viewModel)
 }

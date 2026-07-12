@@ -1,4 +1,4 @@
-package autenticacao
+package intermediarios
 
 import (
 	"context"
@@ -8,25 +8,26 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao"
 	"github.com/google/uuid"
 )
 
-func AutenticadorIntermediario(proximo http.Handler, autenticador *CDUAutenticacao) http.Handler {
-
+func AutenticadorFunc(proximo http.Handler, autenticador *autenticacao.CDUAutenticacao) http.Handler {
+	rotasLivres := map[string]bool{
+		"/login":       true,
+		"/favicon.ico": true,
+	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		//-------------------------------------
-		// DESCARTA REQUEST DE login e fav icon
-		if r.URL.Path == "/favicon.ico" {
-			w.WriteHeader(http.StatusNoContent) // Devolve 204 (Sem Conteúdo)
-			return
-		}
-
-		if r.URL.Path == "/login" {
+		// bypass de login e fav icon
+		if rotasLivres[r.URL.Path] || strings.HasPrefix(r.URL.Path, "/.well-known/") {
+			log.Printf(" - byPass autenticacao: %s", r.URL.Path)
 			proximo.ServeHTTP(w, r)
 			return
 		}
 
+		//log.Printf(" - Realizando autenticação  : %s", r.URL.Path)
 		//-------------------------------------
 		// Extrai o token enviado
 		strTokenUUID, err := procurarTokenEnviado(r)
@@ -68,24 +69,12 @@ func AutenticadorIntermediario(proximo http.Handler, autenticador *CDUAutenticac
 		}
 
 		// token autorizado. injeta usuario.
-		ctxAutenticacao := context.WithValue(r.Context(), "Token", token)
+		ctxAutenticacao := context.WithValue(r.Context(), "TokenContext", *token)
 
 		// iniciar seção
 		proximo.ServeHTTP(w, r.WithContext(ctxAutenticacao))
 	})
 
-}
-
-func LogIntermediario(proximo http.Handler) http.Handler {
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		proximo.ServeHTTP(w, r)
-
-		log.Printf("| Requisao: %s |  Metodo: %s | ",
-			r.URL.Path,
-			r.Method,
-		)
-	})
 }
 
 func procurarTokenEnviado(r *http.Request) (string, error) {

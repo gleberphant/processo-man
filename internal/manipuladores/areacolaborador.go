@@ -39,7 +39,7 @@ func (m *ManipuladorAreaColaborador) AreaColaboradorPageListarProcessos(w http.R
 		Processos: listaProcesso,
 	}
 
-	apresentacao.ExibirPaginaHTML("area_cliente/page-listar-processos.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("area_cliente/page-listar-processos.html", w, r, viewModel)
 }
 
 // area do cliente
@@ -51,5 +51,5 @@ func (m *ManipuladorAreaColaborador) AreaColaboradorPageVerProcesso(w http.Respo
 		Processos: []entidades.Processo{},
 	}
 
-	apresentacao.ExibirPaginaHTML("area_cliente/page-ver-processo.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("area_cliente/page-ver-processo.html", w, r, viewModel)
 }

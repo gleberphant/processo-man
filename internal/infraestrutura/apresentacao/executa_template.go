@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
 )
 
 var cacheTemplates map[string]*template.Template
@@ -29,21 +31,23 @@ func CarregarTemplates() error {
 
 		// Mapeia funções para a interface
 		mapaFuncoes := template.FuncMap{
-			"formatarData":  formatarData,
-			"usuarioLogado": usuarioLogado, //função de formatação de formatação de data
+			"formatarData": formatarData,
 		}
 
 		tmpl = tmpl.Funcs(mapaFuncoes)
 
-		layout := []string{filepathPagina}
+		var layout []string
 
 		if filepathPagina != "../templates/autenticacao/login.html" {
-			layout = append(layout,
+			layout = []string{
 				"../templates/_layout/_layout.html",
 				"../templates/_layout/_header.html",
 				"../templates/_layout/_footer.html",
 				"../templates/_layout/_navbar.html",
-			)
+				filepathPagina,
+			}
+		} else {
+			layout = []string{filepathPagina}
 		}
 
 		tmpl, err = tmpl.ParseFiles(layout...)
@@ -60,17 +64,15 @@ func CarregarTemplates() error {
 		chave = strings.ReplaceAll(chave, `\`, `/`)
 		cacheTemplates[chave] = tmpl
 
-		log.Printf("Template carregado e cacheado: %s", filepathPagina)
+		log.Printf("Chave: %s , Template: %s", chave, filepathPagina)
 
 	}
 	return nil
 }
 
 func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dados interface{}) error {
-	// injetar dados globais da requisição
 
-	// Busca o template pré-compilado do cache.
-
+	// Busca o template pré-compilado do cache
 	tmpl, ok := cacheTemplates[chave]
 	if !ok {
 		log.Printf("Erro ao carregar pagina: template não encontrado no cache %v", ok)
@@ -78,19 +80,34 @@ func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dado
 		return nil // ou um erro específico
 	}
 
-	// injetar dados globais no viewModel
+	// injetar dados globais da requisição
 
+	var usuarioLogado string = "sem usuario"
+
+	// Tenta obter o token do contexto da requisição.
+	if tokenCtx := r.Context().Value("TokenContext"); tokenCtx != nil {
+
+		// Faz a asserção de tipo para entidades.Token e verifica se foi bem-sucedida.
+		if token, ok := tokenCtx.(entidades.Token); ok {
+
+			usuarioLogado = token.UsuarioNome
+		}
+
+	}
+
+	log.Printf("Usuario logado: %s", usuarioLogado)
+	// Injetar dados globais no viewModel
 	viewModeComContexto := struct {
 		UsuarioLogado string
 		Dados         interface{}
 	}{
-		UsuarioLogado: "Usuario",
+		// Se o token não for encontrado ou o tipo for inválido, UsuarioLogado será uma string vazia.
+		UsuarioLogado: usuarioLogado,
 		Dados:         dados,
 	}
 
-	//executa o template
+	// executa o template
 	err := tmpl.ExecuteTemplate(w, "_layout", viewModeComContexto)
-
 	if err != nil {
 		log.Printf("erro ao executar template: %v", err)
 		http.Error(w, "Erro ao executar pagina", http.StatusInternalServerError)

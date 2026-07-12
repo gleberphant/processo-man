@@ -21,24 +21,28 @@ func (r *Roteador) InjetarDependencias() error {
 
 	// injeta banco de dados nos repositórios
 	log.Printf("Configurando repositorios")
-	tokensRepo := autenticacao.NovoRepositorioTokenBolt(connDBAuth)
-	usuariosRepo := usuarios.NovoRepositorioUsuario(connDBEntidades)
-	processoRepo := processos.NovoRepositorioProcesso(connDBEntidades)
-	tarefaRepo := tarefas.NovoRepositorioTarefa(connDBEntidades)
+	repoTokens := autenticacao.NovoRepositorioTokenBolt(connDBAuth)
+	repoUsuarios := usuarios.NovoRepositorioUsuario(connDBEntidades)
+	repoProcessos := processos.NovoRepositorioProcesso(connDBEntidades)
+	repoTarefas := tarefas.NovoRepositorioTarefa(connDBEntidades)
 
 	// injeta repositorios nos casos de uso
-	log.Printf("Configurando servicos")
-	cduAutenticacao := autenticacao.NovoCDUAutenticacao(tokensRepo, usuariosRepo)
-	cduUsuario := usuarios.NovoCDUUsuario(usuariosRepo)
-	cduProcesso := processos.NovoCDUProcesso(processoRepo, tarefaRepo)
-	cduTarefa := tarefas.NovoCDUTarefa(tarefaRepo, processoRepo)
+	log.Printf("Configurando Servicos")
+	servicoAutenticacao := autenticacao.NovoCDUAutenticacao(repoTokens, repoUsuarios)
+	servicoUsuario := usuarios.NovoCDUUsuario(repoUsuarios)
+	servicoProcesso := processos.NovoCDUProcesso(repoProcessos, repoTarefas)
+	servicoTarefa := tarefas.NovoCDUTarefa(repoTarefas, repoProcessos)
 
 	// injeta casos de uso nos manipuladores
 	log.Printf("Configurando Manipuladores HTTP")
-	r.ManipuladorAutenticacao = autenticacao.NovoManipuladorLogin(cduAutenticacao)
-	r.ManipuladorUsuario = usuarios.NovoManipuladorUsuario(cduUsuario, cduTarefa)
-	r.ManipuladorProcesso = processos.NovoManipuladorProcesso(cduProcesso, cduUsuario)
-	r.ManipuladorTarefa = tarefas.NovoManipuladorTarefa(cduTarefa, cduUsuario)
+	r.ManipuladorAutenticacao = autenticacao.NovoManipuladorLogin(servicoAutenticacao)
+	r.ManipuladorUsuario = usuarios.NovoManipuladorUsuario(servicoUsuario, servicoTarefa)
+	r.ManipuladorProcesso = processos.NovoManipuladorProcesso(servicoProcesso, servicoUsuario)
+	r.ManipuladorTarefa = tarefas.NovoManipuladorTarefa(servicoTarefa, servicoUsuario)
+
+	// injetar intermediarios
+	//	r.IntermediarioAutenticador = intermediarios.NovoAutenticador(*r.Handler, cduAutenticacao)
+	//	r.IntermediarioLogger = intermediarios.NovoIntermediarioLogger(r.IntermediarioAutenticador)
 
 	return nil
 

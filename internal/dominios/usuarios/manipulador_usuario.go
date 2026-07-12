@@ -36,20 +36,20 @@ func (m *ManipuladorUsuario) PageCriarUsuario(w http.ResponseWriter, r *http.Req
 
 	viewModel := ViewModelUsuario{}
 
-	apresentacao.ExibirPaginaHTML("usuario/page-criar-usuario.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("usuario/page-criar-usuario.html", w, r, viewModel)
 
 }
 
 func (m *ManipuladorUsuario) PageCriarCliente(w http.ResponseWriter, r *http.Request) {
 	viewModel := ViewModelUsuario{}
 
-	apresentacao.ExibirPaginaHTML("usuario/page-criar-cliente.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("usuario/page-criar-cliente.html", w, r, viewModel)
 }
 
 func (m *ManipuladorUsuario) PageCriarColaborador(w http.ResponseWriter, r *http.Request) {
 	viewModel := ViewModelUsuario{}
 
-	apresentacao.ExibirPaginaHTML("usuario/page-criar-colaborador.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("usuario/page-criar-colaborador.html", w, r, viewModel)
 }
 
 func (m *ManipuladorUsuario) PageListarUsuarios(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +65,7 @@ func (m *ManipuladorUsuario) PageListarUsuarios(w http.ResponseWriter, r *http.R
 		Usuarios: lista,
 	}
 
-	apresentacao.ExibirPaginaHTML("usuario/page-listar-usuario.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("usuario/page-listar-usuario.html", w, r, viewModel)
 
 }
 
@@ -81,7 +81,7 @@ func (m *ManipuladorUsuario) PageListarClientes(w http.ResponseWriter, r *http.R
 		Usuarios: lista,
 	}
 
-	apresentacao.ExibirPaginaHTML("usuario/page-listar-cliente.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("usuario/page-listar-cliente.html", w, r, viewModel)
 }
 
 func (m *ManipuladorUsuario) PageListarColaboradores(w http.ResponseWriter, r *http.Request) {
@@ -96,7 +96,7 @@ func (m *ManipuladorUsuario) PageListarColaboradores(w http.ResponseWriter, r *h
 		Usuarios: lista,
 	}
 
-	apresentacao.ExibirPaginaHTML("usuario/page-listar-colaborador.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("usuario/page-listar-colaborador.html", w, r, viewModel)
 }
 
 func (m *ManipuladorUsuario) PageEditarUsuario(w http.ResponseWriter, r *http.Request) {
@@ -121,7 +121,7 @@ func (m *ManipuladorUsuario) PageEditarUsuario(w http.ResponseWriter, r *http.Re
 		Usuarios: usuario,
 	}
 
-	apresentacao.ExibirPaginaHTML("usuario/page-criar-usuario.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("usuario/page-criar-usuario.html", w, r, viewModel)
 
 }
 
@@ -181,7 +181,7 @@ func (m *ManipuladorUsuario) PageVerUsuario(w http.ResponseWriter, r *http.Reque
 		Tarefas:  listaTarefasView,
 	}
 
-	apresentacao.ExibirPaginaHTML("usuario/page-ver-usuario.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("usuario/page-ver-usuario.html", w, r, viewModel)
 
 }
 

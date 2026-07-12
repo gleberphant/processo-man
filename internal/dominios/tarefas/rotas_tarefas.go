@@ -2,7 +2,7 @@ package tarefas
 
 import "net/http"
 
-func (m *ManipuladorTarefa) InjetarRotasTarefas(mux *http.ServeMux) {
+func (m *ManipuladorTarefa) InjetarRotas(mux *http.ServeMux) {
 
 	// SUB-ROTEADOR: TAREFAS
 	mux.HandleFunc("GET /tarefas/{$}", m.PageListarTarefas)

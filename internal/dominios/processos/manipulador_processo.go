@@ -38,7 +38,7 @@ func (m *ManipuladorProcesso) PageCriar(w http.ResponseWriter, r *http.Request) 
 		Processos: entidades.Processo{},
 	}
 
-	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, r, viewModel)
 }
 
 // PageListar renderiza a página contendo a listagem de todos os processos.
@@ -55,7 +55,7 @@ func (m *ManipuladorProcesso) PageListar(w http.ResponseWriter, r *http.Request)
 		Processos: listaProcessos,
 	}
 
-	apresentacao.ExibirPaginaHTML("processo/page-listar-processos.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("processo/page-listar-processos.html", w, r, viewModel)
 
 }
 
@@ -82,7 +82,7 @@ func (m *ManipuladorProcesso) PageVerProcesso(w http.ResponseWriter, r *http.Req
 		Anexos:   []string{"arquivo1.doc", "arquivo2.doc"},
 	}
 
-	apresentacao.ExibirPaginaHTML("processo/page-ver-processo.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("processo/page-ver-processo.html", w, r, viewModel)
 }
 
 // PageEditar carrega os dados de um processo existente e renderiza o mesmo formulário.
@@ -108,7 +108,7 @@ func (m *ManipuladorProcesso) PageEditar(w http.ResponseWriter, r *http.Request)
 		//Anexos:   []string{"arquivo1.doc", "arquivo2.doc"},
 	}
 
-	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, r, viewModel)
 }
 
 // CriarProcessoPost processa a submissão do formulário para persistir um novo processo.

@@ -84,7 +84,7 @@ func (m *ManipuladorTarefa) PageCriarTarefa(w http.ResponseWriter, r *http.Reque
 		Usuarios:     listaUsuarioView,
 	}
 
-	apresentacao.ExibirPaginaHTML("tarefa/page-criar-tarefa.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("tarefa/page-criar-tarefa.html", w, r, viewModel)
 }
 
 // PageListar renderiza a página contendo a listagem de todos os Tarefas.
@@ -110,7 +110,7 @@ func (m *ManipuladorTarefa) PageListarTarefasPorProcesso(w http.ResponseWriter, 
 		Tarefa:       lista,
 	}
 
-	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, r, viewModel)
 
 }
 
@@ -136,7 +136,7 @@ func (m *ManipuladorTarefa) PageListarTarefasPorResponsavel(w http.ResponseWrite
 		Tarefa: lista,
 	}
 
-	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, r, viewModel)
 }
 
 // PageListar renderiza a página contendo a listagem de todos os Tarefas.
@@ -153,7 +153,7 @@ func (m *ManipuladorTarefa) PageListarTarefas(w http.ResponseWriter, r *http.Req
 		Tarefa: lista,
 	}
 
-	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, r, viewModel)
 
 }
 
@@ -179,7 +179,7 @@ func (m *ManipuladorTarefa) PageVerTarefa(w http.ResponseWriter, r *http.Request
 		Tarefa: tarefa,
 	}
 
-	apresentacao.ExibirPaginaHTML("tarefa/page-ver-tarefa.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("tarefa/page-ver-tarefa.html", w, r, viewModel)
 }
 
 // PageEditar carrega os dados de um Tarefa existente e renderiza o mesmo formulário.
@@ -211,7 +211,7 @@ func (m *ManipuladorTarefa) PageEditarTarefa(w http.ResponseWriter, r *http.Requ
 		Usuarios: listaUsuarioView,
 	}
 
-	apresentacao.ExibirPaginaHTML("tarefa/page-criar-tarefa.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("tarefa/page-criar-tarefa.html", w, r, viewModel)
 }
 
 // --------

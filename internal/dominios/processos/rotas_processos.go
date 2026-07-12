@@ -2,7 +2,7 @@ package processos
 
 import "net/http"
 
-func (m *ManipuladorProcesso) InjetarRotasProcessos(mux *http.ServeMux) {
+func (m *ManipuladorProcesso) InjetarRotas(mux *http.ServeMux) {
 
 	// ROTAS DE PROCESSOS
 	mux.HandleFunc("GET /processos/{$}", m.PageListar)

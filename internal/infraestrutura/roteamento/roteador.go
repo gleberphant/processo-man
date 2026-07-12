@@ -10,15 +10,20 @@ import (
 )
 
 type Roteador struct {
-	ManipuladorAutenticacao *autenticacao.ManipuladorLogin
+	ManipuladorAutenticacao *autenticacao.ManipuladorAutenticacao
 	ManipuladorUsuario      *usuarios.ManipuladorUsuario
 	ManipuladorProcesso     *processos.ManipuladorProcesso
 	ManipuladorTarefa       *tarefas.ManipuladorTarefa
-	Handler                 *http.Handler
+	//IntermediarioAutenticador *intermediarios.Autenticador
+	//IntermediarioLogger       *intermediarios.Logger
+	Handler *http.Handler
 }
 
 func NovoRoteador() *Roteador {
-	return &Roteador{}
+
+	return &Roteador{
+		//	Mux: http.NewServeMux(),
+	}
 }
 
 func (r *Roteador) Fechar() {
@@ -26,4 +31,5 @@ func (r *Roteador) Fechar() {
 	r.ManipuladorUsuario.Fechar()
 	r.ManipuladorProcesso.Fechar()
 	r.ManipuladorTarefa.Fechar()
+
 }

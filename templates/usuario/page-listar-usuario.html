@@ -1,4 +1,5 @@
-{{define "page"}}
+{{ define "page"}}
+
 <main class="container mt-5">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -23,7 +24,7 @@
                     </thead>
                     <tbody>
 
-                        {{ range .Usuarios }}
+                        {{ range .Dados.Usuarios }}
                         <tr>
                             <td>{{ .UUID }}</td>
                             <td>{{ .Nome }}</td>

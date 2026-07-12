@@ -7,24 +7,24 @@ import (
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 )
 
-type ManipuladorLogin struct {
+type ManipuladorAutenticacao struct {
 	CDUAutenticacao *CDUAutenticacao
 }
 
-func NovoManipuladorLogin(cduToken *CDUAutenticacao) *ManipuladorLogin {
+func NovoManipuladorLogin(cduToken *CDUAutenticacao) *ManipuladorAutenticacao {
 
-	return &ManipuladorLogin{
+	return &ManipuladorAutenticacao{
 		CDUAutenticacao: cduToken,
 	}
 
 }
 
-func (m *ManipuladorLogin) Fechar() {
+func (m *ManipuladorAutenticacao) Fechar() {
 	m.CDUAutenticacao.Fechar()
 }
 
 // formulario de login
-func (m *ManipuladorLogin) PageLogin(w http.ResponseWriter, r *http.Request) {
+func (m *ManipuladorAutenticacao) PageLogin(w http.ResponseWriter, r *http.Request) {
 
 	// carrega dados
 	viewModel := struct {
@@ -38,7 +38,7 @@ func (m *ManipuladorLogin) PageLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 // funcao para logar
-func (m *ManipuladorLogin) LoginPost(w http.ResponseWriter, r *http.Request) {
+func (m *ManipuladorAutenticacao) LoginPost(w http.ResponseWriter, r *http.Request) {
 
 	// autenticacao do usuario e retorna o token gerado
 	tokenUUID, err := m.CDUAutenticacao.AutenticarUsuario(r.PostFormValue("email"), r.PostFormValue("senha"))

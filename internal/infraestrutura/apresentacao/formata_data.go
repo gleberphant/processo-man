@@ -6,11 +6,6 @@ import (
 )
 
 // 1. Crie a função de formatação de formatação de data
-func usuarioLogado(r *http.Request) string {
-
-	return "usuario logado"
-}
-
 func formatarData(data time.Time) string {
 	if data.IsZero() {
 		return "Sem Data" // ou retorne "" se preferir vazio
