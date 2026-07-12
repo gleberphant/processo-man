@@ -152,6 +152,7 @@ func (r *RepositorioUsuario) ListarColaboradores() ([]entidades.Colaborador, err
 		FROM usuarios u 
 		INNER JOIN colaboradores c ON u.uuid = c.usuario_uuid
 	`
+
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err

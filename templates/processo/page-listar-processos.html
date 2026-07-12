@@ -20,6 +20,7 @@
                             <th>ID</th>
                             <th>Nome</th>
                             <th>Dono</th>
+                            <th>Responsável</th>
                             <th>DataCriacao</th>
                             <th></th>
                             <th>AÇÕES</th>
@@ -32,6 +33,7 @@
                             <td>{{ .UUID }}</td>
                             <td>{{ .Nome }}</td>
                             <td>{{ .Dono.Nome }}</td>
+                            <td>{{ .Responsavel.Nome }}</td>
                             <td>{{ formatarData .DataCriacao }}</td>
                             <td>-</td>
 

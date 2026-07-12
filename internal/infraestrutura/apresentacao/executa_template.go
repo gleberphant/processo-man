@@ -18,8 +18,6 @@ func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dado
 	}
 
 	// injetar dados globais da requisição
-
-	var usuarioLogado string = "sem usuario"
 	var token entidades.Token = entidades.Token{}
 
 	// Tenta obter o token do contexto da requisição.
@@ -30,48 +28,29 @@ func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dado
 
 	}
 
-	usuarioLogado = token.UsuarioNome
-
-	log.Printf("Usuario logado: %s", usuarioLogado)
+	log.Printf("Usuario logado: %s", token.UsuarioNome)
 	// Injetar dados globais no viewModel
 
-	viewModeComContexto := struct {
-		Token         entidades.Token
-		UsuarioLogado string
-		Dados         interface{}
+	viewModel := struct {
+		Menu entidades.Token
+		Base interface{}
 	}{
 		// Se o token não for encontrado ou o tipo for inválido, UsuarioLogado será uma string vazia.
-		Token:         token,
-		UsuarioLogado: usuarioLogado,
-		Dados:         dados,
+		Menu: token,
+		Base: dados,
 	}
 
+	var err error
+	if chave == "login/login.html" {
+		err = tmpl.ExecuteTemplate(w, "login", dados)
+	} else {
+		err = tmpl.ExecuteTemplate(w, "_layout", viewModel)
+	}
 	// executa o template
-	err := tmpl.ExecuteTemplate(w, "_layout", viewModeComContexto)
+
 	if err != nil {
 		log.Printf("erro ao executar template: %v", err)
 		http.Error(w, "Erro ao executar pagina", http.StatusInternalServerError)
-		return err
-	}
-
-	return nil
-}
-
-func ExibirHTMLSemLayout(chave string, w http.ResponseWriter, viewModel interface{}) error {
-
-	// Busca o template pré-compilado do cache.
-	tmpl, ok := cacheTemplates[chave]
-	if !ok {
-		log.Printf("Erro ao carregar %s: template não encontrado no cache %v", chave, ok)
-		http.Error(w, "Erro ao carregar pagina sem layout: template não encontrado no cache", http.StatusInternalServerError)
-		return nil
-	}
-
-	err := tmpl.Execute(w, viewModel)
-
-	if err != nil {
-		log.Printf("erro ao executar template sem layout %v", err)
-		http.Error(w, "Erro na renderização da pagina sem layout", http.StatusInternalServerError)
 		return err
 	}
 

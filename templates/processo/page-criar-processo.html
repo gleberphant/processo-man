@@ -13,14 +13,40 @@
             
             <!-- Campo oculto para enviar o UUID no PostFormValue quando for edição -->
             <input type="hidden" name="uuid" value="{{ if .UUID }}{{ .UUID }}{{ end }}">
-        
+
+            <!-- nome do processo -->
             <div class="mb-3">
                 <label for="nome" class="form-label">Nome</label>
     
-                 <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite seu nome" required
-                    value="{{ .Processo.Nome }}" autofocus>
+                 <input type="text" class="form-control" id="nome" name="nome" placeholder="Digite o nome do processo" required
+                    value="{{ if .UUID }}{{ .Processo.Nome }}{{ end }}" autofocus>
             </div>
         
+
+            <!-- Cliente do processo -->
+            <div class="mb-3">
+                <label for="ClienteUUID" class="form-label">Cliente do Processo</label>
+
+                <select class="form-control" id="ClienteUUID" name="ClienteUUID" required>
+                    <option value="" disabled selected>Selecione um responsável...</option>
+                    {{ range .Clientes }}
+                    <option value="{{.UUID}}" > {{.Nome}} - {{.UUID}}</option>
+                    {{ end }}
+                </select>
+            </div>
+
+            <!-- Responsável do processo -->
+            <div class="mb-3">
+                <label for="ColaboradorUUID" class="form-label">Colaborador Responsável pelo Processo</label>
+
+                <select class="form-control" id="ColaboradorUUID" name="ColaboradorUUID" required>
+                    <option value="" disabled selected>Selecione um responsável...</option>
+                    {{ range .Colaboradores }}
+                    <option value="{{.UUID}}" > {{.Nome}} - {{.UUID}}</option>
+                    {{ end }}
+                </select>
+            </div>
+
             <!-- Restante do formulário... -->
         <div class="mb-4S"></div>
             <button type="submit" class="btn btn-primary btn-lg">
