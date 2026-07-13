@@ -1,39 +1,19 @@
-package processos
+package servicos
 
 import (
 	"errors"
 
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/aplicacao/repositorios"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/entidades"
 	"github.com/google/uuid"
 )
 
-type IRepositorioProcesso interface {
-	Fechar()
-	Criar(entidades.Processo) error
-	Listar() ([]entidades.Processo, error)
-	Editar(entidades.Processo) error
-	Deletar(uuid.UUID) error
-	BuscarPorUUID(uuid.UUID) (*entidades.Processo, error)
-	ListarProcessosPorCliente(uuid.UUID) ([]entidades.Processo, error)
-}
-
-type IRepositorioTarefa interface {
-	Fechar()
-	CriarTarefa(entidades.Tarefa) error
-	ListarTarefas() ([]entidades.Tarefa, error)
-	ListarTarefasPorProcesso(uuid.UUID) ([]entidades.Tarefa, error)
-	EditarTarefa(entidades.Tarefa) error
-	DeletarTarefa(uuid.UUID) error
-	BuscarTarefaPorUUID(UUID uuid.UUID) (*entidades.Tarefa, error)
-	DeletarTarefasPorProcesso(UUID uuid.UUID) error
-}
-
 type CDUProcesso struct {
-	repoProcesso IRepositorioProcesso
-	repoTarefa   IRepositorioTarefa
+	repoProcesso *repositorios.RepositorioProcesso
+	repoTarefa   *repositorios.RepositorioTarefa
 }
 
-func NovoCDUProcesso(ProcessosRepo IRepositorioProcesso, TarefasRepo IRepositorioTarefa) *CDUProcesso {
+func NovoCDUProcesso(ProcessosRepo *repositorios.RepositorioProcesso, TarefasRepo *repositorios.RepositorioTarefa) *CDUProcesso {
 
 	return &CDUProcesso{
 		repoProcesso: ProcessosRepo,

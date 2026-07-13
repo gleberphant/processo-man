@@ -1,17 +1,18 @@
-package autenticacao
+package manipuladores
 
 import (
 	"fmt"
 	"net/http"
 
+	"github.com/gleberphant/ProcessoMan/internal/dominio/servicos"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 )
 
 type ManipuladorAutenticacao struct {
-	CDUAutenticacao *CDUAutenticacao
+	CDUAutenticacao *servicos.ServicoAutenticacao
 }
 
-func NovoManipuladorLogin(cduToken *CDUAutenticacao) *ManipuladorAutenticacao {
+func NovoManipuladorLogin(cduToken *servicos.ServicoAutenticacao) *ManipuladorAutenticacao {
 
 	return &ManipuladorAutenticacao{
 		CDUAutenticacao: cduToken,

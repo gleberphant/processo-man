@@ -1,28 +1,24 @@
-package processos
+package manipuladores
 
 import (
 	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/servicos"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/google/uuid"
 )
 
-type ICDUUsuario interface {
-	ListarClientes() ([]entidades.Cliente, error)
-	ListarColaboradores() ([]entidades.Colaborador, error)
-}
-
 // servindo como interface entre a camada de apresentação e os casos de uso.
 type ManipuladorProcesso struct {
-	servicoProcesso *CDUProcesso
-	servicoUsuario  ICDUUsuario
+	servicoProcesso *servicos.CDUProcesso
+	servicoUsuario  *servicos.ServicoUsuario
 }
 
 // NovoManipuladorProcesso cria e retorna uma nova instância de ManipuladorProcesso.
-func NovoManipuladorProcesso(CasosDeUsoProcesso *CDUProcesso, CasosDeUsoUsuario ICDUUsuario) *ManipuladorProcesso {
+func NovoManipuladorProcesso(CasosDeUsoProcesso *servicos.CDUProcesso, CasosDeUsoUsuario *servicos.ServicoUsuario) *ManipuladorProcesso {
 	return &ManipuladorProcesso{
 		servicoProcesso: CasosDeUsoProcesso,
 		servicoUsuario:  CasosDeUsoUsuario,

@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/entidades"
 )
 
 func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dados interface{}) error {

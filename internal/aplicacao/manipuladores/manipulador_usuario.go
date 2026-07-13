@@ -1,25 +1,21 @@
-package usuarios
+package manipuladores
 
 import (
 	"fmt"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/servicos"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/google/uuid"
 )
 
-type ICDUTarefas interface {
-	Fechar() error
-	ListarTarefasPorResponsavel(responsavelUUID uuid.UUID) ([]entidades.Tarefa, error)
-}
-
 type ManipuladorUsuario struct {
-	cduUsario *CDUUsuario
-	cduTarefa ICDUTarefas
+	cduUsario *servicos.ServicoUsuario
+	cduTarefa *servicos.ServicoTarefa
 }
 
-func NovoManipuladorUsuario(casosDeUsoUsuario *CDUUsuario, casosDeUsoTarefa ICDUTarefas) *ManipuladorUsuario {
+func NovoManipuladorUsuario(casosDeUsoUsuario *servicos.ServicoUsuario, casosDeUsoTarefa *servicos.ServicoTarefa) *ManipuladorUsuario {
 
 	return &ManipuladorUsuario{
 		cduUsario: casosDeUsoUsuario,

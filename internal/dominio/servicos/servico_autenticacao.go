@@ -1,51 +1,37 @@
-package autenticacao
+package servicos
 
 import (
 	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/aplicacao/repositorios"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/entidades"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type IRepositorioToken interface {
-	Fechar()
-	Criar(*entidades.Token) (*entidades.Token, error)
-	BuscarPorUUID(UUID uuid.UUID) (*entidades.Token, error)
-	DeletarPorUsuarioUUID(uuid.UUID) error
-	VerificarPermissaoPerfil(string, string) bool
-	//ObterMapaPermissoes(rota string) map[string]bool
+type ServicoAutenticacao struct {
+	RepoTokens   *repositorios.RepositorioTokenBolt
+	RepoUsuarios *repositorios.RepositorioUsuario
 }
 
-type IRepositorioUsuario interface {
-	Fechar()
-	BuscarPorEmail(string) (*entidades.Usuario, error)
-	BuscarPorUUID(uuid.UUID) (*entidades.Usuario, error)
-}
+func NovoCDUAutenticacao(tokensRepo *repositorios.RepositorioTokenBolt, usuariosRepo *repositorios.RepositorioUsuario) *ServicoAutenticacao {
 
-type CDUAutenticacao struct {
-	RepoTokens   IRepositorioToken
-	RepoUsuarios IRepositorioUsuario
-}
-
-func NovoCDUAutenticacao(tokensRepo IRepositorioToken, usuariosRepo IRepositorioUsuario) *CDUAutenticacao {
-
-	return &CDUAutenticacao{
+	return &ServicoAutenticacao{
 		RepoTokens:   tokensRepo,
 		RepoUsuarios: usuariosRepo,
 	}
 }
 
-func (a *CDUAutenticacao) Fechar() error {
+func (a *ServicoAutenticacao) Fechar() error {
 	a.RepoTokens.Fechar()
 	a.RepoUsuarios.Fechar()
 	return nil
 }
 
 // verificar se token tem permissão para acessar uma rota
-func (a *CDUAutenticacao) VerificarExisteToken(tokenUUID uuid.UUID) (*entidades.Token, error) {
+func (a *ServicoAutenticacao) VerificarExisteToken(tokenUUID uuid.UUID) (*entidades.Token, error) {
 
 	// Verifica se o token Existe
 	token, err := a.RepoTokens.BuscarPorUUID(tokenUUID)
@@ -58,7 +44,7 @@ func (a *CDUAutenticacao) VerificarExisteToken(tokenUUID uuid.UUID) (*entidades.
 }
 
 // verificar se token tem permissão para acessar uma rota
-func (a *CDUAutenticacao) VerificarPermissao(token *entidades.Token, rota string, metodo string) error {
+func (a *ServicoAutenticacao) VerificarPermissao(token *entidades.Token, rota string, metodo string) error {
 
 	// verificar a permissão do permissao
 	chaveRota := strings.ToLower(metodo + ":" + rota)
@@ -74,7 +60,7 @@ func (a *CDUAutenticacao) VerificarPermissao(token *entidades.Token, rota string
 }
 
 /* função para autenticar o usuario, recebe o login e a senha, verifica se o usuario existe criar um um token associado a ele */
-func (a *CDUAutenticacao) AutenticarUsuario(email string, senha string) (string, error) {
+func (a *ServicoAutenticacao) AutenticarUsuario(email string, senha string) (string, error) {
 
 	// valida formato do login
 	if email == "" {
@@ -108,7 +94,7 @@ func (a *CDUAutenticacao) AutenticarUsuario(email string, senha string) (string,
 }
 
 // gerar token
-func (a *CDUAutenticacao) gerarToken(usuario *entidades.Usuario) (*entidades.Token, error) {
+func (a *ServicoAutenticacao) gerarToken(usuario *entidades.Usuario) (*entidades.Token, error) {
 
 	// limpar tokens antigos no repositorio
 	err := a.RepoTokens.DeletarPorUsuarioUUID(usuario.UUID)

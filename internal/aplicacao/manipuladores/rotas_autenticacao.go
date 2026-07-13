@@ -1,4 +1,4 @@
-package autenticacao
+package manipuladores
 
 import "net/http"
 

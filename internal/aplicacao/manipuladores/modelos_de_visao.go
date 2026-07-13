@@ -1,10 +1,45 @@
-package tarefas
+package manipuladores
 
 import (
 	"time"
 
+	"github.com/gleberphant/ProcessoMan/internal/dominio/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/google/uuid"
 )
+
+type ViewModelUsuario struct {
+	//apresentacao.BaseViewModel
+	UUID     string      `json:"uuid,omitempty"`
+	Usuarios interface{} `json:"usuarios,omitempty"`
+	Tarefas  interface{} `json:"tarefas,omitempty"`
+	Anexos   interface{} `json:"anexos,omitempty"`
+}
+
+type tarefasView struct {
+	UUID            uuid.UUID
+	ProcessoUUID    uuid.UUID
+	ResponsavelUUID uuid.UUID
+	Nome            string
+	Concluida       bool
+	Comentarios     string
+	DataConclusao   time.Time
+	DataCriacao     time.Time
+}
+type ViewModelProcesso struct {
+	apresentacao.BaseViewModel
+	UUID          string
+	Clientes      []entidades.Cliente
+	Colaboradores []entidades.Colaborador
+	Processo      entidades.Processo
+	Processos     []entidades.Processo
+	Anexos        []string
+	Usuarios      []entidades.Usuario
+}
+
+// DTO PROCESSO
+type ProcessoResponse struct {
+}
 
 // response DTO
 type ViewModelTarefa struct {

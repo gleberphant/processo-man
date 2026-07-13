@@ -1,29 +1,26 @@
-package tarefas
+package manipuladores
 
 import (
 	"errors"
 	"fmt"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/servicos"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/google/uuid"
 )
 
 // ManipuladorTarefa gerencia as requisições HTTP relacionadas ao domínio de Tarefas,
 // servindo como interface entre a camada de apresentação e os casos de uso.
-type ICDUUsuario interface {
-	Fechar() error
-	ListarUsuarios() ([]entidades.Usuario, error)
-}
 
 type ManipuladorTarefa struct {
-	cduTarefa  *CDUTarefa
-	cduUsuario ICDUUsuario
+	cduTarefa  *servicos.ServicoTarefa
+	cduUsuario *servicos.ServicoUsuario
 }
 
 // NovoManipuladorTarefa cria e retorna uma nova instância de ManipuladorTarefa.
-func NovoManipuladorTarefa(CasosDeUsoTarefa *CDUTarefa, CasosDeUsoUsuario ICDUUsuario) *ManipuladorTarefa {
+func NovoManipuladorTarefa(CasosDeUsoTarefa *servicos.ServicoTarefa, CasosDeUsoUsuario *servicos.ServicoUsuario) *ManipuladorTarefa {
 	return &ManipuladorTarefa{
 		cduTarefa:  CasosDeUsoTarefa,
 		cduUsuario: CasosDeUsoUsuario,

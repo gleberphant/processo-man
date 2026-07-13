@@ -1,11 +1,11 @@
-package tarefas
+package repositorios
 
 import (
 	"database/sql"
 	"errors"
 	"fmt"
 
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/entidades"
 	"github.com/google/uuid"
 )
 

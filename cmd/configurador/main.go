@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/aplicacao/repositorios"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/entidades"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/bancodedados"
 	"github.com/google/uuid"
 	bolt "go.etcd.io/bbolt"
@@ -108,7 +108,7 @@ func ConfigurarBancoRelacional(db *sql.DB) {
 
 func InserirUsuarioTeste(db *sql.DB) {
 
-	repo := usuarios.NovoRepositorioUsuario(db)
+	repo := repositorios.NovoRepositorioUsuario(db)
 
 	usuario := entidades.Usuario{
 		UUID:  uuid.Nil,

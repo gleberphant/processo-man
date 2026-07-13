@@ -3,48 +3,45 @@ package roteamento
 import (
 	"log"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao"
-	"github.com/gleberphant/ProcessoMan/internal/dominios/processos"
-	"github.com/gleberphant/ProcessoMan/internal/dominios/tarefas"
-	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
-
-	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/bancodedados"
+	"github.com/gleberphant/ProcessoMan/internal/aplicacao/manipuladores"
+	"github.com/gleberphant/ProcessoMan/internal/aplicacao/repositorios"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/servicos"
 )
 
 func (r *Roteador) InjetarDependencias() error {
+	// TODO acrescentar tratamento de erros
 
-	// Conectar aos bancos de dados
+	// Carregar repositorios com a conexao  de banco  de dados
+	log.Printf("Configurando Repositorios")
+	repoTokens := repositorios.NovoRepositorioTokenBolt(r.dbConfig.ConnDBAuth)
+	repoUsuarios := repositorios.NovoRepositorioUsuario(r.dbConfig.ConnDBEntidades)
+	repoProcessos := repositorios.NovoRepositorioProcesso(r.dbConfig.ConnDBEntidades)
+	repoTarefas := repositorios.NovoRepositorioTarefa(r.dbConfig.ConnDBEntidades)
 
-	log.Printf("Conectando bancos de dados ")
-	connDBAuth := bancodedados.ConectarBBOLT("../database/autenticacao.boltdb")
-	connDBEntidades := bancodedados.ConectarSQLITE("../database/sqlite.db")
-
-	// injeta banco de dados nos repositórios
-	log.Printf("Configurando repositorios")
-	repoTokens := autenticacao.NovoRepositorioTokenBolt(connDBAuth)
-	repoUsuarios := usuarios.NovoRepositorioUsuario(connDBEntidades)
-	repoProcessos := processos.NovoRepositorioProcesso(connDBEntidades)
-	repoTarefas := tarefas.NovoRepositorioTarefa(connDBEntidades)
-
-	// injeta repositorios nos casos de uso
+	// Carregar serviços com os repositorios
 	log.Printf("Configurando Servicos")
-	servicoAutenticacao := autenticacao.NovoCDUAutenticacao(repoTokens, repoUsuarios)
-	servicoUsuario := usuarios.NovoCDUUsuario(repoUsuarios)
-	servicoProcesso := processos.NovoCDUProcesso(repoProcessos, repoTarefas)
-	servicoTarefa := tarefas.NovoCDUTarefa(repoTarefas, repoProcessos)
+	servicoAutenticacao := servicos.NovoCDUAutenticacao(repoTokens, repoUsuarios)
+	servicoUsuario := servicos.NovoCDUUsuario(repoUsuarios)
+	servicoProcesso := servicos.NovoCDUProcesso(repoProcessos, repoTarefas)
+	servicoTarefa := servicos.NovoCDUTarefa(repoTarefas, repoProcessos)
 
-	// injeta casos de uso nos manipuladores
+	// Carregar  manipuladores HTTP
 	log.Printf("Configurando Manipuladores HTTP")
-	r.ManipuladorAutenticacao = autenticacao.NovoManipuladorLogin(servicoAutenticacao)
-	r.ManipuladorUsuario = usuarios.NovoManipuladorUsuario(servicoUsuario, servicoTarefa)
-	r.ManipuladorProcesso = processos.NovoManipuladorProcesso(servicoProcesso, servicoUsuario)
-	r.ManipuladorTarefa = tarefas.NovoManipuladorTarefa(servicoTarefa, servicoUsuario)
+	ManipuladorAutenticacao := manipuladores.NovoManipuladorLogin(servicoAutenticacao)
+	ManipuladorUsuario := manipuladores.NovoManipuladorUsuario(servicoUsuario, servicoTarefa)
+	ManipuladorProcesso := manipuladores.NovoManipuladorProcesso(servicoProcesso, servicoUsuario)
+	ManipuladorTarefa := manipuladores.NovoManipuladorTarefa(servicoTarefa, servicoUsuario)
 
-	// manipuladores de API
+	// configurar servico autenticacao do roteador
+	r.servicoAutenticacao = servicoAutenticacao
 
-	// injetar intermediarios
-	//	r.IntermediarioAutenticador = intermediarios.NovoAutenticador(*r.Handler, cduAutenticacao)
-	//	r.IntermediarioLogger = intermediarios.NovoIntermediarioLogger(r.IntermediarioAutenticador)
+	// configurar manipuladores
+	r.manipuladores = []IManipulador{
+		ManipuladorAutenticacao,
+		ManipuladorUsuario,
+		ManipuladorProcesso,
+		ManipuladorTarefa,
+	}
 
 	return nil
 

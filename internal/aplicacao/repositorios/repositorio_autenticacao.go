@@ -1,4 +1,4 @@
-package autenticacao
+package repositorios
 
 // tokens e permissões estão armazenadas no Bolt Database
 import (
@@ -8,7 +8,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/entidades"
 	"github.com/google/uuid"
 	bolt "go.etcd.io/bbolt"
 )

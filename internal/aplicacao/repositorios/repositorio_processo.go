@@ -1,4 +1,4 @@
-package processos
+package repositorios
 
 import (
 	"database/sql"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/entidades"
 	"github.com/google/uuid"
 )
 

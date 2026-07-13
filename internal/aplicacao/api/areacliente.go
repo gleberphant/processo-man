@@ -12,20 +12,19 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/processos"
-	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
-	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/servicos"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/google/uuid"
 )
 
 type ApiAreaCliente struct {
-	servicoProcesso *processos.CDUProcesso
-	servicoUsuario  *usuarios.CDUUsuario
+	servicoProcesso *servicos.CDUProcesso
+	servicoUsuario  *servicos.ServicoUsuario
 }
 
 // NovoApiAreaCliente cria e retorna uma nova instância de ApiAreaCliente.
-func NovoApiAreaCliente(servicoProcesso *processos.CDUProcesso, servicoUsuario *usuarios.CDUUsuario) *ApiAreaCliente {
+func NovoApiAreaCliente(servicoProcesso *servicos.CDUProcesso, servicoUsuario *servicos.ServicoUsuario) *ApiAreaCliente {
 	return &ApiAreaCliente{
 		servicoProcesso: servicoProcesso,
 		servicoUsuario:  servicoUsuario,

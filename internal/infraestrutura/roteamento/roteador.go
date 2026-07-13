@@ -1,38 +1,40 @@
 package roteamento
 
 import (
+	"database/sql"
 	"net/http"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao"
-	"github.com/gleberphant/ProcessoMan/internal/dominios/processos"
-	"github.com/gleberphant/ProcessoMan/internal/dominios/tarefas"
-	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
-	"github.com/gleberphant/ProcessoMan/internal/manipuladores"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/servicos"
+	"go.etcd.io/bbolt"
 )
 
-type Roteador struct {
-	ManipuladorAutenticacao *autenticacao.ManipuladorAutenticacao
-	ManipuladorUsuario      *usuarios.ManipuladorUsuario
-	ManipuladorProcesso     *processos.ManipuladorProcesso
-	ManipuladorTarefa       *tarefas.ManipuladorTarefa
-
-	ManipuladorAreaCliente *manipuladores.ManipuladorAreaCliente
-	//IntermediarioAutenticador *intermediarios.Autenticador
-	//IntermediarioLogger       *intermediarios.Logger
-	Handler *http.Handler
+type IManipulador interface {
+	InjetarRotas(mux *http.ServeMux)
+	Fechar()
 }
 
-func NovoRoteador() *Roteador {
+type DBConfig struct {
+	ConnDBAuth      *bbolt.DB // conexao chave valor
+	ConnDBEntidades *sql.DB   // conexao relacional
+}
 
+type Roteador struct {
+	Handler             http.Handler
+	servicoAutenticacao *servicos.ServicoAutenticacao
+	manipuladores       []IManipulador
+	dbConfig            *DBConfig
+}
+
+func NovoRoteador(db *DBConfig) *Roteador {
 	return &Roteador{
-		//	Mux: http.NewServeMux(),
+
+		dbConfig: db,
 	}
 }
 
 func (r *Roteador) Fechar() {
-	r.ManipuladorAutenticacao.Fechar()
-	r.ManipuladorUsuario.Fechar()
-	r.ManipuladorProcesso.Fechar()
-	r.ManipuladorTarefa.Fechar()
+	for _, m := range r.manipuladores {
+		m.Fechar()
+	}
 
 }

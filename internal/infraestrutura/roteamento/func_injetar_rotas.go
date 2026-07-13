@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
-	"github.com/gleberphant/ProcessoMan/internal/intermediarios"
 )
 
 // configurar as rotas e devolver MUX configurado
@@ -34,16 +33,11 @@ func (r *Roteador) InjetarRotas() {
 		http.ServeFile(w, r, "../static/favicon.ico") // Ajuste o caminho do seu arquivo
 	})
 
-	// ROTAS DOS MANIPULADORES
-	r.ManipuladorAutenticacao.InjetarRotas(mux)
-	r.ManipuladorProcesso.InjetarRotas(mux)
-	r.ManipuladorUsuario.InjetarRotas(mux)
-	r.ManipuladorTarefa.InjetarRotas(mux)
+	// INSERIR ROTAS DOS MANIPULADORES
+	for _, m := range r.manipuladores {
+		m.InjetarRotas(mux)
+	}
 
-	// INJETA INTERMEDIÁRIOS - Middlewares
-	roteador := intermediarios.AutenticadorFunc(mux, r.ManipuladorAutenticacao.CDUAutenticacao)
-	roteador = intermediarios.LoggerFunc(roteador)
-
-	r.Handler = &roteador
+	r.Handler = mux
 
 }

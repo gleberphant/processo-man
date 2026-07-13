@@ -8,15 +8,17 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/gleberphant/ProcessoMan/internal/dominios/autenticacao"
+	"github.com/gleberphant/ProcessoMan/internal/dominio/servicos"
 	"github.com/google/uuid"
 )
 
-func AutenticadorFunc(proximo http.Handler, autenticador *autenticacao.CDUAutenticacao) http.Handler {
+func AutenticadorFunc(proximo http.Handler, servicoAutenticacao *servicos.ServicoAutenticacao) http.Handler {
+
 	rotasLivres := map[string]bool{
 		"/login":       true,
 		"/favicon.ico": true,
 	}
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		//-------------------------------------
@@ -48,7 +50,7 @@ func AutenticadorFunc(proximo http.Handler, autenticador *autenticacao.CDUAutent
 		}
 
 		//Verifica se o token existe
-		token, err := autenticador.VerificarExisteToken(tokenUUID)
+		token, err := servicoAutenticacao.VerificarExisteToken(tokenUUID)
 		if err != nil {
 			log.Printf("Token inexistente: [%v] ", err)
 			http.Redirect(w, r, "/login?msg="+url.QueryEscape("Acesso negado. Token Expirado"), http.StatusSeeOther)
@@ -60,7 +62,7 @@ func AutenticadorFunc(proximo http.Handler, autenticador *autenticacao.CDUAutent
 		partes := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 		rota := "/" + partes[0]
 
-		err = autenticador.VerificarPermissao(token, rota, r.Method)
+		err = servicoAutenticacao.VerificarPermissao(token, rota, r.Method)
 
 		if err != nil {
 			log.Printf("Erro Permissao: [%v] ", err)

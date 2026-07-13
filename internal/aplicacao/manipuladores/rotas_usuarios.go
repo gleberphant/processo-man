@@ -1,4 +1,4 @@
-package usuarios
+package manipuladores
 
 import (
 	"net/http"
