@@ -7,11 +7,13 @@ import (
 
 type ViewModelProcesso struct {
 	apresentacao.BaseViewModel
-	UUID      string
-	Processo  entidades.Processo
-	Processos interface{}
-	Anexos    []string
-	Usuarios  interface{}
+	UUID          string
+	Clientes      []entidades.Cliente
+	Colaboradores []entidades.Colaborador
+	Processo      entidades.Processo
+	Processos     []entidades.Processo
+	Anexos        []string
+	Usuarios      []entidades.Usuario
 }
 
 // DTO PROCESSO

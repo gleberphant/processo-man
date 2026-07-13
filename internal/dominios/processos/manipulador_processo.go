@@ -2,6 +2,7 @@ package processos
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gleberphant/ProcessoMan/internal/entidades"
@@ -11,31 +12,48 @@ import (
 
 type ICDUUsuario interface {
 	ListarClientes() ([]entidades.Cliente, error)
+	ListarColaboradores() ([]entidades.Colaborador, error)
 }
 
 // servindo como interface entre a camada de apresentação e os casos de uso.
 type ManipuladorProcesso struct {
-	cduProcesso *CDUProcesso
-	cduUsuario  ICDUUsuario
+	servicoProcesso *CDUProcesso
+	servicoUsuario  ICDUUsuario
 }
 
 // NovoManipuladorProcesso cria e retorna uma nova instância de ManipuladorProcesso.
 func NovoManipuladorProcesso(CasosDeUsoProcesso *CDUProcesso, CasosDeUsoUsuario ICDUUsuario) *ManipuladorProcesso {
 	return &ManipuladorProcesso{
-		cduProcesso: CasosDeUsoProcesso,
-		cduUsuario:  CasosDeUsoUsuario,
+		servicoProcesso: CasosDeUsoProcesso,
+		servicoUsuario:  CasosDeUsoUsuario,
 	}
 }
 
 func (m *ManipuladorProcesso) Fechar() {
-	m.cduProcesso.Fechar()
+	m.servicoProcesso.Fechar()
 }
 
 // PageCriar renderiza o formulário para criação de um novo processo.
 func (m *ManipuladorProcesso) PageCriar(w http.ResponseWriter, r *http.Request) {
 
+	listaClientes, err := m.servicoUsuario.ListarClientes()
+	if err != nil {
+		//tratar error
+		log.Printf("Erro %v", err)
+		return
+	}
+
+	listaColaboradores, err := m.servicoUsuario.ListarColaboradores()
+	if err != nil {
+		//tratar error
+		log.Printf("Erro %v", err)
+		return
+	}
+
 	viewModel := ViewModelProcesso{
-		Processos: entidades.Processo{},
+		Clientes:      listaClientes,
+		Colaboradores: listaColaboradores,
+		Processos:     []entidades.Processo{},
 	}
 
 	apresentacao.ExibirPaginaHTML("processo/page-criar-processo.html", w, r, viewModel)
@@ -44,7 +62,7 @@ func (m *ManipuladorProcesso) PageCriar(w http.ResponseWriter, r *http.Request) 
 // PageListar renderiza a página contendo a listagem de todos os processos.
 func (m *ManipuladorProcesso) PageListar(w http.ResponseWriter, r *http.Request) {
 
-	listaProcessos, err := m.cduProcesso.ListarProcessos()
+	listaProcessos, err := m.servicoProcesso.ListarProcessos()
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("erro Page Listar Processo:%v", err))
@@ -69,7 +87,7 @@ func (m *ManipuladorProcesso) PageVerProcesso(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	processo, err := m.cduProcesso.BuscarProcessoPorUUID(processoUUID)
+	processo, err := m.servicoProcesso.BuscarProcessoPorUUID(processoUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("erro Page Ver Processo:%v", err))
@@ -95,7 +113,7 @@ func (m *ManipuladorProcesso) PageEditar(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	processo, err := m.cduProcesso.BuscarProcessoPorUUID(processoUUID)
+	processo, err := m.servicoProcesso.BuscarProcessoPorUUID(processoUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro PageEditar:%v", err))
@@ -103,8 +121,8 @@ func (m *ManipuladorProcesso) PageEditar(w http.ResponseWriter, r *http.Request)
 	}
 
 	viewModel := ViewModelProcesso{
-		UUID:      strUUID,
-		Processos: processo,
+		UUID:     strUUID,
+		Processo: *processo,
 		//Anexos:   []string{"arquivo1.doc", "arquivo2.doc"},
 	}
 
@@ -114,11 +132,23 @@ func (m *ManipuladorProcesso) PageEditar(w http.ResponseWriter, r *http.Request)
 // CriarProcessoPost processa a submissão do formulário para persistir um novo processo.
 func (m *ManipuladorProcesso) CriarProcessoPost(w http.ResponseWriter, r *http.Request) {
 
-	var Processo = entidades.Processo{
-		Nome: r.PostFormValue("nome"),
+	donoUUID, _ := uuid.Parse(r.PostFormValue("ColaboradorUUID"))
+
+	responsavelUUID, _ := uuid.Parse(r.PostFormValue("ClienteUUID"))
+
+	dono := entidades.Cliente{}
+	dono.UUID = donoUUID
+
+	responsavel := entidades.Colaborador{}
+	responsavel.UUID = responsavelUUID
+
+	Processo := entidades.Processo{
+		Nome:        r.PostFormValue("nome"),
+		Dono:        dono,
+		Responsavel: responsavel,
 	}
 
-	err := m.cduProcesso.CriarProcesso(Processo)
+	err := m.servicoProcesso.CriarProcesso(Processo)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro criar Processo: %v", err))
@@ -146,7 +176,7 @@ func (m *ManipuladorProcesso) EditarProcessoPost(w http.ResponseWriter, r *http.
 		Nome: r.PostFormValue("nome"),
 	}
 
-	err = m.cduProcesso.EditarProcesso(processoDTO)
+	err = m.servicoProcesso.EditarProcesso(processoDTO)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro editar Processo:%v", err))
@@ -167,7 +197,7 @@ func (m *ManipuladorProcesso) DeletarProcessoPost(w http.ResponseWriter, r *http
 		return
 	}
 
-	err = m.cduProcesso.DeletarProcesso(processoUUID)
+	err = m.servicoProcesso.DeletarProcesso(processoUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro deletar Processo: %v", err))

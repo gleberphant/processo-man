@@ -33,9 +33,11 @@ func (r *RepositorioProcesso) Criar(Processo entidades.Processo) error {
 
 	db := r.conn
 
-	_, err := db.Exec("INSERT INTO processos (uuid, nome) VALUES (?, ?)",
+	_, err := db.Exec("INSERT INTO processos (uuid, nome, cliente_uuid, colaborador_uuid) VALUES (?, ?, ?, ?)",
 		Processo.UUID,
 		Processo.Nome,
+		Processo.Dono.UUID,
+		Processo.Responsavel.UUID,
 	)
 
 	if err != nil {
@@ -52,22 +54,33 @@ func (r *RepositorioProcesso) Listar() ([]entidades.Processo, error) {
 
 	db := r.conn
 
-	rows, err := db.Query("SELECT uuid, nome FROM processos ")
-
-	// se erro na consulta
+	query := `
+		SELECT pro.uuid, pro.nome, cli.uuid, cli.nome, colab.uuid, colab.nome 
+		FROM processos pro 
+		INNER JOIN usuarios cli ON pro.cliente_uuid = cli.uuid
+		INNER JOIN usuarios colab ON pro.colaborador_uuid = colab.uuid
+	`
+	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
 	}
-
 	defer rows.Close()
-
 	var listaProcesso []entidades.Processo
 
 	for rows.Next() {
 
-		Processo := entidades.Processo{}
+		Processo := entidades.Processo{
+			Responsavel: entidades.Colaborador{},
+			Dono:        entidades.Cliente{},
+		}
 
-		rows.Scan(&Processo.UUID, &Processo.Nome)
+		rows.Scan(
+			&Processo.UUID,
+			&Processo.Nome,
+			&Processo.Dono.UUID,
+			&Processo.Dono.Nome,
+			&Processo.Responsavel.UUID,
+			&Processo.Responsavel.Nome)
 
 		listaProcesso = append(listaProcesso, Processo)
 	}
@@ -145,20 +158,36 @@ func (r *RepositorioProcesso) BuscarPorUUID(UUID uuid.UUID) (*entidades.Processo
 
 	db := r.conn
 
-	row := db.QueryRow("SELECT nome, data_criacao, comentarios FROM processos WHERE uuid=?; ", UUID.String())
+	query := `
+		SELECT pro.nome, pro.data_criacao, pro.comentarios, cli.uuid, cli.nome, colab.uuid, colab.nome 
+		FROM processos pro 
+		INNER JOIN usuarios cli ON pro.cliente_uuid = cli.uuid
+		INNER JOIN usuarios colab ON pro.colaborador_uuid = colab.uuid
+		WHERE pro.uuid=?;
+	`
 
-	var nome, dataCriacao string
+	row := db.QueryRow(query, UUID.String())
+
+	var dataCriacao string
 	var comentarios sql.NullString
 
-	err := row.Scan(&nome, &dataCriacao, &comentarios)
+	processo := &entidades.Processo{
+		UUID: UUID,
+	}
+
+	err := row.Scan(
+		&processo.Nome,
+		&dataCriacao,
+		&comentarios,
+		&processo.Dono.UUID,
+		&processo.Dono.Nome,
+		&processo.Responsavel.UUID,
+		&processo.Responsavel.Nome,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("Erro ao ler dados do banco: %w", err)
 	}
 
-	processo := &entidades.Processo{}
-
-	processo.UUID = UUID
-	processo.Nome = nome
 	if comentarios.Valid {
 		processo.Comentarios = comentarios.String
 	}

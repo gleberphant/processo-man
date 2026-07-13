@@ -1,74 +1,11 @@
 package apresentacao
 
 import (
-	"html/template"
 	"log"
 	"net/http"
-	"path/filepath"
-	"strings"
 
 	"github.com/gleberphant/ProcessoMan/internal/entidades"
 )
-
-var cacheTemplates map[string]*template.Template
-
-func CarregarTemplates() error {
-
-	if cacheTemplates == nil {
-		cacheTemplates = make(map[string]*template.Template)
-	}
-
-	// buscar todos arquivos em templates que terminam com html
-	listaFilepathPaginas, err := filepath.Glob("../templates/**/*.html")
-
-	if err != nil {
-		return err
-	}
-
-	for _, filepathPagina := range listaFilepathPaginas {
-		// cria novo template
-		tmpl := template.New(filepath.Base(filepathPagina))
-
-		// Mapeia funções para a interface
-		mapaFuncoes := template.FuncMap{
-			"formatarData": formatarData,
-		}
-
-		tmpl = tmpl.Funcs(mapaFuncoes)
-
-		var layout []string
-
-		if filepathPagina != "../templates/autenticacao/login.html" {
-			layout = []string{
-				"../templates/_layout/_layout.html",
-				"../templates/_layout/_header.html",
-				"../templates/_layout/_footer.html",
-				"../templates/_layout/_navbar.html",
-				filepathPagina,
-			}
-		} else {
-			layout = []string{filepathPagina}
-		}
-
-		tmpl, err = tmpl.ParseFiles(layout...)
-
-		if err != nil {
-			log.Printf("Erro ao carregar arquivos do templates: %v", err)
-			return err
-		}
-
-		// 1. Remove o "..\templates\" do início
-		chave := strings.TrimPrefix(filepathPagina, `..\templates\`)
-
-		// 2. Substitui as barras invertidas (\) por barras normais (/)
-		chave = strings.ReplaceAll(chave, `\`, `/`)
-		cacheTemplates[chave] = tmpl
-
-		log.Printf("Chave: %s , Template: %s", chave, filepathPagina)
-
-	}
-	return nil
-}
 
 func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dados interface{}) error {
 
@@ -80,60 +17,40 @@ func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dado
 		return nil // ou um erro específico
 	}
 
-	// injetar dados do contexto no view model da requisição
-
-	//var usuarioLogado string = "sem usuario"
-	var token entidades.Token
+	// injetar dados globais da requisição
+	var token entidades.Token = entidades.Token{}
 
 	// Tenta obter o token do contexto da requisição.
 	if tokenCtx := r.Context().Value("TokenContext"); tokenCtx != nil {
 
 		// Faz a asserção de tipo para entidades.Token e verifica se foi bem-sucedida.
-		token, ok = tokenCtx.(entidades.Token)
-		if !ok {
-
-			token = entidades.Token{}
-		}
+		token, _ = tokenCtx.(entidades.Token)
 
 	}
 
 	log.Printf("Usuario logado: %s", token.UsuarioNome)
+	// Injetar dados globais no viewModel
 
 	viewModel := struct {
-		Token entidades.Token
-		Dados interface{}
+		Menu entidades.Token
+		Base interface{}
 	}{
 		// Se o token não for encontrado ou o tipo for inválido, UsuarioLogado será uma string vazia.
-		Token: token,
-		Dados: dados,
+		Menu: token,
+		Base: dados,
 	}
 
+	var err error
+	if chave == "login/login.html" {
+		err = tmpl.ExecuteTemplate(w, "login", dados)
+	} else {
+		err = tmpl.ExecuteTemplate(w, "_layout", viewModel)
+	}
 	// executa o template
-	err := tmpl.ExecuteTemplate(w, "_layout", viewModel)
+
 	if err != nil {
 		log.Printf("erro ao executar template: %v", err)
 		http.Error(w, "Erro ao executar pagina", http.StatusInternalServerError)
-		return err
-	}
-
-	return nil
-}
-
-func ExibirHTMLSemLayout(chave string, w http.ResponseWriter, viewModel interface{}) error {
-
-	// Busca o template pré-compilado do cache.
-	tmpl, ok := cacheTemplates[chave]
-	if !ok {
-		log.Printf("Erro ao carregar pagina sem layout: template não encontrado no cache %v", ok)
-		http.Error(w, "Erro ao carregar pagina sem layout: template não encontrado no cache", http.StatusInternalServerError)
-		return nil
-	}
-
-	err := tmpl.Execute(w, viewModel)
-
-	if err != nil {
-		log.Printf("erro ao executar template sem layout %v", err)
-		http.Error(w, "Erro na renderização da pagina sem layout", http.StatusInternalServerError)
 		return err
 	}
 

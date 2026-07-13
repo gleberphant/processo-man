@@ -27,13 +27,13 @@ func (m *ManipuladorAutenticacao) Fechar() {
 func (m *ManipuladorAutenticacao) PageLogin(w http.ResponseWriter, r *http.Request) {
 
 	// carrega dados
-	viewModel := struct {
+	dados := struct {
 		Msg string
 	}{
 		Msg: r.URL.Query().Get("msg"),
 	}
 
-	apresentacao.ExibirHTMLSemLayout("autenticacao/login.html", w, viewModel)
+	apresentacao.ExibirPaginaHTML("login/login.html", w, r, dados)
 
 }
 
