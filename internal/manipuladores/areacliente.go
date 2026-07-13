@@ -30,7 +30,7 @@ func NovoManipuladorAreaCliente(CasosDeUsoProcesso ICDUProcesso, CasosDeUsoUsuar
 }
 
 // LISTAR OS PROCESSOS DE UM CLIENTE
-func (m *ManipuladorAreaCliente) PageListarMeusProcessos(w http.ResponseWriter, r *http.Request) {
+func (m *ManipuladorAreaCliente) AreaClientePageListarMeusProcessos(w http.ResponseWriter, r *http.Request) {
 
 	cliente_uuid, err := uuid.Parse(r.PathValue("cliente_uuid"))
 

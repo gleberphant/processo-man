@@ -1,11 +1,14 @@
 package processos
 
-import "github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
+import (
+	"github.com/gleberphant/ProcessoMan/internal/entidades"
+	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
+)
 
 type ViewModelProcesso struct {
 	apresentacao.BaseViewModel
 	UUID      string
-	Processo  interface{}
+	Processo  entidades.Processo
 	Processos interface{}
 	Anexos    []string
 	Usuarios  interface{}

@@ -7,6 +7,7 @@ import (
 	"github.com/gleberphant/ProcessoMan/internal/dominios/processos"
 	"github.com/gleberphant/ProcessoMan/internal/dominios/tarefas"
 	"github.com/gleberphant/ProcessoMan/internal/dominios/usuarios"
+	"github.com/gleberphant/ProcessoMan/internal/manipuladores"
 
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/bancodedados"
 )
@@ -39,6 +40,8 @@ func (r *Roteador) InjetarDependencias() error {
 	r.ManipuladorUsuario = usuarios.NovoManipuladorUsuario(servicoUsuario, servicoTarefa)
 	r.ManipuladorProcesso = processos.NovoManipuladorProcesso(servicoProcesso, servicoUsuario)
 	r.ManipuladorTarefa = tarefas.NovoManipuladorTarefa(servicoTarefa, servicoUsuario)
+
+	r.ManipuladorAreaCliente = manipuladores.NovoManipuladorAreaCliente(servicoProcesso, servicoUsuario)
 
 	// injetar intermediarios
 	//	r.IntermediarioAutenticador = intermediarios.NovoAutenticador(*r.Handler, cduAutenticacao)

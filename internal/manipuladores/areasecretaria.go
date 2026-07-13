@@ -9,21 +9,21 @@ import (
 )
 
 // servindo como interface entre a camada de apresentação e os casos de uso.
-type ManipuladorAreaSecretaria struct {
+type AreaSecretaria struct {
 	cduProcesso ICDUProcesso
 	cduUsuario  ICDUUsuario
 }
 
 // NovoManipuladorAreaSecretaria cria e retorna uma nova instância de ManipuladorAreaSecretaria.
-func NovoManipuladorAreaSecretaria(CasosDeUsoProcesso ICDUProcesso, CasosDeUsoUsuario ICDUUsuario) *ManipuladorAreaSecretaria {
-	return &ManipuladorAreaSecretaria{
+func NovoManipuladorAreaSecretaria(CasosDeUsoProcesso ICDUProcesso, CasosDeUsoUsuario ICDUUsuario) *AreaSecretaria {
+	return &AreaSecretaria{
 		cduProcesso: CasosDeUsoProcesso,
 		cduUsuario:  CasosDeUsoUsuario,
 	}
 }
 
 // area do cliente
-func (m *ManipuladorAreaSecretaria) AreaSecretariaPageListarProcessos(w http.ResponseWriter, r *http.Request) {
+func (m *AreaSecretaria) AreaSecretariaPageListarProcessos(w http.ResponseWriter, r *http.Request) {
 
 	cliente_uuid, err := uuid.Parse(r.PathValue("cliente_uuid"))
 
@@ -43,7 +43,7 @@ func (m *ManipuladorAreaSecretaria) AreaSecretariaPageListarProcessos(w http.Res
 }
 
 // area do cliente
-func (m *ManipuladorAreaSecretaria) AreaSecretariaPageVerProcesso(w http.ResponseWriter, r *http.Request) {
+func (m *AreaSecretaria) AreaSecretariaPageVerProcesso(w http.ResponseWriter, r *http.Request) {
 
 	viewModel := struct {
 		Processos []entidades.Processo

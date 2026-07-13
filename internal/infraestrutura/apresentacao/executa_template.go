@@ -80,34 +80,36 @@ func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dado
 		return nil // ou um erro específico
 	}
 
-	// injetar dados globais da requisição
+	// injetar dados do contexto no view model da requisição
 
-	var usuarioLogado string = "sem usuario"
+	//var usuarioLogado string = "sem usuario"
+	var token entidades.Token
 
 	// Tenta obter o token do contexto da requisição.
 	if tokenCtx := r.Context().Value("TokenContext"); tokenCtx != nil {
 
 		// Faz a asserção de tipo para entidades.Token e verifica se foi bem-sucedida.
-		if token, ok := tokenCtx.(entidades.Token); ok {
+		token, ok = tokenCtx.(entidades.Token)
+		if !ok {
 
-			usuarioLogado = token.UsuarioNome
+			token = entidades.Token{}
 		}
 
 	}
 
-	log.Printf("Usuario logado: %s", usuarioLogado)
-	// Injetar dados globais no viewModel
-	viewModeComContexto := struct {
-		UsuarioLogado string
-		Dados         interface{}
+	log.Printf("Usuario logado: %s", token.UsuarioNome)
+
+	viewModel := struct {
+		Token entidades.Token
+		Dados interface{}
 	}{
 		// Se o token não for encontrado ou o tipo for inválido, UsuarioLogado será uma string vazia.
-		UsuarioLogado: usuarioLogado,
-		Dados:         dados,
+		Token: token,
+		Dados: dados,
 	}
 
 	// executa o template
-	err := tmpl.ExecuteTemplate(w, "_layout", viewModeComContexto)
+	err := tmpl.ExecuteTemplate(w, "_layout", viewModel)
 	if err != nil {
 		log.Printf("erro ao executar template: %v", err)
 		http.Error(w, "Erro ao executar pagina", http.StatusInternalServerError)

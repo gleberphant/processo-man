@@ -33,6 +33,8 @@ func (r *Roteador) InjetarRotas() {
 	r.ManipuladorUsuario.InjetarRotas(mux)
 	r.ManipuladorTarefa.InjetarRotas(mux)
 
+	r.ManipuladorAreaCliente.InjetarRotasManipuladores(mux)
+
 	// INJETA INTERMEDIÁRIOS - Middlewares
 	//r.IntermediarioAutenticador = intermediarios.NovoAutenticador(mux, r.ManipuladorAutenticacao.CDUAutenticacao)
 	//r.IntermediarioLogger = intermediarios.NovoLogger(r.IntermediarioAutenticador)
