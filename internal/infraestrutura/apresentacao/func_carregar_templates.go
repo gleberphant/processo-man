@@ -10,13 +10,13 @@ import (
 
 var cacheTemplates map[string]*template.Template
 
-func CarregarTemplates() error {
+func CarregarTemplates(diretorioRaiz string) error {
 
 	if cacheTemplates == nil {
 		cacheTemplates = make(map[string]*template.Template)
 	}
 
-	baseDir := filepath.Join("..", "templates")
+	diretorioTemplates := filepath.Join(diretorioRaiz, "templates")
 
 	// Mapeia funções para a interface
 	mapaFuncoes := template.FuncMap{
@@ -25,17 +25,17 @@ func CarregarTemplates() error {
 
 	// Mapeia Layout
 	arquivosLayout := []string{
-		filepath.Join(baseDir, "_layout", "_layout.html"),
-		filepath.Join(baseDir, "_layout", "_header.html"),
-		filepath.Join(baseDir, "_layout", "_footer.html"),
-		filepath.Join(baseDir, "_layout", "_navbar.html"),
+		filepath.Join(diretorioTemplates, "_layout", "_layout.html"),
+		filepath.Join(diretorioTemplates, "_layout", "_header.html"),
+		filepath.Join(diretorioTemplates, "_layout", "_footer.html"),
+		filepath.Join(diretorioTemplates, "_layout", "_navbar.html"),
 	}
 
 	// Mapeia paginas sem login
-	caminhoLogin := filepath.Join(baseDir, "autenticacao", "login.html")
+	caminhoLogin := filepath.Join(diretorioTemplates, "autenticacao", "login.html")
 
 	// 3. Substituição do Glob pelo WalkDir (Recursividade Real e Segura)
-	err := filepath.WalkDir(baseDir, func(caminho string, d os.DirEntry, err error) error {
+	err := filepath.WalkDir(diretorioTemplates, func(caminho string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -66,7 +66,7 @@ func CarregarTemplates() error {
 		}
 
 		// 4. Extração segura da chave (Relativo + ToSlash para compatibilidade Linux/Windows)
-		chaveRelativa, err := filepath.Rel(baseDir, caminho)
+		chaveRelativa, err := filepath.Rel(diretorioTemplates, caminho)
 		if err != nil {
 			return err
 		}
@@ -74,9 +74,10 @@ func CarregarTemplates() error {
 		chaveFinal := filepath.ToSlash(chaveRelativa)
 		cacheTemplates[chaveFinal] = tmpl
 
-		log.Printf("Chave %s Template %s", chaveFinal, caminho)
+		//log.Printf("Chave %s Template %s", chaveFinal, caminho)
 		return nil
 	})
+	log.Printf("Templates [%d] Carregados ", len(cacheTemplates))
 
 	return err
 }

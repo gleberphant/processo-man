@@ -1,11 +1,10 @@
 package roteamento
 
 import (
-	"database/sql"
 	"net/http"
 
+	"github.com/gleberphant/ProcessoMan/internal/appconfig"
 	"github.com/gleberphant/ProcessoMan/internal/dominio/servicos"
-	"go.etcd.io/bbolt"
 )
 
 type IManipulador interface {
@@ -13,22 +12,17 @@ type IManipulador interface {
 	Fechar()
 }
 
-type DBConfig struct {
-	ConnDBAuth      *bbolt.DB // conexao chave valor
-	ConnDBEntidades *sql.DB   // conexao relacional
-}
-
+// struct que carrega o roteador http  da aplicação
 type Roteador struct {
 	Handler             http.Handler
 	servicoAutenticacao *servicos.ServicoAutenticacao
 	manipuladores       []IManipulador
-	dbConfig            *DBConfig
+	appConfig           *appconfig.AppConfig
 }
 
-func NovoRoteador(db *DBConfig) *Roteador {
+func NovoRoteador(appConfig *appconfig.AppConfig) *Roteador {
 	return &Roteador{
-
-		dbConfig: db,
+		appConfig: appConfig,
 	}
 }
 

@@ -13,10 +13,10 @@ func (r *Roteador) InjetarDependencias() error {
 
 	// Carregar repositorios com a conexao  de banco  de dados
 	log.Printf("Configurando Repositorios")
-	repoTokens := repositorios.NovoRepositorioTokenBolt(r.dbConfig.ConnDBAuth)
-	repoUsuarios := repositorios.NovoRepositorioUsuario(r.dbConfig.ConnDBEntidades)
-	repoProcessos := repositorios.NovoRepositorioProcesso(r.dbConfig.ConnDBEntidades)
-	repoTarefas := repositorios.NovoRepositorioTarefa(r.dbConfig.ConnDBEntidades)
+	repoTokens := repositorios.NovoRepositorioTokenBolt(r.appConfig.ConnDBAuth)
+	repoUsuarios := repositorios.NovoRepositorioUsuario(r.appConfig.ConnDBEntidades)
+	repoProcessos := repositorios.NovoRepositorioProcesso(r.appConfig.ConnDBEntidades)
+	repoTarefas := repositorios.NovoRepositorioTarefa(r.appConfig.ConnDBEntidades)
 
 	// Carregar serviços com os repositorios
 	log.Printf("Configurando Servicos")

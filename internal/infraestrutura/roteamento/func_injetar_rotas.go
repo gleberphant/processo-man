@@ -2,6 +2,7 @@ package roteamento
 
 import (
 	"net/http"
+	"path/filepath"
 
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 )
@@ -14,23 +15,23 @@ func (r *Roteador) InjetarRotas() {
 
 	// PAGINAS ESTÁTICAS
 	// index
-	mux.HandleFunc("/{$}", func(w http.ResponseWriter, r *http.Request) {
-		apresentacao.ExibirPaginaHTML("pages/index.html", w, r, nil)
+	mux.HandleFunc("/{$}", func(w http.ResponseWriter, req *http.Request) {
+		apresentacao.ExibirPaginaHTML("pages/index.html", w, req, nil)
 	})
 
 	// fallback para pagina 404
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		apresentacao.ExibirPaginaHTML("pages/page404.html", w, r, nil)
+	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+		apresentacao.ExibirPaginaHTML("pages/page404.html", w, req, nil)
 	})
 
 	// Not found para o DevTool do google chrome
-	mux.HandleFunc("/.well-known/*", func(w http.ResponseWriter, r *http.Request) {
-		http.NotFound(w, r)
+	mux.HandleFunc("/.well-known/*", func(w http.ResponseWriter, req *http.Request) {
+		http.NotFound(w, req)
 	})
 
 	// retornar o favicon da aplicação
-	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "../static/favicon.ico") // Ajuste o caminho do seu arquivo
+	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, req *http.Request) {
+		http.ServeFile(w, req, filepath.Join(r.appConfig.DiretorioRaiz, "/static/favicon.ico")) // Ajuste o caminho do seu arquivo
 	})
 
 	// INSERIR ROTAS DOS MANIPULADORES

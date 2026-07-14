@@ -2,40 +2,37 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
 
 	"github.com/gleberphant/ProcessoMan/internal/appconfig"
-	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/apresentacao"
 	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/bancodedados"
-
+	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/console"
 	"github.com/joho/godotenv"
-
-	"github.com/gleberphant/ProcessoMan/internal/infraestrutura/roteamento"
 )
 
 func main() {
 
+	var appConfig *appconfig.AppConfig
 	var ok bool
 	var URLBancoChaveValor, URLBancoRelacional, DiretorioRaiz, PortaServidor string
 
 	// CONFIGURAR APLICAÇÃO
-	// definindo HOME -
-	// Carregar variaveis do ambiente ou de arquivo  .env
-	// TODO : procurar primeiro variaveis no ambiente , senão encontrar carregar o arquivo .env
-	log.Printf("Carregando variáveis de ambiente (.env)")
+	// definindo HOME
 	DiretorioRaiz, ok = os.LookupEnv("HOME")
 	if !ok {
 		DiretorioRaiz = appconfig.GetDiretorioRaiz()
 		os.Setenv("HOME", DiretorioRaiz)
 	}
 
+	// Carregar arquivo dot .env
+	log.Printf("Lendo arquivo .env")
 	err := godotenv.Load(filepath.Join(DiretorioRaiz, ".env"))
 	if err != nil {
 		log.Fatal("Erro ao carregar o arquivo .env")
 	}
 
+	// CARREGAR URL DOS BANCOS DE DADOS
 	if os.Getenv("AMBIENTE") == "LOCAL" {
 		URLBancoChaveValor = filepath.Join(DiretorioRaiz, os.Getenv("URLBancoChaveValor"))
 		URLBancoRelacional = filepath.Join(DiretorioRaiz, os.Getenv("URLBancoRelacional"))
@@ -44,6 +41,8 @@ func main() {
 		URLBancoRelacional = os.Getenv("URLBancoRelacional")
 	}
 
+	// CARREGAR PORTA
+	log.Printf("Carregando variaveis de ambiente")
 	PortaServidor = os.Getenv("PORTA")
 
 	// Conectar aos bancos de dados
@@ -56,41 +55,16 @@ func main() {
 	defer connDBEntidades.Close()
 
 	// configuracao
-	log.Printf("Configurando Aplicação")
-	appConfig := appconfig.NovoAppConfig(
+	log.Printf("Configurando aplicação")
+	appConfig = appconfig.NovoAppConfig(
 		DiretorioRaiz,
 		PortaServidor,
 		connDBAuth,
 		connDBEntidades,
 	)
 
-	// Configurando ROTEADOR
-	log.Printf("Carregando Roteador, Rotas e Dependências")
-	roteador := roteamento.NovoRoteador(appConfig)
-	roteador.InjetarDependencias()
-	roteador.InjetarRotas()
-	roteador.InjetarIntermediarios()
+	log.Printf("Configura console dinamico")
+	consoleAdm := console.NovoConsole(appConfig)
 
-	log.Printf("Carregar Templates")
-	apresentacao.CarregarTemplates(appConfig.DiretorioRaiz)
-
-	// log.Printf("Iniciando Console Administrativo")
-	// consoleAdm := configurador.NovoConsole(appConfig)
-
-	// // go func() {
-	// // 	consoleAdm.Executar()
-	// // }()
-
-	log.Printf("Servindo na porta 8080")
-	server := http.Server{
-		Addr:    ":" + appConfig.PortaServidor,
-		Handler: roteador.Handler,
-	}
-
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("Erro ao iniciar o servidor: %v", err)
-	}
-
-	log.Printf("Encerrando servidor")
-
+	consoleAdm.Executar()
 }
