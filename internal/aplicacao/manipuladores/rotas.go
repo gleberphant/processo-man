@@ -10,7 +10,7 @@ func (m *ManipuladorAutenticacao) InjetarRotas(mux *http.ServeMux) {
 
 func (m *ManipuladorUsuario) InjetarRotas(mux *http.ServeMux) {
 	// ROTAS DE USUÁRIOS
-	mux.HandleFunc("GET /usuarios/{$}", m.PageListarUsuarios)
+	mux.HandleFunc("GET /usuarios/{$}", m.PageListarUsuario)
 	mux.HandleFunc("GET /usuarios/criar", m.PageCriarUsuario)
 	mux.HandleFunc("GET /usuarios/{UUID}", m.PageVerUsuario)
 	mux.HandleFunc("GET /usuarios/{UUID}/editar", m.PageEditarUsuario)

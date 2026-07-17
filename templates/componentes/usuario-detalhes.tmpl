@@ -1,0 +1,45 @@
+{{ define "usuario-detalhes" }}
+
+<!-- Bloco detalhes do usuario -->
+<div class="col-md-6 mb-3">
+{{ with . }}
+	<div class="d-flex justify-content-between align-items-center mb-2">
+		<form method="get" action="/usuarios/{{ .UUID }}/editar" style="display:inline;">
+			<button type="submit" class="btn btn-primary btn-sm">Editar Usuario</button>
+		</form>
+	</div>
+
+	
+		<div class="card">
+			<div class="table-responsive">
+				<table class="table table-bordered mb-0">
+					<tbody>
+						<tr>
+							<th class="bg-light w-25">UUID</th>
+							<td>{{ .UUID }}</td>
+						</tr>
+						<tr>
+							<th class="bg-light">NOME</th>
+							<td>{{ .Nome }}</td>
+						</tr>
+						<tr>
+							<th class="bg-light">EMAIL</th>
+							<td>{{ .Email }}</td>
+						</tr>
+						<tr>
+							<th class="bg-light">Perfis</th>
+							<td>{{ .Perfis }}</td>
+						</tr>
+						<tr>
+							<th class="bg-light">DATA CRIAÇÃO</th>
+							<td>{{ formatarData .DataCriacao }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	{{ end }}
+</div>
+
+
+{{ end }}

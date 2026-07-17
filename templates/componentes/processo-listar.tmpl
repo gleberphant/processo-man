@@ -1,0 +1,63 @@
+{{ define "processo-listar" }}
+<!-- Bloco de PROCESSOS -->
+<div class="row">
+	<div class="col-12">
+		<div class="d-flex justify-content-between align-items-center mb-2">
+			<h2 class="h4 mb-0">MEUS PROCESSOS</h2>
+		</div>
+
+		<section class="card">
+			<div class="table-responsive">
+				<table class="table align-middle table-striped table-hover mb-0">
+					<thead>
+						<tr>
+							<th>UUID</th>
+							<th>NOME DO PROCESSO</th>
+							<th>DATA CRIACAO</th>
+							<th>RESPONSÁVEL</th>
+							<th>CLIENTE</th>
+							<th> --- </th>
+							<th>AÇÕES</th>
+						</tr>
+					</thead>
+					<tbody>
+						{{ range . }}
+							<tr>
+								<td>{{ .UUID }}</td>
+								<td>{{ .Nome }}</td>
+								<td>{{ formatarData .DataCriacao }}</td>
+								<td>{{ .Responsavel }}</td>
+								<td>{{ .Dono }}</td>
+								<td> --- </td>
+								<td>
+									<form id="form-ver-{{ .UUID }}" method="get" action="/tarefas/{{ .UUID }}"
+										style="display:inline;">
+										<button type="submit" class="btn btn-warning mb-2">Ver</button>
+									</form>
+
+									<form id="form-editar-{{ .UUID }}" method="get" action="/tarefas/{{ .UUID }}/editar"
+										style="display:inline;">
+										<button type="submit" class="btn btn-warning mb-2">Editar</button>
+									</form>
+
+									<form id="form-concluir-{{ .UUID }}" method="post"
+										action="/tarefas/{{ .UUID }}/concluir" style="display:inline;">
+										<button type="button" onclick="onClickConcluir('{{ .UUID }}')"
+											class="btn btn-danger mb-2">Concluir</button>
+									</form>
+								</td>
+							</tr>
+						{{ else }}
+							<tr>
+								<td colspan="8" class="text-center text-muted">Nenhuma tarefa encontrada.</td>
+							</tr>
+						{{ end }}
+					</tbody>
+				</table>
+			</div>
+		</section>
+
+	</div>
+
+	
+{{ end }}

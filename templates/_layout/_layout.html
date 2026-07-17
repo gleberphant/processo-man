@@ -1,29 +1,34 @@
-{{define "_layout"}}
+<!-- 
+*template = composição
+*block = herança
+-->
+
+{{ define "_layout" }}
 
 <!DOCTYPE html>
 <html lang="pt-br">
 
-{{ template "_header" }}
+	{{ template "_header" }}
 
-<body>
+	<body>
 
-    {{ template "_navbar" .Menu }}
-
-
-    {{ block "page" .Base }}
-
-    <!-- O conteúdo injetado entrará aqui -->
-
-    {{end}}
+		{{ template "_navbar" .Menu }}
 
 
-    {{ template "_footer" }}
+		{{ block "page" .Base }}
 
-    <!-- Bootstrap JS Bundle -->
+			<!-- O conteúdo injetado entrará aqui -->
+
+		{{ end }}
+
+
+		{{ template "_footer" }}
+
+		<!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-</body>
+	</body>
 
 </html>
 
-{{end}}
+{{ end }}

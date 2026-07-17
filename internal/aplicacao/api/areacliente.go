@@ -19,12 +19,12 @@ import (
 )
 
 type ApiAreaCliente struct {
-	servicoProcesso *servicos.CDUProcesso
+	servicoProcesso *servicos.ServicoProcesso
 	servicoUsuario  *servicos.ServicoUsuario
 }
 
 // NovoApiAreaCliente cria e retorna uma nova instância de ApiAreaCliente.
-func NovoApiAreaCliente(servicoProcesso *servicos.CDUProcesso, servicoUsuario *servicos.ServicoUsuario) *ApiAreaCliente {
+func NovoApiAreaCliente(servicoProcesso *servicos.ServicoProcesso, servicoUsuario *servicos.ServicoUsuario) *ApiAreaCliente {
 	return &ApiAreaCliente{
 		servicoProcesso: servicoProcesso,
 		servicoUsuario:  servicoUsuario,
@@ -40,7 +40,7 @@ func (m *ApiAreaCliente) PageListarMeusProcessos(w http.ResponseWriter, r *http.
 		return
 	}
 
-	listaProcesso, err := m.servicoProcesso.ListarProcessosPorCliente(cliente_uuid)
+	listaProcesso, err := m.servicoProcesso.ListarProcessosPorUsuario(cliente_uuid)
 	if err != nil {
 		apresentacao.ExibirErro(w, "Erro ao buscar processos")
 		return

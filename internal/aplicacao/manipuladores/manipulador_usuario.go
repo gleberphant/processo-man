@@ -11,54 +11,56 @@ import (
 )
 
 type ManipuladorUsuario struct {
-	cduUsario *servicos.ServicoUsuario
-	cduTarefa *servicos.ServicoTarefa
+	servicoUsuario  *servicos.ServicoUsuario
+	servicoProcesso *servicos.ServicoProcesso
+	servicoTarefa   *servicos.ServicoTarefa
 }
 
-func NovoManipuladorUsuario(casosDeUsoUsuario *servicos.ServicoUsuario, casosDeUsoTarefa *servicos.ServicoTarefa) *ManipuladorUsuario {
+func NovoManipuladorUsuario(casosDeUsoUsuario *servicos.ServicoUsuario, casosDeUsoProcesso *servicos.ServicoProcesso, casosDeUsoTarefa *servicos.ServicoTarefa) *ManipuladorUsuario {
 
 	return &ManipuladorUsuario{
-		cduUsario: casosDeUsoUsuario,
-		cduTarefa: casosDeUsoTarefa,
+		servicoUsuario:  casosDeUsoUsuario,
+		servicoProcesso: casosDeUsoProcesso,
+		servicoTarefa:   casosDeUsoTarefa,
 	}
 }
 
 func (m *ManipuladorUsuario) Fechar() {
-	m.cduUsario.Fechar()
+	m.servicoUsuario.Fechar()
 
 }
 
 func (m *ManipuladorUsuario) PageCriarUsuario(w http.ResponseWriter, r *http.Request) {
 
-	viewModel := ViewModelUsuario{}
+	viewModel := ViewModelPageUsuario{}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-criar-usuario.html", w, r, viewModel)
 
 }
 
 func (m *ManipuladorUsuario) PageCriarCliente(w http.ResponseWriter, r *http.Request) {
-	viewModel := ViewModelUsuario{}
+	viewModel := ViewModelPageUsuario{}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-criar-cliente.html", w, r, viewModel)
 }
 
 func (m *ManipuladorUsuario) PageCriarColaborador(w http.ResponseWriter, r *http.Request) {
-	viewModel := ViewModelUsuario{}
+	viewModel := ViewModelPageUsuario{}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-criar-colaborador.html", w, r, viewModel)
 }
 
-func (m *ManipuladorUsuario) PageListarUsuarios(w http.ResponseWriter, r *http.Request) {
+func (m *ManipuladorUsuario) PageListarUsuario(w http.ResponseWriter, r *http.Request) {
 
-	lista, err := m.cduUsario.ListarUsuarios()
+	lista, err := m.servicoUsuario.ListarUsuarios()
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro PageListar:%v", err))
 		return
 	}
 
-	viewModel := ViewModelUsuario{
-		Usuarios: lista,
+	viewModel := ViewModelPageUsuario{
+		Usuario: lista,
 	}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-listar-usuario.html", w, r, viewModel)
@@ -67,14 +69,14 @@ func (m *ManipuladorUsuario) PageListarUsuarios(w http.ResponseWriter, r *http.R
 
 func (m *ManipuladorUsuario) PageListarClientes(w http.ResponseWriter, r *http.Request) {
 
-	lista, err := m.cduUsario.ListarClientes()
+	lista, err := m.servicoUsuario.ListarClientes()
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro ao listar clientes: %v", err))
 		return
 	}
 
-	viewModel := ViewModelUsuario{
-		Usuarios: lista,
+	viewModel := ViewModelPageUsuario{
+		Usuario: lista,
 	}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-listar-cliente.html", w, r, viewModel)
@@ -82,14 +84,14 @@ func (m *ManipuladorUsuario) PageListarClientes(w http.ResponseWriter, r *http.R
 
 func (m *ManipuladorUsuario) PageListarColaboradores(w http.ResponseWriter, r *http.Request) {
 
-	lista, err := m.cduUsario.ListarColaboradores()
+	lista, err := m.servicoUsuario.ListarColaboradores()
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro ao listar colaboradores: %v", err))
 		return
 	}
 
-	viewModel := ViewModelUsuario{
-		Usuarios: lista,
+	viewModel := ViewModelPageUsuario{
+		Usuario: lista,
 	}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-listar-colaborador.html", w, r, viewModel)
@@ -105,79 +107,68 @@ func (m *ManipuladorUsuario) PageEditarUsuario(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	usuario, err := m.cduUsario.BuscarUsuarioPorUUID(usuarioUUID)
+	usuario, err := m.servicoUsuario.BuscarUsuarioPorUUID(usuarioUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro PageEditar:%v", err))
 		return
 	}
 
-	viewModel := ViewModelUsuario{
-		UUID:     strUUID,
-		Usuarios: usuario,
+	viewModel := ViewModelPageUsuario{
+		UUID:    strUUID,
+		Usuario: usuario,
 	}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-criar-usuario.html", w, r, viewModel)
 
 }
 
-func (m *ManipuladorUsuario) obterListaTarefasViewModel(usuarioUUID uuid.UUID) ([]tarefasView, error) {
-
-	tarefas, err := m.cduTarefa.ListarTarefasPorResponsavel(usuarioUUID)
-
-	if err != nil {
-		return nil, err
-	}
-	listaTarefasView := []tarefasView{}
-
-	for _, tarefa := range tarefas {
-		tarefaView := tarefasView{
-			UUID:            tarefa.UUID,
-			ProcessoUUID:    tarefa.ProcessoUUID,
-			ResponsavelUUID: tarefa.ResponsavelUUID,
-			Nome:            tarefa.Nome,
-			Concluida:       tarefa.Concluida,
-			Comentarios:     tarefa.Comentarios,
-			DataConclusao:   tarefa.DataConclusao,
-			DataCriacao:     tarefa.DataCriacao,
-		}
-
-		listaTarefasView = append(listaTarefasView, tarefaView)
-	}
-
-	return listaTarefasView, nil
-}
-
 func (m *ManipuladorUsuario) PageVerUsuario(w http.ResponseWriter, r *http.Request) {
 
 	strUUID := r.PathValue("UUID")
 
+	// converter uuid do usuario
 	usuarioUUID, err := uuid.Parse(strUUID)
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("UUID do usuário inválido: %v", err))
 		return
 	}
 
-	usuario, err := m.cduUsario.BuscarUsuarioPorUUID(usuarioUUID)
+	usuario, err := m.servicoUsuario.BuscarUsuarioPorUUID(usuarioUUID)
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Editar:%v", err))
 		return
 	}
 
-	listaTarefasView, err := m.obterListaTarefasViewModel(usuarioUUID)
+	listaProcesso, err := m.servicoProcesso.ListarProcessosPorUsuario(usuarioUUID)
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro ao buscar processos do usuário:%v", err))
+		return
+	}
+
+	listaTarefa, err := m.servicoTarefa.ListarTarefasPorResponsavel(usuarioUUID)
+
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Editar:%v", err))
 		return
 	}
 
-	viewModel := ViewModelUsuario{
+	listaArquivo := []entidades.Arquivo{
+		{UUID: uuid.New(), Nome: "arquivo1.txt", URL: "file://123"},
+		{UUID: uuid.New(), Nome: "arquivo2.txt", URL: "file://123"},
+		{UUID: uuid.New(), Nome: "arquivo3.txt", URL: "file://123"},
+		{UUID: uuid.New(), Nome: "arquivo4.txt", URL: "file://123"},
+	}
+
+	viewModelPageUsuario := ViewModelPageUsuario{
 		UUID:     strUUID,
-		Usuarios: usuario,
-		Anexos:   []string{"documento1", "document2"},
-		Tarefas:  listaTarefasView,
+		Usuario:  usuario,
+		Arquivo:  listaArquivo,
+		Tarefa:   listaTarefa,
+		Processo: listaProcesso,
 	}
 
-	apresentacao.ExibirPaginaHTML("usuario/page-ver-usuario.html", w, r, viewModel)
+	apresentacao.ExibirPaginaHTML("usuario/page-ver-usuario.html", w, r, viewModelPageUsuario)
 
 }
 
@@ -189,7 +180,7 @@ func (m *ManipuladorUsuario) CriarUsuarioPost(w http.ResponseWriter, r *http.Req
 		Senha: r.PostFormValue("senha"),
 	}
 
-	err := m.cduUsario.CriaUsuario(&usuario)
+	err := m.servicoUsuario.CriaUsuario(&usuario)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Criar Usuario:%v", err))
@@ -212,7 +203,7 @@ func (m *ManipuladorUsuario) CriarClientePost(w http.ResponseWriter, r *http.Req
 		TipoPessoa: r.PostFormValue("tipo_pessoa"),
 	}
 
-	err := m.cduUsario.CriarCliente(&cliente)
+	err := m.servicoUsuario.CriarCliente(&cliente)
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Criar Cliente: %v", err))
 		return
@@ -231,7 +222,7 @@ func (m *ManipuladorUsuario) CriarColaboradorPost(w http.ResponseWriter, r *http
 		Cargo: r.PostFormValue("cargo"),
 	}
 
-	err := m.cduUsario.CriarColaborador(&colaborador)
+	err := m.servicoUsuario.CriarColaborador(&colaborador)
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Criar Colaborador: %v", err))
 		return
@@ -257,7 +248,7 @@ func (m *ManipuladorUsuario) EditarUsuarioPost(w http.ResponseWriter, r *http.Re
 		Senha: r.PostFormValue("senha"),
 	}
 
-	err = m.cduUsario.EditarUsuario(usuario)
+	err = m.servicoUsuario.EditarUsuario(usuario)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Usuario:%v", err))
@@ -276,7 +267,7 @@ func (m *ManipuladorUsuario) DeletarUsuarioPost(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	err = m.cduUsario.DeletarUsuario(usuarioUUID)
+	err = m.servicoUsuario.DeletarUsuario(usuarioUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Usuario:%v", err))

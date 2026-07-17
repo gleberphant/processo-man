@@ -61,13 +61,15 @@ func (r *RepositorioTarefa) ListarTarefas() ([]entidades.Tarefa, error) {
 
 		tarefa := entidades.Tarefa{}
 
-		rows.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome, &tarefa.Comentarios)
+		if err := rows.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome, &tarefa.Comentarios); err != nil {
+			return nil, err
+		}
 
 		lista = append(lista, tarefa)
 	}
 
-	return lista, nil
-
+	// Verifica se ocorreu algum erro durante a iteração das linhas
+	return lista, rows.Err()
 }
 
 // Listar retorna todos os tarefas cadastrados no banco de dados.
@@ -89,13 +91,15 @@ func (r *RepositorioTarefa) ListarTarefasPorProcesso(processoUUID uuid.UUID) ([]
 
 		tarefa := entidades.Tarefa{}
 
-		rows.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome, &tarefa.Comentarios)
+		if err := rows.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome, &tarefa.Comentarios); err != nil {
+			return nil, err
+		}
 
 		lista = append(lista, tarefa)
 	}
 
-	return lista, nil
-
+	// Verifica se ocorreu algum erro durante a iteração das linhas
+	return lista, rows.Err()
 }
 
 // Listar retorna todos os tarefas cadastrados no banco de dados.
@@ -117,13 +121,15 @@ func (r *RepositorioTarefa) ListarTarefasPorResponsavel(responavelUUID uuid.UUID
 
 		tarefa := entidades.Tarefa{}
 
-		rows.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome, &tarefa.Comentarios)
+		if err := rows.Scan(&tarefa.UUID, &tarefa.ProcessoUUID, &tarefa.ResponsavelUUID, &tarefa.Nome, &tarefa.Comentarios); err != nil {
+			return nil, err
+		}
 
 		lista = append(lista, tarefa)
 	}
 
-	return lista, nil
-
+	// Verifica se ocorreu algum erro durante a iteração das linhas
+	return lista, rows.Err()
 }
 
 // Atular uma tarefa do banco de dados

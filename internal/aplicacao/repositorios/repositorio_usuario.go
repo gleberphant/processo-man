@@ -113,7 +113,7 @@ func (r *RepositorioUsuario) ListarUsuarios() ([]entidades.Usuario, error) {
 		listaUsuario = append(listaUsuario, usuario)
 	}
 
-	return listaUsuario, nil
+	return listaUsuario, rows.Err()
 
 }
 
@@ -140,7 +140,7 @@ func (r *RepositorioUsuario) ListarClientes() ([]entidades.Cliente, error) {
 		}
 		lista = append(lista, c)
 	}
-	return lista, nil
+	return lista, rows.Err()
 }
 
 // ListarColaboradores retorna todos os usuários que possuem o perfil de colaborador.
@@ -167,7 +167,7 @@ func (r *RepositorioUsuario) ListarColaboradores() ([]entidades.Colaborador, err
 		}
 		lista = append(lista, c)
 	}
-	return lista, nil
+	return lista, rows.Err()
 }
 
 // Deletar remove um usuário do banco de dados utilizando seu UUID.
@@ -321,15 +321,15 @@ func (r *RepositorioUsuario) BuscarPorEmail(email string) (*entidades.Usuario, e
 	}
 	// define a lista de perfis
 	if uuidCliente.Valid {
-		usuario.Perfis = append(usuario.Perfis, "cliente")
+		usuario.Perfis = append(usuario.Perfis, "Cliente")
 	}
 
 	if uuidColaborador.Valid {
-		usuario.Perfis = append(usuario.Perfis, "colaborador")
+		usuario.Perfis = append(usuario.Perfis, "Colaborador")
 	}
 
 	if len(usuario.Perfis) == 0 {
-		usuario.Perfis = append(usuario.Perfis, "admin")
+		usuario.Perfis = append(usuario.Perfis, "Usuario")
 	}
 
 	return &usuario, nil

@@ -8,26 +8,26 @@ import (
 	"github.com/google/uuid"
 )
 
-type CDUProcesso struct {
+type ServicoProcesso struct {
 	repoProcesso *repositorios.RepositorioProcesso
 	repoTarefa   *repositorios.RepositorioTarefa
 }
 
-func NovoCDUProcesso(ProcessosRepo *repositorios.RepositorioProcesso, TarefasRepo *repositorios.RepositorioTarefa) *CDUProcesso {
+func NovoCDUProcesso(ProcessosRepo *repositorios.RepositorioProcesso, TarefasRepo *repositorios.RepositorioTarefa) *ServicoProcesso {
 
-	return &CDUProcesso{
+	return &ServicoProcesso{
 		repoProcesso: ProcessosRepo,
 		repoTarefa:   TarefasRepo,
 	}
 }
 
-func (a *CDUProcesso) Fechar() error {
+func (a *ServicoProcesso) Fechar() error {
 	a.repoProcesso.Fechar()
 	a.repoTarefa.Fechar()
 	return nil
 }
 
-func (u *CDUProcesso) CriarProcesso(processo entidades.Processo) error {
+func (u *ServicoProcesso) CriarProcesso(processo entidades.Processo) error {
 
 	for i := range processo.Tarefas {
 		if processo.Tarefas[i].UUID == uuid.Nil {
@@ -46,19 +46,19 @@ func (u *CDUProcesso) CriarProcesso(processo entidades.Processo) error {
 
 }
 
-func (u *CDUProcesso) ListarProcessos() ([]entidades.Processo, error) {
+func (u *ServicoProcesso) ListarProcessos() ([]entidades.Processo, error) {
 
 	return u.repoProcesso.Listar()
 
 }
 
-func (u *CDUProcesso) ListarProcessosPorCliente(UUID uuid.UUID) ([]entidades.Processo, error) {
+func (u *ServicoProcesso) ListarProcessosPorUsuario(UUID uuid.UUID) ([]entidades.Processo, error) {
 
-	return u.repoProcesso.ListarProcessosPorCliente(UUID)
+	return u.repoProcesso.ListarProcessosPorUsuario(UUID)
 
 }
 
-func (u *CDUProcesso) EditarProcesso(processo entidades.Processo) error {
+func (u *ServicoProcesso) EditarProcesso(processo entidades.Processo) error {
 
 	if processo.UUID == uuid.Nil {
 		return errors.New("não é possível atualizar um processo sem UUID")
@@ -67,7 +67,7 @@ func (u *CDUProcesso) EditarProcesso(processo entidades.Processo) error {
 	return u.repoProcesso.Editar(processo)
 }
 
-func (u *CDUProcesso) DeletarProcesso(processoUUID uuid.UUID) error {
+func (u *ServicoProcesso) DeletarProcesso(processoUUID uuid.UUID) error {
 
 	err := u.repoProcesso.Deletar(processoUUID)
 	if err != nil {
@@ -83,7 +83,7 @@ func (u *CDUProcesso) DeletarProcesso(processoUUID uuid.UUID) error {
 	return err
 }
 
-func (u *CDUProcesso) BuscarProcessoPorUUID(processoUUID uuid.UUID) (*entidades.Processo, error) {
+func (u *ServicoProcesso) BuscarProcessoPorUUID(processoUUID uuid.UUID) (*entidades.Processo, error) {
 
 	if processoUUID == uuid.Nil {
 		return nil, errors.New("UUID nulo")

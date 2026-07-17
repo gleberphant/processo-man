@@ -28,7 +28,7 @@ func (r *Roteador) InjetarDependencias() error {
 	// Carregar  manipuladores HTTP
 	log.Printf("Configurando Manipuladores HTTP")
 	ManipuladorAutenticacao := manipuladores.NovoManipuladorLogin(servicoAutenticacao)
-	ManipuladorUsuario := manipuladores.NovoManipuladorUsuario(servicoUsuario, servicoTarefa)
+	ManipuladorUsuario := manipuladores.NovoManipuladorUsuario(servicoUsuario, servicoProcesso, servicoTarefa)
 	ManipuladorProcesso := manipuladores.NovoManipuladorProcesso(servicoProcesso, servicoUsuario)
 	ManipuladorTarefa := manipuladores.NovoManipuladorTarefa(servicoTarefa, servicoUsuario)
 

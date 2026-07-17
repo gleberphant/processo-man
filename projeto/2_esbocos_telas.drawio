@@ -1,4 +1,4 @@
-<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.2 Chrome/134.0.6998.205 Electron/35.3.0 Safari/537.36" version="27.0.2" pages="3">
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/27.0.2 Chrome/134.0.6998.205 Electron/35.3.0 Safari/537.36" version="27.0.2" pages="4">
   <diagram id="_sZ-C0rXAebNtFr3Yikg" name="page-ver-processo">
     <mxGraphModel dx="1730" dy="1189" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
       <root>
@@ -222,6 +222,47 @@
         </mxCell>
         <mxCell id="JIH69D0OotMbGvhu7AQL-130" value="CONCLUIR" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#a20025;fontColor=#ffffff;strokeColor=#6F0000;" parent="JIH69D0OotMbGvhu7AQL-117" vertex="1">
           <mxGeometry x="940" y="555" width="60" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="page-usuario-ver" id="lW8_uFKUzC-uzsCYFEnI">
+    <mxGraphModel dx="1401" dy="1060" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="fuVPDI6qVunKWztOWJhH-0" />
+        <mxCell id="fuVPDI6qVunKWztOWJhH-1" parent="fuVPDI6qVunKWztOWJhH-0" />
+        <mxCell id="fuVPDI6qVunKWztOWJhH-2" value="" style="strokeWidth=1;shadow=0;dashed=0;align=center;html=1;shape=mxgraph.mockup.containers.browserWindow;rSize=0;strokeColor=#666666;strokeColor2=#008cff;strokeColor3=#c4c4c4;mainText=,;recursiveResize=0;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;container=0;" vertex="1" parent="fuVPDI6qVunKWztOWJhH-1">
+          <mxGeometry x="40" y="20" width="1024" height="768" as="geometry" />
+        </mxCell>
+        <mxCell id="fuVPDI6qVunKWztOWJhH-3" value="Ver Processo" style="strokeWidth=1;shadow=0;dashed=0;align=center;html=1;shape=mxgraph.mockup.containers.anchor;fontSize=17;fontColor=#666666;align=left;whiteSpace=wrap;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" vertex="1" parent="fuVPDI6qVunKWztOWJhH-1">
+          <mxGeometry x="100" y="32" width="110" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="fuVPDI6qVunKWztOWJhH-4" value="https://www.draw.io" style="strokeWidth=1;shadow=0;dashed=0;align=center;html=1;shape=mxgraph.mockup.containers.anchor;rSize=0;fontSize=17;fontColor=#666666;align=left;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" vertex="1" parent="fuVPDI6qVunKWztOWJhH-1">
+          <mxGeometry x="170" y="80" width="250" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="fuVPDI6qVunKWztOWJhH-47" value="ADICIONAR TAREFA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" vertex="1" parent="fuVPDI6qVunKWztOWJhH-1">
+          <mxGeometry x="70" y="450" width="150" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="fuVPDI6qVunKWztOWJhH-51" value="EDITAR USUARIO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" vertex="1" parent="fuVPDI6qVunKWztOWJhH-1">
+          <mxGeometry x="70" y="160" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="7YwWu_2RWrkQ1Zx2LikK-0" value="&amp;lt;&amp;lt; componente &amp;gt;&amp;gt;&lt;div&gt;usuario-detalhes&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="fuVPDI6qVunKWztOWJhH-1">
+          <mxGeometry x="70" y="208.5" width="440" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="7YwWu_2RWrkQ1Zx2LikK-37" value="&amp;lt;&amp;lt; componente &amp;gt;&amp;gt;&lt;div&gt;arquivo-listar&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="fuVPDI6qVunKWztOWJhH-1">
+          <mxGeometry x="560" y="208.5" width="440" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="7YwWu_2RWrkQ1Zx2LikK-38" value="&amp;lt;&amp;lt; componente &amp;gt;&amp;gt;&lt;div&gt;tarefa-listar&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="fuVPDI6qVunKWztOWJhH-1">
+          <mxGeometry x="70" y="490" width="930" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="7YwWu_2RWrkQ1Zx2LikK-39" value="&amp;lt;&amp;lt; componente &amp;gt;&amp;gt;&lt;div&gt;processo-listar&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="fuVPDI6qVunKWztOWJhH-1">
+          <mxGeometry x="70" y="670" width="940" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="7YwWu_2RWrkQ1Zx2LikK-40" value="ADICIONAR PROCESSO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" vertex="1" parent="fuVPDI6qVunKWztOWJhH-1">
+          <mxGeometry x="70" y="610" width="150" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="7YwWu_2RWrkQ1Zx2LikK-41" value="ADICIONAR ARQUIVO" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001DBC;" vertex="1" parent="fuVPDI6qVunKWztOWJhH-1">
+          <mxGeometry x="820" y="160" width="150" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

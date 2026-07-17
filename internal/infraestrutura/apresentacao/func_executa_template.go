@@ -12,8 +12,8 @@ func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dado
 	// Busca o template pré-compilado do cache
 	tmpl, ok := cacheTemplates[chave]
 	if !ok {
-		log.Printf("Erro ao carregar pagina: template não encontrado no cache %v", ok)
-		http.Error(w, "Erro ao carregar pagina: template não encontrado no cache", http.StatusInternalServerError)
+		log.Printf("Template [%s] não encontrado no cache %v", chave, ok)
+		http.Error(w, "Template não encontrado no cache", http.StatusInternalServerError)
 		return nil // ou um erro específico
 	}
 

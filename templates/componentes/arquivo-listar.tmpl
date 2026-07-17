@@ -1,0 +1,33 @@
+{{ define "arquivo-listar" }}
+
+<!-- Bloco de Anexos -->
+<div class="col-md-6 mb-3">
+	<div class="d-flex justify-content-between align-items-center mb-2">
+		<h2 class="h4 mb-0">ANEXOS</h2>
+	</div>
+	<div class="card">
+		<div class="table-responsive">
+			<table class="table table-bordered mb-0">
+				<thead>
+					<tr>
+						<th class="bg-light">&lt;LISTA DE ARQUIVOS&gt;</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{ range . }}
+						<tr>
+							<td><a href="/anexos/{{ . }}" target="_blank">{{ . }}</a></td>
+						</tr>
+					{{ else }}
+						<tr>
+							<td class="text-muted">Nenhum anexo encontrado.</td>
+						</tr>
+					{{ end }}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+</div>
+
+{{ end }}

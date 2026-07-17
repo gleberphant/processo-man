@@ -74,28 +74,28 @@ func (r *RepositorioProcesso) Listar() ([]entidades.Processo, error) {
 			Dono:        entidades.Cliente{},
 		}
 
-		rows.Scan(
+		if err := rows.Scan(
 			&Processo.UUID,
 			&Processo.Nome,
 			&Processo.Dono.UUID,
 			&Processo.Dono.Nome,
 			&Processo.Responsavel.UUID,
-			&Processo.Responsavel.Nome)
+			&Processo.Responsavel.Nome); err != nil {
+			return nil, err
+		}
 
 		listaProcesso = append(listaProcesso, Processo)
 	}
-
-	return listaProcesso, nil
-
+	// Verifica se ocorreu algum erro durante a iteração das linhas
+	return listaProcesso, rows.Err()
 }
 
-func (r *RepositorioProcesso) ListarProcessosPorCliente(cliente_uuid uuid.UUID) ([]entidades.Processo, error) {
+func (r *RepositorioProcesso) ListarProcessosPorUsuario(usuario_uuid uuid.UUID) ([]entidades.Processo, error) {
 
 	db := r.conn
 
-	rows, err := db.Query("SELECT uuid, nome, cliente_uuid, colaborador_uuid  FROM processos WHERE cliente_uuid=?", cliente_uuid.String())
+	rows, err := db.Query("SELECT uuid, nome, cliente_uuid, colaborador_uuid  FROM processos WHERE cliente_uuid=?", usuario_uuid)
 
-	// se erro na consulta
 	if err != nil {
 		return nil, err
 	}
@@ -105,15 +105,17 @@ func (r *RepositorioProcesso) ListarProcessosPorCliente(cliente_uuid uuid.UUID) 
 	var listaProcesso []entidades.Processo
 
 	for rows.Next() {
-
 		Processo := entidades.Processo{}
 
-		rows.Scan(&Processo.UUID, &Processo.Nome, &Processo.Dono.UUID, &Processo.Responsavel.UUID)
+		if err := rows.Scan(&Processo.UUID, &Processo.Nome, &Processo.Dono.UUID, &Processo.Responsavel.UUID); err != nil {
+			return nil, err
+		}
 
 		listaProcesso = append(listaProcesso, Processo)
 	}
 
-	return listaProcesso, nil
+	// Verifica se ocorreu algum erro durante a iteração das linhas
+	return listaProcesso, rows.Err()
 
 }
 

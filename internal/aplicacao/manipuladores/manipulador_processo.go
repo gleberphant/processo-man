@@ -13,12 +13,12 @@ import (
 
 // servindo como interface entre a camada de apresentação e os casos de uso.
 type ManipuladorProcesso struct {
-	servicoProcesso *servicos.CDUProcesso
+	servicoProcesso *servicos.ServicoProcesso
 	servicoUsuario  *servicos.ServicoUsuario
 }
 
 // NovoManipuladorProcesso cria e retorna uma nova instância de ManipuladorProcesso.
-func NovoManipuladorProcesso(CasosDeUsoProcesso *servicos.CDUProcesso, CasosDeUsoUsuario *servicos.ServicoUsuario) *ManipuladorProcesso {
+func NovoManipuladorProcesso(CasosDeUsoProcesso *servicos.ServicoProcesso, CasosDeUsoUsuario *servicos.ServicoUsuario) *ManipuladorProcesso {
 	return &ManipuladorProcesso{
 		servicoProcesso: CasosDeUsoProcesso,
 		servicoUsuario:  CasosDeUsoUsuario,

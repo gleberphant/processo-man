@@ -31,41 +31,61 @@ func CarregarTemplates(diretorioRaiz string) error {
 		filepath.Join(diretorioTemplates, "_layout", "_navbar.html"),
 	}
 
-	// Mapeia paginas sem login
+	// 1. Encontrar todos os arquivos de componentes reutilizáveis
+	var arquivosComponentes []string
+	err := filepath.WalkDir(diretorioTemplates, func(caminho string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		// Adiciona arquivos que estão dentro de um diretório chamado "componentes"
+		if !d.IsDir() && strings.Contains(filepath.ToSlash(caminho), "/componentes/") {
+			arquivosComponentes = append(arquivosComponentes, caminho)
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	// Mapeia pagina login sem layout
 	caminhoLogin := filepath.Join(diretorioTemplates, "autenticacao", "login.html")
 
-	// 3. Substituição do Glob pelo WalkDir (Recursividade Real e Segura)
-	err := filepath.WalkDir(diretorioTemplates, func(caminho string, d os.DirEntry, err error) error {
+	// 2. Percorrer novamente para criar as páginas, agora injetando os componentes
+	err = filepath.WalkDir(diretorioTemplates, func(caminho string, baseName os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
 		// Ignora diretórios e arquivos que não são HTML
-		if d.IsDir() || filepath.Ext(caminho) != ".html" {
+		if baseName.IsDir() {
 			return nil
 		}
 
 		// Impede que os fragmentos de layout sejam mapeados como páginas renderizáveis
-		if strings.Contains(caminho, "_layout") {
+		if strings.Contains(filepath.ToSlash(caminho), "/_layout/") || strings.Contains(filepath.ToSlash(caminho), "/componentes/") {
 			return nil
 		}
 
+		// cria um novo template com o mapa de funcoes
 		tmpl := template.New(filepath.Base(caminho)).Funcs(mapaFuncoes)
 
-		var arquivosAlvo []string
+		// Junta os arquivos de layout, a página atual e todos os componentes
+		var arquivosParaParse []string
 		if caminho != caminhoLogin { // Comparação agora funciona em qualquer SO
-			arquivosAlvo = append(arquivosLayout, caminho)
+			arquivosParaParse = append(arquivosLayout, caminho)
+			arquivosParaParse = append(arquivosParaParse, arquivosComponentes...)
 		} else {
-			arquivosAlvo = []string{caminho}
+			// A página de login não usa layout nem componentes
+			arquivosParaParse = []string{caminho}
 		}
 
-		tmpl, err = tmpl.ParseFiles(arquivosAlvo...)
+		tmpl, err = tmpl.ParseFiles(arquivosParaParse...)
 		if err != nil {
 			log.Printf("erro ao compilar template %s . Error %v", caminho, err.Error())
 			return err
 		}
 
-		// 4. Extração segura da chave (Relativo + ToSlash para compatibilidade Linux/Windows)
+		// Extração segura da chave (Relativo + ToSlash para compatibilidade Linux/Windows)
 		chaveRelativa, err := filepath.Rel(diretorioTemplates, caminho)
 		if err != nil {
 			return err
