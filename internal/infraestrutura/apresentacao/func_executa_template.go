@@ -28,9 +28,7 @@ func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dado
 
 	}
 
-	log.Printf("Usuario logado: %s", token.UsuarioNome)
 	// Injetar dados globais no viewModel
-
 	viewModel := struct {
 		Menu entidades.Token
 		Base interface{}
@@ -41,7 +39,7 @@ func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dado
 	}
 
 	var err error
-	if chave == "login/login.html" {
+	if chave == "login.html" {
 		err = tmpl.ExecuteTemplate(w, "login", dados)
 	} else {
 		err = tmpl.ExecuteTemplate(w, "_layout", viewModel)
@@ -49,7 +47,7 @@ func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dado
 	// executa o template
 
 	if err != nil {
-		log.Printf("erro ao executar template: %v", err)
+		log.Printf("erro ao executar template chave %s : %v", chave, err)
 		http.Error(w, "Erro ao executar pagina", http.StatusInternalServerError)
 		return err
 	}

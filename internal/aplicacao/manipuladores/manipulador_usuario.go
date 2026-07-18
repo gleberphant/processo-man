@@ -136,7 +136,7 @@ func (m *ManipuladorUsuario) PageVerUsuario(w http.ResponseWriter, r *http.Reque
 
 	usuario, err := m.servicoUsuario.BuscarUsuarioPorUUID(usuarioUUID)
 	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Editar:%v", err))
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro PageVerUsuario:%v", err))
 		return
 	}
 
@@ -238,7 +238,8 @@ func (m *ManipuladorUsuario) EditarUsuarioPost(w http.ResponseWriter, r *http.Re
 	UUID, err := uuid.Parse(strUUID)
 
 	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("Erro editar Processo:%v", err))
+
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro manipulador.usuario.editarUsuarioPost:%v", err))
 	}
 
 	var usuario = entidades.Usuario{

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/gleberphant/ProcessoMan/internal/dominio/entidades"
@@ -33,7 +32,7 @@ func (r *RepositorioTokenBolt) Fechar() {
 	r.Conn.Close()
 }
 
-func (r *RepositorioTokenBolt) VerificarPermissaoPerfil(chaveRota string, perfil string) bool {
+func (r *RepositorioTokenBolt) VerificarPermissaoPerfil(chaveRota string, perfil string) error {
 	db := r.Conn
 	err := db.View(func(tx *bolt.Tx) error {
 
@@ -56,19 +55,14 @@ func (r *RepositorioTokenBolt) VerificarPermissaoPerfil(chaveRota string, perfil
 		}
 
 		if !perfis[perfil] {
-			return fmt.Errorf("perfil não autorizado %v", perfis[perfil])
+			return fmt.Errorf("perfil não autorizado %v", perfil)
 
 		}
 		return nil
 
 	})
 
-	if err != nil {
-		log.Printf("%v", err)
-		return false
-	}
-
-	return true
+	return err
 
 }
 

@@ -3,6 +3,7 @@ package servicos
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/gleberphant/ProcessoMan/internal/aplicacao/repositorios"
@@ -45,17 +46,30 @@ func (a *ServicoAutenticacao) VerificarExisteToken(tokenUUID uuid.UUID) (*entida
 
 // verificar se token tem permissão para acessar uma rota
 func (a *ServicoAutenticacao) VerificarPermissao(token *entidades.Token, rota string, metodo string) error {
-
+	var err error
 	// verificar a permissão do permissao
 	chaveRota := strings.ToLower(metodo + ":" + rota)
 
 	for _, perfil := range token.Perfis {
-		if a.RepoTokens.VerificarPermissaoPerfil(chaveRota, strings.ToLower(perfil)) {
+
+		//verifica permissão
+		err = a.RepoTokens.VerificarPermissaoPerfil(chaveRota, strings.ToLower(perfil))
+
+		// se retornou sem erro é porque é autorizado
+		if err == nil {
 			return nil
 		}
+
+		// by passa para administrador - temporario
+		if perfil == "Administrador" {
+			log.Printf("** byPass Administrador %s : %s", token.UUID, token.UsuarioNome)
+			return nil
+		}
+
+		log.Printf("Error: %v", err)
 	}
 
-	return fmt.Errorf("perfil [%v] não autorizado a rota [%s]", token.Perfis, chaveRota)
+	return fmt.Errorf(" Perfis [%v] não autorizados para a rota [%s]", token.Perfis, chaveRota)
 
 }
 
@@ -78,7 +92,10 @@ func (a *ServicoAutenticacao) AutenticarUsuario(email string, senha string) (str
 
 	if err != nil {
 		// DEV fallback para usuario teste
-		if senha != usuario.Senha && usuario.UUID.String() == "00000000-0000-0000-0000-000000000000" {
+		if usuario.UUID.String() == "00000000-0000-0000-0000-000000000000" && senha == usuario.Senha {
+			log.Printf("[ Logando com usuario teste %s perfis %s]\n ", usuario.Email, usuario.Perfis)
+			//usuario de testes
+		} else { // erro autenticação
 			return "", fmt.Errorf("senha inválida : %w ", err)
 		}
 	}

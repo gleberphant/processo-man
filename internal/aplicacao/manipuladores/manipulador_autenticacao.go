@@ -34,7 +34,7 @@ func (m *ManipuladorAutenticacao) PageLogin(w http.ResponseWriter, r *http.Reque
 		Msg: r.URL.Query().Get("msg"),
 	}
 
-	apresentacao.ExibirPaginaHTML("login/login.html", w, r, dados)
+	apresentacao.ExibirPaginaHTML("login.html", w, r, dados)
 
 }
 

@@ -16,12 +16,12 @@ func (r *Roteador) InjetarRotas() {
 	// PAGINAS ESTÁTICAS
 	// index
 	mux.HandleFunc("/{$}", func(w http.ResponseWriter, req *http.Request) {
-		apresentacao.ExibirPaginaHTML("pages/index.html", w, req, nil)
+		apresentacao.ExibirPaginaHTML("index.html", w, req, nil)
 	})
 
 	// fallback para pagina 404
 	mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		apresentacao.ExibirPaginaHTML("pages/page404.html", w, req, nil)
+		apresentacao.ExibirPaginaHTML("page404.html", w, req, nil)
 	})
 
 	// Not found para o DevTool do google chrome

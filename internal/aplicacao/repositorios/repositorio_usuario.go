@@ -265,18 +265,18 @@ func (r *RepositorioUsuario) BuscarPorUUID(UUID uuid.UUID) (*entidades.Usuario, 
 	db := r.conn
 
 	row := db.QueryRow(`
-		SELECT u.uuid, u.nome, u.email, cli.usuario_uuid, col.usuario_uuid
+		SELECT u.uuid, u.nome, u.email,	cli.usuario_uuid, col.usuario_uuid, adm.usuario_uuid
 		FROM usuarios u
 		LEFT JOIN clientes cli ON u.uuid = cli.usuario_uuid
 		LEFT JOIN colaboradores col ON u.uuid = col.usuario_uuid
+		LEFT JOIN administradores adm ON u.uuid = adm.usuario_uuid
 		WHERE u.uuid=?
 	`, UUID)
 
-	var uuidCliente, uuidColaborador sql.NullString
-
+	var uuidCliente, uuidColaborador, uuidAdministrador sql.NullString
 	usuario := entidades.Usuario{}
 
-	err := row.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email, &uuidCliente, &uuidColaborador)
+	err := row.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email, &uuidCliente, &uuidColaborador, &uuidAdministrador)
 
 	if err != nil {
 		return nil, err
@@ -288,6 +288,10 @@ func (r *RepositorioUsuario) BuscarPorUUID(UUID uuid.UUID) (*entidades.Usuario, 
 
 	if uuidColaborador.Valid {
 		usuario.Perfis = append(usuario.Perfis, "Colaborador")
+	}
+
+	if uuidAdministrador.Valid {
+		usuario.Perfis = append(usuario.Perfis, "Administrador")
 	}
 
 	if len(usuario.Perfis) == 0 {
@@ -303,18 +307,19 @@ func (r *RepositorioUsuario) BuscarPorEmail(email string) (*entidades.Usuario, e
 	db := r.conn
 
 	row := db.QueryRow(`
-		SELECT u.uuid, u.nome, u.email,	u.senha, cli.usuario_uuid, col.usuario_uuid
+		SELECT u.uuid, u.nome, u.email,	u.senha, cli.usuario_uuid, col.usuario_uuid, adm.usuario_uuid
 		FROM usuarios u
 		LEFT JOIN clientes cli ON u.uuid = cli.usuario_uuid
 		LEFT JOIN colaboradores col ON u.uuid = col.usuario_uuid
+		LEFT JOIN administradores adm ON u.uuid = adm.usuario_uuid
 		WHERE u.email=?
 	`, email)
 
-	var uuidCliente, uuidColaborador sql.NullString
+	var uuidCliente, uuidColaborador, uuidAdministrador sql.NullString
 
 	usuario := entidades.Usuario{}
 
-	err := row.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email, &usuario.Senha, &uuidCliente, &uuidColaborador)
+	err := row.Scan(&usuario.UUID, &usuario.Nome, &usuario.Email, &usuario.Senha, &uuidCliente, &uuidColaborador, &uuidAdministrador)
 
 	if err != nil {
 		return nil, err
@@ -326,6 +331,10 @@ func (r *RepositorioUsuario) BuscarPorEmail(email string) (*entidades.Usuario, e
 
 	if uuidColaborador.Valid {
 		usuario.Perfis = append(usuario.Perfis, "Colaborador")
+	}
+
+	if uuidAdministrador.Valid {
+		usuario.Perfis = append(usuario.Perfis, "Administrador")
 	}
 
 	if len(usuario.Perfis) == 0 {
