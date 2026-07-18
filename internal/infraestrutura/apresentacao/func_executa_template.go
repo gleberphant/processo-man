@@ -22,7 +22,6 @@ func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dado
 
 	// Tenta obter o token do contexto da requisição.
 	if tokenCtx := r.Context().Value("TokenContext"); tokenCtx != nil {
-
 		// Faz a asserção de tipo para entidades.Token e verifica se foi bem-sucedida.
 		token, _ = tokenCtx.(entidades.Token)
 
@@ -32,18 +31,16 @@ func ExibirPaginaHTML(chave string, w http.ResponseWriter, r *http.Request, dado
 	viewModel := struct {
 		Menu entidades.Token
 		Base interface{}
+		Msg  interface{}
 	}{
 		// Se o token não for encontrado ou o tipo for inválido, UsuarioLogado será uma string vazia.
 		Menu: token,
 		Base: dados,
+		Msg:  dados,
 	}
-
 	var err error
-	if chave == "login.html" {
-		err = tmpl.ExecuteTemplate(w, "login", dados)
-	} else {
-		err = tmpl.ExecuteTemplate(w, "_layout", viewModel)
-	}
+	err = tmpl.ExecuteTemplate(w, "_layout", viewModel)
+
 	// executa o template
 
 	if err != nil {

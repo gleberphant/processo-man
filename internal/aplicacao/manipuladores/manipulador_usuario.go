@@ -31,21 +31,20 @@ func (m *ManipuladorUsuario) Fechar() {
 }
 
 func (m *ManipuladorUsuario) PageCriarUsuario(w http.ResponseWriter, r *http.Request) {
-
-	viewModel := ViewModelPageUsuario{}
+	viewModel := struct{}{}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-criar-usuario.html", w, r, viewModel)
 
 }
 
 func (m *ManipuladorUsuario) PageCriarCliente(w http.ResponseWriter, r *http.Request) {
-	viewModel := ViewModelPageUsuario{}
+	viewModel := struct{}{}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-criar-cliente.html", w, r, viewModel)
 }
 
 func (m *ManipuladorUsuario) PageCriarColaborador(w http.ResponseWriter, r *http.Request) {
-	viewModel := ViewModelPageUsuario{}
+	viewModel := struct{}{}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-criar-colaborador.html", w, r, viewModel)
 }
@@ -59,8 +58,11 @@ func (m *ManipuladorUsuario) PageListarUsuario(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	viewModel := ViewModelPageUsuario{
-		Usuario: lista,
+	//viewModelPageListarUsuario
+	viewModel := struct {
+		Usuarios []entidades.Usuario
+	}{
+		Usuarios: lista,
 	}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-listar-usuario.html", w, r, viewModel)
@@ -75,8 +77,11 @@ func (m *ManipuladorUsuario) PageListarClientes(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	viewModel := ViewModelPageUsuario{
-		Usuario: lista,
+	//viewModelPageListarClientes
+	viewModel := struct {
+		Clientes []entidades.Cliente
+	}{
+		Clientes: lista,
 	}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-listar-cliente.html", w, r, viewModel)
@@ -90,8 +95,10 @@ func (m *ManipuladorUsuario) PageListarColaboradores(w http.ResponseWriter, r *h
 		return
 	}
 
-	viewModel := ViewModelPageUsuario{
-		Usuario: lista,
+	viewModel := struct {
+		Colaboradores []entidades.Colaborador
+	}{
+		Colaboradores: lista,
 	}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-listar-colaborador.html", w, r, viewModel)
@@ -114,8 +121,10 @@ func (m *ManipuladorUsuario) PageEditarUsuario(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	viewModel := ViewModelPageUsuario{
-		UUID:    strUUID,
+	// viewModelFormUsuario
+	viewModel := struct {
+		Usuario *entidades.Usuario
+	}{
 		Usuario: usuario,
 	}
 
@@ -160,7 +169,14 @@ func (m *ManipuladorUsuario) PageVerUsuario(w http.ResponseWriter, r *http.Reque
 		{UUID: uuid.New(), Nome: "arquivo4.txt", URL: "file://123"},
 	}
 
-	viewModelPageUsuario := ViewModelPageUsuario{
+	//viewModel Detalhes Usuarios
+	viewModel := struct {
+		UUID     string
+		Usuario  *entidades.Usuario
+		Arquivo  []entidades.Arquivo
+		Tarefa   []entidades.Tarefa
+		Processo []entidades.Processo
+	}{
 		UUID:     strUUID,
 		Usuario:  usuario,
 		Arquivo:  listaArquivo,
@@ -168,7 +184,7 @@ func (m *ManipuladorUsuario) PageVerUsuario(w http.ResponseWriter, r *http.Reque
 		Processo: listaProcesso,
 	}
 
-	apresentacao.ExibirPaginaHTML("usuario/page-ver-usuario.html", w, r, viewModelPageUsuario)
+	apresentacao.ExibirPaginaHTML("usuario/page-ver-usuario.html", w, r, viewModel)
 
 }
 

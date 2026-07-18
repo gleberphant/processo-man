@@ -8,25 +8,10 @@ import (
 	"github.com/google/uuid"
 )
 
-type ViewModelPageUsuario struct {
-	//apresentacao.BaseViewModel
-	UUID     string      `json:"uuid,omitempty"`
-	Usuario  interface{} `json:"usuarios,omitempty"`
-	Processo interface{} `json:"processos,omitempty"`
-	Tarefa   interface{} `json:"tarefas,omitempty"`
-	Arquivo  interface{} `json:"anexos,omitempty"`
+type ViewModelBase struct {
+	UsuarioUUID string `json:"usuario_uuid,omitempty"`
 }
 
-//	type tarefasView struct {
-//		UUID            uuid.UUID
-//		ProcessoUUID    uuid.UUID
-//		ResponsavelUUID uuid.UUID
-//		Nome            string
-//		Concluida       bool
-//		Comentarios     string
-//		DataConclusao   time.Time
-//		DataCriacao     time.Time
-//	}
 type ViewModelProcesso struct {
 	apresentacao.BaseViewModel
 	UUID          string
@@ -36,10 +21,6 @@ type ViewModelProcesso struct {
 	Processos     []entidades.Processo
 	Anexos        []string
 	Usuarios      []entidades.Usuario
-}
-
-// DTO PROCESSO
-type ProcessoResponse struct {
 }
 
 // response DTO
