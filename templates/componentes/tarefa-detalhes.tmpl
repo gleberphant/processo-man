@@ -1,0 +1,14 @@
+<div class="table-responsive">
+	<table class="table table-bordered mb-0">
+		<tbody>
+			<tr><th class="bg-light w-25">UUID</th><td>{{ .UUID }}</td></tr>
+			<tr><th class="bg-light">NOME</th><td>{{ .Nome }}</td></tr>
+			<tr><th class="bg-light">PROCESSO (UUID)</th><td>{{ .ProcessoUUID }}</td></tr>
+			<tr><th class="bg-light">RESPONSÁVEL (UUID)</th><td>{{ .ResponsavelUUID }}</td></tr>
+			<tr><th class="bg-light">COMENTÁRIOS</th><td>{{ .Comentarios }}</td></tr>
+			<tr><th class="bg-light">CONCLUIDA</th><td>{{ .Concluida }}</td></tr>
+			<tr><th class="bg-light">DATA CRIAÇÃO</th><td>{{ formatarData .DataCriacao }}</td></tr>
+			<tr><th class="bg-light">DATA CONCLUSÃO</th><td>{{ formatarData .DataConclusao }}</td></tr>
+		</tbody>
+	</table>
+</div>

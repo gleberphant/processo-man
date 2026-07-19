@@ -171,17 +171,17 @@ func (m *ManipuladorUsuario) PageVerUsuario(w http.ResponseWriter, r *http.Reque
 
 	//viewModel Detalhes Usuarios
 	viewModel := struct {
-		UUID     string
-		Usuario  *entidades.Usuario
-		Arquivo  []entidades.Arquivo
-		Tarefa   []entidades.Tarefa
-		Processo []entidades.Processo
+		UUID      string
+		Usuario   *entidades.Usuario
+		Arquivos  []entidades.Arquivo
+		Tarefas   []entidades.Tarefa
+		Processos []entidades.Processo
 	}{
-		UUID:     strUUID,
-		Usuario:  usuario,
-		Arquivo:  listaArquivo,
-		Tarefa:   listaTarefa,
-		Processo: listaProcesso,
+		UUID:      strUUID,
+		Usuario:   usuario,
+		Arquivos:  listaArquivo,
+		Tarefas:   listaTarefa,
+		Processos: listaProcesso,
 	}
 
 	apresentacao.ExibirPaginaHTML("usuario/page-ver-usuario.html", w, r, viewModel)

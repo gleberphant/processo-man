@@ -5,13 +5,24 @@
 
 
 		<!-- compomente de detalhes do Usuario -->
-		{{ template "usuario-detalhes" .Usuario }}
+		<div class="col-md-6 mb-3">
+			{{ exibeComponente "usuario-detalhes" .Usuario }}
+		</div>
+
 		<!-- compomente de lista de Arquivos do usuario -->
-		{{ template "arquivo-listar" .Arquivo }}
+		<div class="col-md-6 mb-3">
+			{{ exibeComponente "arquivo-listar" .Arquivos }}
+		</div>
+
 		<!-- componente de lista de Tarefas do usuario -->
-		{{ template "tarefa-listar" .Tarefa }}
+		<div class="row">
+			{{ exibeComponente "tarefa-listar" .Tarefas }}
+		</div>
 		<!-- componente de lista de processos do usuário -->
-		{{ template "processo-listar" .Processo }}
+		<div class="row">
+			{{ exibeComponente "processo-listar" .Processos }}
+		</div>
+
 
 
 	</div>

@@ -1,159 +1,51 @@
-{{define "title"}} Ver Processo {{end}}
+{{ define "title" }} Ver Processo {{ end }}
 
-{{define "page"}}
+{{ define "page" }}
 <main class="container mt-5">
 
+	<div class="row mb-4">
+		<!-- Bloco do Processo -->
+		<div class="col-md-6 mb-3">
 
-    <div class="row mb-4">
-        <!-- Bloco do Processo -->
-        <div class="col-md-6 mb-3">
+			<div class="d-flex justify-content-between align-items-center mb-2">
+				<form method="get" action="/processos/{{ .Processo.UUID }}/editar" style="display:inline;">
+					<input type="hidden" name="uuid" value="{{ .Processo.UUID }}" />
+					<button type="submit" class="btn btn-primary btn-sm">Editar Processo</button>
+				</form>
+			</div>
+			{{ exibeComponente "processo-detalhes" .Processo }}
+		</div>
 
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <form method="get" action="/processos/{{.Processo.UUID}}/editar" style="display:inline;">
-                    <input type="hidden" name="uuid" value="{{.Processo.UUID}}" />
-                    <button type="submit" class="btn btn-primary btn-sm">Editar Processo</button>
-                </form>
-            </div>
-            <div class="card">
-                <div class="table-responsive">
-                    <table class="table table-bordered mb-0">
-                        <tbody>
-                            <tr>
-                                <th class="bg-light w-25">UUID</th>
-                                <td>{{.Processo.UUID}}</td>
-                            </tr>
-                            <tr>
-                                <th class="bg-light">NOME</th>
-                                <td>{{.Processo.Nome}}</td>
-                            </tr>
-                            <tr>
-                                <th class="bg-light">CLIENTE</th>
-                                <td>{{.Processo.Dono.Nome}}</td>
-                            </tr>
-                                                        <tr>
-                                <th class="bg-light">RESPONSÁVEL</th>
-                                <td>{{.Processo.Responsavel.Nome}}</td>
-                            </tr>
-                            <tr>
-                                <th class="bg-light">DATA CRIAÇÃO</th>
-                                <td>{{ formatarData .Processo.DataCriacao }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+		<!-- Bloco de Anexos -->
+		<div class="col-md-6 mb-3">
+			<div class="d-flex justify-content-between align-items-center mb-2">
+				<h2 class="h4 mb-0">ANEXOS</h2>
+			</div>
+			{{ exibeComponente "arquivo-listar" .Arquivos }}
+		</div>
+	</div>
 
-        <!-- Bloco de Anexos -->
-        <div class="col-md-6 mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h2 class="h4 mb-0">ANEXOS</h2>
-            </div>
-            <div class="card">
-                <div class="table-responsive">
-                    <table class="table table-bordered mb-0">
-                        <thead>
-                            <tr>
-                                <th class="bg-light">&lt;LISTA DE ARQUIVOS&gt;</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{range .Anexos}}
-                            <tr>
-                                <td><a href="/anexos/{{.}}" target="_blank">{{.}}</a></td>
-                            </tr>
-                            {{else}}
-                            <tr>
-                                <td class="text-muted">Nenhum anexo encontrado.</td>
-                            </tr>
-                            {{end}}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+	<!-- Bloco de Tarefas -->
+	<div class="row">
+		<div class="col-12">
+			<div class="d-flex justify-content-between align-items-center mb-2">
+				<h2 class="h4 mb-0">TAREFAS</h2>
+				<a href="/tarefas/criar?ProcessoUUID={{ .Processo.UUID }}" class="btn btn-primary btn-sm">Adicionar
+					Tarefa
+				</a>
+			</div>
 
-    <!-- Bloco de Tarefas -->
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h2 class="h4 mb-0">TAREFAS</h2>
-                <a href="/tarefas/criar?ProcessoUUID={{.Processo.UUID}}" class="btn btn-primary btn-sm">Adicionar
-                    Tarefa</a>
-            </div>
-
-            <section class="card">
-                <div class="table-responsive">
-                    <table class="table align-middle table-striped table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>UUID</th>
-                                <th>NOME TAREFA</th>
-                                <th>DATA CRIACAO</th>
-                                <!-- <th>PROCESSO</th> -->
-                                <th>RESPONSÁVEL</th>
-                                <th>SITUAÇÃO</th>
-                                <th>DATA CONCLUSÃO</th>
-                                <th>AÇÕES</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {{range .Processo.Tarefas}}
-                            <tr>
-                                <td>{{.UUID}}</td>
-                                <!-- <td>{{.ProcessoUUID}}</td> -->
-                                <td>{{.Nome}}</td>
-                                <td>{{ formatarData .DataCriacao }}</td>
-                                <td>{{.ResponsavelUUID}}</td>
-                                <td>{{.Concluida}}</td>
-                                <td>{{if .DataConclusao.IsZero}}Aberto{{else }}{{ formatarData .DataConclusao}}{{end}}
-                                </td>
-                                <td>
-                                    <form id="form-ver-{{.UUID}}" method="get" action="/tarefas/{{.UUID}}"
-                                        style="display:inline;">
-
-                                        <button type="submit" class="btn btn-warning mb-2">Ver</button>
-                                    </form>
-
-                                    <form id="form-editar-{{.UUID}}" method="get" action="/tarefas/{{.UUID}}/editar"
-                                        style="display:inline;">
-
-                                        <button type="submit" class="btn btn-warning mb-2">Editar</button>
-                                    </form>
-
-                                    <form id="form-concluir-{{.UUID}}" method="post"
-                                        action="/tarefas/{{.UUID}}/concluir" style="display:inline;">
-                                        <input type="hidden" class="form-control" name="ProcessoUUID"
-                                            value="{{ .ProcessoUUID }}" required>
-                                        <button type="button" onclick="onClickConcluir('{{.UUID}}')"
-                                            class="btn btn-danger mb-2">Concluir</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {{else}}
-                            <tr>
-                                <td colspan="8" class="text-center text-muted">Nenhuma tarefa encontrada.</td>
-                            </tr>
-                            {{end}}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+			<section class="card">
+				<div class="table-responsive">
+					{{ exibeComponente "tarefa-listar" .Tarefas }}
+				</div>
+			</section>
 
 
-        </div>
-    </div>
+		</div>
+	</div>
 
 
-    <script>
-        function onClickConcluir(id) {
-            let resposta = confirm("Tem certeza que deseja deletar a Tarefa ID=" + id + " ??")
-            if (resposta) {
-                document.getElementById('form-concluir-' + id).submit();
-            }
-        }
-    </script>
 </main>
 
-{{end}}
+{{ end }}

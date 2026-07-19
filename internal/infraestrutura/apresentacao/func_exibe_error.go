@@ -18,6 +18,7 @@ func ExibirErro(w http.ResponseWriter, erroMsg string) {
 	log.Printf("\nFunc %s File %s \n ERROR: %s\n", functionName, file, line, erroMsg)
 
 	//substituir por redirecionamento para o index com uma mensagem
-	http.Error(w, erroMsg, http.StatusInternalServerError)
-
+	if w != nil {
+		http.Error(w, erroMsg, http.StatusInternalServerError)
+	}
 }

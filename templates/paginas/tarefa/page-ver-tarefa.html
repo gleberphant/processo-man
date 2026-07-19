@@ -1,33 +1,20 @@
-{{define "title"}} Ver Tarefa {{end}}
+{{ define "title" }} Ver Tarefa {{ end }}
 
-{{define "page"}}
+{{ define "page" }}
 <main class="container mt-5">
-    <div class="row mb-4">
-        <div class="col-md-12 mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h2 class="h4 mb-0">Detalhes da Tarefa: {{ .Tarefa.Nome }}</h2>
-                <form method="get" action="/tarefas/{{.Tarefa.UUID}}/editar" style="display:inline;">
-                    <input type="hidden" name="uuid" value="{{.UUID}}" />
-                    <button type="submit" class="btn btn-primary btn-sm">Editar Tarefa</button>
-                </form>
-            </div>
-            <div class="card">
-                <div class="table-responsive">
-                    <table class="table table-bordered mb-0">
-                        <tbody>
-                            <tr><th class="bg-light w-25">UUID</th><td>{{.Tarefa.UUID}}</td></tr>
-                            <tr><th class="bg-light">NOME</th><td>{{.Tarefa.Nome}}</td></tr>
-                            <tr><th class="bg-light">PROCESSO (UUID)</th><td>{{.Tarefa.ProcessoUUID}}</td></tr>
-                            <tr><th class="bg-light">RESPONSÁVEL (UUID)</th><td>{{.Tarefa.ResponsavelUUID}}</td></tr>
-                            <tr><th class="bg-light">COMENTÁRIOS</th><td>{{.Tarefa.Comentarios}}</td></tr>
-                            <tr><th class="bg-light">CONCLUIDA</th><td>{{.Tarefa.Concluida}}</td></tr>
-                            <tr><th class="bg-light">DATA CRIAÇÃO</th><td>{{ formatarData .Tarefa.DataCriacao }}</td></tr>
-                            <tr><th class="bg-light">DATA CONCLUSÃO</th><td>{{ formatarData .Tarefa.DataConclusao }}</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="row mb-4">
+		<div class="col-md-12 mb-3">
+			<div class="d-flex justify-content-between align-items-center mb-2">
+				<h2 class="h4 mb-0">Detalhes da Tarefa: {{ .Tarefa.Nome }}</h2>
+				<form method="get" action="/tarefas/{{ .Tarefa.UUID }}/editar" style="display:inline;">
+					<input type="hidden" name="uuid" value="{{ .UUID }}" />
+					<button type="submit" class="btn btn-primary btn-sm">Editar Tarefa</button>
+				</form>
+			</div>
+			<div class="card">
+				{{ exibeComponente "tarefa-detalhes" .Tarefa }}
+			</div>
+		</div>
+	</div>
 </main>
-{{end}}
+{{ end }}

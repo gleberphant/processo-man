@@ -1,8 +1,8 @@
 {{ define "usuario-detalhes" }}
 
 <!-- Bloco detalhes do usuario -->
-<div class="col-md-6 mb-3">
-{{ with . }}
+<div >
+
 	<div class="d-flex justify-content-between align-items-center mb-2">
 		<form method="get" action="/usuarios/{{ .UUID }}/editar" style="display:inline;">
 			<button type="submit" class="btn btn-primary btn-sm">Editar Usuario</button>
@@ -38,7 +38,7 @@
 				</table>
 			</div>
 		</div>
-	{{ end }}
+	
 </div>
 
 

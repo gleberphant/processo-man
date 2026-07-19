@@ -1,0 +1,28 @@
+<div class="card">
+	<div class="table-responsive">
+		<table class="table table-bordered mb-0">
+			<tbody>
+				<tr>
+					<th class="bg-light w-25">UUID</th>
+					<td>{{ .UUID }}</td>
+				</tr>
+				<tr>
+					<th class="bg-light">NOME</th>
+					<td>{{ .Nome }}</td>
+				</tr>
+				<tr>
+					<th class="bg-light">CLIENTE</th>
+					<td>{{ .Dono.Nome }}</td>
+				</tr>
+				<tr>
+					<th class="bg-light">RESPONSÁVEL</th>
+					<td>{{ .Responsavel.Nome }}</td>
+				</tr>
+				<tr>
+					<th class="bg-light">DATA CRIAÇÃO</th>
+					<td>{{ formatarData .DataCriacao }}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

@@ -56,6 +56,4 @@ func (m *ManipuladorTarefa) InjetarRotas(mux *http.ServeMux) {
 	mux.HandleFunc("POST /tarefas/{UUID}/deletar", m.DeletarTarefaPost)
 	mux.HandleFunc("POST /tarefas/{UUID}/concluir", m.DeletarTarefaPost)
 
-	//mux.HandleFunc("GET /processos/{processo_uuid}/tarefas", m.PageListarTarefasPorProcesso)
-	mux.HandleFunc("GET /processos/{colaborador_uuid}/tarefas", m.PageListarTarefasPorResponsavel)
 }

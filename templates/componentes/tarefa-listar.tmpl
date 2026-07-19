@@ -1,69 +1,48 @@
 {{ define "tarefa-listar" }}
 
 <!-- Bloco de Tarefas -->
-<div class="row">
-	<div class="col-12">
-		<div class="d-flex justify-content-between align-items-center mb-2">
-			<h2 class="h4 mb-0">MINHAS TAREFAS</h2>
-		</div>
+<div class="table-responsive">
+                <table class="table align-middle table-striped table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>UUID</th>
+                            <th>Nome</th>
+                            <th>Processo (UUID)</th>
+                            <th>Responsável (UUID)</th>
+                            <th>AÇÕES</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ range . }}
+                        <tr>
+                            <td>{{ .UUID }}</td>
+                            <td>{{ .Nome }}</td>
+                            <td>{{ .ProcessoUUID }}</td>
+                            <td>{{ .ResponsavelUUID }}</td>
 
-		<section class="card">
-			<div class="table-responsive">
-				<table class="table align-middle table-striped table-hover mb-0">
-					<thead>
-						<tr>
-							<th>UUID</th>
-							<th>NOME TAREFA</th>
-							<th>DATA CRIACAO</th>
-							<th>RESPONSÁVEL</th>
-							<th>SITUAÇÃO</th>
-							<th>DATA CONCLUSÃO</th>
-							<th>AÇÕES</th>
-						</tr>
-					</thead>
-					<tbody>
-						{{ range . }}
-							<tr>
-								<td>{{ .UUID }}</td>
-								<td>{{ .Nome }}</td>
-								<td>{{ formatarData .DataCriacao }}</td>
-								<td>{{ .ResponsavelUUID }}</td>
-								<td>{{ .Concluida }}</td>
-								<td>{{ if .DataConclusao.IsZero }}Aberta {{ else }}{{ formatarData .DataConclusao }}{{ end }}
-								</td>
-								<td>
-									<form id="form-ver-{{ .UUID }}" method="get" action="/tarefas/{{ .UUID }}"
-										style="display:inline;">
+                            <td>
+                                <form id="form-ver-{{.UUID}}" method="get" action="/tarefas/{{.UUID}}"
+                                    style="display:inline;">
+                                    <button type="submit" class="btn btn-info mb-2">Ver</button>
+                                </form>
 
-										<button type="submit" class="btn btn-warning mb-2">Ver</button>
-									</form>
-
-									<form id="form-editar-{{ .UUID }}" method="get" action="/tarefas/{{ .UUID }}/editar"
-										style="display:inline;">
-
-										<button type="submit" class="btn btn-warning mb-2">Editar</button>
-									</form>
-
-									<form id="form-concluir-{{ .UUID }}" method="post"
-										action="/tarefas/{{ .UUID }}/concluir" style="display:inline;">
-
-										<button type="button" onclick="onClickConcluir('{{ .UUID }}')"
-											class="btn btn-danger mb-2">Concluir</button>
-									</form>
-								</td>
-							</tr>
-						{{ else }}
-							<tr>
-								<td colspan="8" class="text-center text-muted">Nenhuma tarefa encontrada.</td>
-							</tr>
-						{{ end }}
-					</tbody>
-				</table>
-			</div>
-		</section>
-
-	</div>
-</div>
+                                <form id="form-editar-{{.UUID}}" method="get" action="/tarefas/{{.UUID}}/editar"
+                                    style="display:inline;">
+                                    <button type="submit" class="btn btn-warning mb-2">Editar</button>
+                                </form>
+                                <form id="form-deletar-{{.UUID}}" method="post" action="/tarefas/{{.UUID}}/deletar"
+                                    style="display:inline;">
+                                    <input type="hidden" class="form-control" name="ProcessoUUID"
+                                        value="{{ .ProcessoUUID }}" required>
+                                    <button type="button" onclick="onClickDeletar('{{.UUID}}')"
+                                        class="btn btn-danger mb-2">Deletar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
 
     <script>
     function onClickConcluir(id) {

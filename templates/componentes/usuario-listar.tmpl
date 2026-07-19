@@ -1,41 +1,41 @@
-{{ define "processo-listar" }}
-<!-- Bloco de PROCESSOS -->
+
+
 <div class="table-responsive">
 	<table class="table align-middle table-striped table-hover mb-0">
 		<thead>
 			<tr>
-				<th>ID</th>
+				<th>UUID</th>
 				<th>Nome</th>
-				<th>Dono</th>
-				<th>Responsável</th>
-				<th>DataCriacao</th>
-				<th></th>
+				<th>Email</th>
+				<th>Perfis</th>
+
 				<th>AÇÕES</th>
 			</tr>
 		</thead>
 		<tbody>
 
-			{{ range . }}
+			{{ range .Usuarios }}
 				<tr>
 					<td>{{ .UUID }}</td>
 					<td>{{ .Nome }}</td>
-					<td>{{ .Dono.Nome }}</td>
-					<td>{{ .Responsavel.Nome }}</td>
-					<td>{{ formatarData .DataCriacao }}</td>
-					<td>-</td>
+					<td>{{ .Email }}</td>
+					<td>{{ .Perfis }}</td>
 
 					<td>
-						<form id="form-ver-{{ .UUID }}" method="get" action="/processos/{{ .UUID }}"
+						<form id="form-ver-{{ .UUID }}" method="get" action="/usuarios/{{ .UUID }}"
 							style="display:inline;">
-
 							<button type="submit" class="btn btn-info mb-2">
 								Visualizar
 							</button>
 						</form>
-
-						<form id="form-deletar-{{ .UUID }}" method="post" action="/processos/{{ .UUID }}/deletar"
+						<form id="form-editar-{{ .UUID }}" method="get" action="/usuarios/{{ .UUID }}/editar"
 							style="display:inline;">
-
+							<button type="submit" class="btn btn-warning mb-2">
+								Editar
+							</button>
+						</form>
+						<form id="form-deletar-{{ .UUID }}" method="post" action="/usuarios/{{ .UUID }}/deletar"
+							style="display:inline;">
 							<button type="button" onclick="onClickDeletar('{{ .UUID }}')"
 								class="btn btn-danger mb-2">
 								Deletar
@@ -43,15 +43,13 @@
 						</form>
 					</td>
 				</tr>
-			{{ else }}
-				<tr>
-					<td colspan="7" class="text-center text-muted">Nenhum processo encontrado.</td>
-				</tr>
 			{{ end }}
 		</tbody>
 	</table>
-</div> 
-<script>
+</div>
+
+<!-- meus scripts javascript -->
+        <script>
             function onClickDeletar(id) {
                 let resposta = confirm("Tem certeza que deseja Deletar ID=" + id + " ??")
 
@@ -61,6 +59,5 @@
 
             }
 
-</script>
+        </script>
 
-{{ end }}

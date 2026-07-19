@@ -85,58 +85,6 @@ func (m *ManipuladorTarefa) PageCriarTarefa(w http.ResponseWriter, r *http.Reque
 }
 
 // PageListar renderiza a página contendo a listagem de todos os Tarefas.
-func (m *ManipuladorTarefa) PageListarTarefasPorProcesso(w http.ResponseWriter, r *http.Request) {
-
-	strProcessoUUID := r.PathValue("processo_uuid") //r.URL.Query().Get("ProcessoUUID")
-
-	processoUUID, err := uuid.Parse(strProcessoUUID)
-	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("UUID do processo inválido: %v", err))
-		return
-	}
-
-	lista, err := m.cduTarefa.ListarTarefasPorProcesso(processoUUID)
-
-	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Listar Tarefa: %v", err))
-		return
-	}
-
-	viewModel := ViewModelTarefa{
-		ProcessoUUID: strProcessoUUID,
-		Tarefa:       lista,
-	}
-
-	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, r, viewModel)
-
-}
-
-// PageListarTarefasPorResponsavel renderiza a página contendo a listagem de tarefas de um responsável específico.
-func (m *ManipuladorTarefa) PageListarTarefasPorResponsavel(w http.ResponseWriter, r *http.Request) {
-
-	strResponsavelUUID := r.PathValue("colaborador_uuid")
-
-	responsavelUUID, err := uuid.Parse(strResponsavelUUID)
-	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("UUID do responsável inválido: %v", err))
-		return
-	}
-
-	lista, err := m.cduTarefa.ListarTarefasPorResponsavel(responsavelUUID)
-
-	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Listar Tarefas Responsável: %v", err))
-		return
-	}
-
-	viewModel := ViewModelTarefa{
-		Tarefa: lista,
-	}
-
-	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, r, viewModel)
-}
-
-// PageListar renderiza a página contendo a listagem de todos os Tarefas.
 func (m *ManipuladorTarefa) PageListarTarefas(w http.ResponseWriter, r *http.Request) {
 
 	lista, err := m.cduTarefa.ListarTarefas()
@@ -146,8 +94,12 @@ func (m *ManipuladorTarefa) PageListarTarefas(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	viewModel := ViewModelTarefa{
-		Tarefa: lista,
+	viewModel := struct {
+		ProcessoUUID string
+		Tarefas      []entidades.Tarefa
+	}{
+		ProcessoUUID: "",
+		Tarefas:      lista,
 	}
 
 	apresentacao.ExibirPaginaHTML("tarefa/page-listar-tarefas.html", w, r, viewModel)

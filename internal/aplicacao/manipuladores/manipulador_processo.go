@@ -90,10 +90,23 @@ func (m *ManipuladorProcesso) PageVerProcesso(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	viewModel := ViewModelProcesso{
+	listaArquivo := []entidades.Arquivo{
+		{UUID: uuid.New(), Nome: "arquivo1.txt", URL: "file://123"},
+		{UUID: uuid.New(), Nome: "arquivo2.txt", URL: "file://123"},
+		{UUID: uuid.New(), Nome: "arquivo3.txt", URL: "file://123"},
+		{UUID: uuid.New(), Nome: "arquivo4.txt", URL: "file://123"},
+	}
+
+	viewModel := struct {
+		UUID     string
+		Processo *entidades.Processo
+		Arquivos []entidades.Arquivo
+		Tarefas  []entidades.Tarefa
+	}{
 		UUID:     strUUID,
-		Processo: *processo,
-		Anexos:   []string{"arquivo1.doc", "arquivo2.doc"},
+		Processo: processo,
+		Arquivos: listaArquivo,
+		Tarefas:  processo.Tarefas,
 	}
 
 	apresentacao.ExibirPaginaHTML("processo/page-ver-processo.html", w, r, viewModel)
