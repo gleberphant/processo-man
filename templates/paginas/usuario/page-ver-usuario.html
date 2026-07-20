@@ -2,8 +2,6 @@
 
 <main class="container mt-5">
 	<div class="row mb-4">
-
-
 		<!-- compomente de detalhes do Usuario -->
 		<div class="col-md-6 mb-3">
 			{{ exibeComponente "usuario-detalhes" .Usuario }}
@@ -14,15 +12,31 @@
 			{{ exibeComponente "arquivo-listar" .Arquivos }}
 		</div>
 
-		<!-- componente de lista de Tarefas do usuario -->
-		<div class="row">
-			{{ exibeComponente "tarefa-listar" .Tarefas }}
-		</div>
 		<!-- componente de lista de processos do usuário -->
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h2 class="h4 mb-0">Meus Processos </h2>
+			<form id="form-criar-usuario" method="get" action="/processos/criar" style="display:inline;">
+				<button onclick="onClickNovo()" class="btn btn-primary mb-2">Novo</button>
+			</form>
+		</div>
+
 		<div class="row">
 			{{ exibeComponente "processo-listar" .Processos }}
 		</div>
+		<div class="row"> &nbsp;</div>
+		<!-- componente de lista de Tarefas do usuario -->
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h2 class="h4 mb-0">Minhas Tarefas</h2>
+			<form id="form-criar-tarefa" method="get" action="/tarefas/criar" style="display:inline;">
+				<input type="hidden" class="form-control" name="ResponsavelUUID" value="{{ .Usuario.UUID }}"
+					required>
+				<button type="submit" class="btn btn-primary mb-2">Nova Tarefa</button>
+			</form>
+		</div>
 
+		<div class="row">
+			{{ exibeComponente "tarefa-listar" .Tarefas }}
+		</div>
 
 
 	</div>

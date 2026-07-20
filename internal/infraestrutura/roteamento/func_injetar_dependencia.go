@@ -30,7 +30,7 @@ func (r *Roteador) InjetarDependencias() error {
 	ManipuladorAutenticacao := manipuladores.NovoManipuladorLogin(servicoAutenticacao)
 	ManipuladorUsuario := manipuladores.NovoManipuladorUsuario(servicoUsuario, servicoProcesso, servicoTarefa)
 	ManipuladorProcesso := manipuladores.NovoManipuladorProcesso(servicoProcesso, servicoUsuario)
-	ManipuladorTarefa := manipuladores.NovoManipuladorTarefa(servicoTarefa, servicoUsuario)
+	ManipuladorTarefa := manipuladores.NovoManipuladorTarefa(servicoTarefa, servicoUsuario, servicoProcesso)
 
 	// configurar servico autenticacao do roteador
 	r.servicoAutenticacao = servicoAutenticacao

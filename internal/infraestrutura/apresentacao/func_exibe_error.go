@@ -9,13 +9,13 @@ import (
 
 func ExibirErro(w http.ResponseWriter, erroMsg string) {
 
-	pc, file, line, _ := runtime.Caller(1)
+	pc, file, _, _ := runtime.Caller(1)
 
 	//logo no console
 	functionName := runtime.FuncForPC(pc).Name()
 	file = filepath.Base(file)
 
-	log.Printf("\nFunc %s File %s \n ERROR: %s\n", functionName, file, line, erroMsg)
+	log.Printf("\n *FUNC %s \n *FILE %s \n *ERROR: %s \n", functionName, file, erroMsg)
 
 	//substituir por redirecionamento para o index com uma mensagem
 	if w != nil {

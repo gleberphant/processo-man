@@ -15,70 +15,93 @@ import (
 // servindo como interface entre a camada de apresentação e os casos de uso.
 
 type ManipuladorTarefa struct {
-	cduTarefa  *servicos.ServicoTarefa
-	cduUsuario *servicos.ServicoUsuario
+	servicoProcesso *servicos.ServicoProcesso
+	servicoTarefa   *servicos.ServicoTarefa
+	servicoUsuario  *servicos.ServicoUsuario
 }
 
 // NovoManipuladorTarefa cria e retorna uma nova instância de ManipuladorTarefa.
-func NovoManipuladorTarefa(CasosDeUsoTarefa *servicos.ServicoTarefa, CasosDeUsoUsuario *servicos.ServicoUsuario) *ManipuladorTarefa {
+func NovoManipuladorTarefa(servicoTarefa *servicos.ServicoTarefa,
+	servicoUsuario *servicos.ServicoUsuario,
+	servicoProcesso *servicos.ServicoProcesso,
+) *ManipuladorTarefa {
 	return &ManipuladorTarefa{
-		cduTarefa:  CasosDeUsoTarefa,
-		cduUsuario: CasosDeUsoUsuario,
+		servicoTarefa:   servicoTarefa,
+		servicoUsuario:  servicoUsuario,
+		servicoProcesso: servicoProcesso,
 	}
 }
 
 func (m *ManipuladorTarefa) Fechar() {
-	m.cduTarefa.Fechar()
-	m.cduUsuario.Fechar()
-}
-
-// obterListaUsuariosView centraliza a busca de usuários e conversão para DTO.
-func (m *ManipuladorTarefa) obterListaUsuariosView() ([]usuarioView, error) {
-
-	lista, err := m.cduUsuario.ListarUsuarios()
-
-	if err != nil {
-		return nil, err
-	}
-
-	var listaUsuarioView []usuarioView
-	for _, item := range lista {
-		listaUsuarioView = append(listaUsuarioView, usuarioView{UUID: item.UUID.String(), Nome: item.Nome})
-	}
-
-	return listaUsuarioView, nil
+	m.servicoTarefa.Fechar()
+	m.servicoUsuario.Fechar()
 }
 
 // PageCriar renderiza o formulário para criação de um novo Tarefa.
 func (m *ManipuladorTarefa) PageCriarTarefa(w http.ResponseWriter, r *http.Request) {
 
-	strProcessoUUID := r.URL.Query().Get("ProcessoUUID")
+	var strProcessoUUID string
+	var strResponsavelUUID string
+	var processoUUID uuid.UUID = uuid.Nil
+	var responsavelUUID uuid.UUID = uuid.Nil
+	var err error
 
-	processoUUID, err := uuid.Parse(strProcessoUUID)
+	strProcessoUUID = r.PostFormValue("ProcessoUUID")
+	if strProcessoUUID != "" {
 
-	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("UUID do processo inválido: %v", err))
-		return
+		processoUUID, err = uuid.Parse(strProcessoUUID)
+
+		if err != nil {
+			apresentacao.ExibirErro(w, fmt.Sprintf("UUID do processo inválido: %v", err))
+			return
+		}
+
+		err = m.servicoTarefa.ValidarProcesso(processoUUID)
+
+		if err != nil {
+			apresentacao.ExibirErro(w, fmt.Sprintf("Processo invalido:%v", err))
+			return
+		}
 	}
 
-	err = m.cduTarefa.ValidarProcesso(processoUUID)
+	strResponsavelUUID = r.PostFormValue("ResponsavelUUID")
 
-	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Criar Tarefa:%v", err))
-		return
+	if strResponsavelUUID != "" {
+		responsavelUUID, err = uuid.Parse(strResponsavelUUID)
+
+		if err != nil {
+			apresentacao.ExibirErro(w, fmt.Sprintf("UUID do responsavel inválido: %v", err))
+			return
+		}
+
 	}
 
-	listaUsuarioView, err := m.obterListaUsuariosView()
+	listaUsuario, err := m.servicoUsuario.ListarUsuarios()
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro ao carregar usuarios: %v", err))
 		return
 	}
 
-	viewModel := ViewModelTarefa{
-		ProcessoUUID: strProcessoUUID,
-		Tarefa:       tarefaView{ProcessoUUID: processoUUID},
-		Usuarios:     listaUsuarioView,
+	listaProcesso, err := m.servicoProcesso.ListarProcessos()
+
+	if err != nil {
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro ao carregar processo: %v", err))
+		return
+	}
+
+	viewModel := struct {
+		Tarefa    entidades.Tarefa
+		Usuarios  []entidades.Usuario
+		Processos []entidades.Processo
+	}{
+		Tarefa: entidades.Tarefa{
+			UUID:            uuid.Nil,
+			ProcessoUUID:    processoUUID,
+			ResponsavelUUID: responsavelUUID,
+		},
+		Usuarios:  listaUsuario,
+		Processos: listaProcesso,
 	}
 
 	apresentacao.ExibirPaginaHTML("tarefa/page-criar-tarefa.html", w, r, viewModel)
@@ -87,7 +110,7 @@ func (m *ManipuladorTarefa) PageCriarTarefa(w http.ResponseWriter, r *http.Reque
 // PageListar renderiza a página contendo a listagem de todos os Tarefas.
 func (m *ManipuladorTarefa) PageListarTarefas(w http.ResponseWriter, r *http.Request) {
 
-	lista, err := m.cduTarefa.ListarTarefas()
+	lista, err := m.servicoTarefa.ListarTarefas()
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Listar Tarefa:%v", err))
@@ -116,14 +139,17 @@ func (m *ManipuladorTarefa) PageVerTarefa(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	tarefa, err := m.cduTarefa.BuscarTarefaPorUUID(tarefaUUID)
+	tarefa, err := m.servicoTarefa.BuscarTarefaPorUUID(tarefaUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("erro PageVerTarefa:%v", err))
 		return
 	}
 
-	viewModel := ViewModelTarefa{
+	viewModel := struct {
+		UUID   string
+		Tarefa *entidades.Tarefa
+	}{
 		UUID:   strUUID,
 		Tarefa: tarefa,
 	}
@@ -141,23 +167,27 @@ func (m *ManipuladorTarefa) PageEditarTarefa(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	tarefa, err := m.cduTarefa.BuscarTarefaPorUUID(tarefaUUID)
+	tarefa, err := m.servicoTarefa.BuscarTarefaPorUUID(tarefaUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Page Editar Tarefa:%v", err))
 		return
 	}
 
-	listaUsuarioView, err := m.obterListaUsuariosView()
+	listaUsuario, err := m.servicoUsuario.ListarUsuarios()
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro ao carregar usuarios: %v", err))
 		return
 	}
 
-	viewModel := ViewModelTarefa{
+	viewModel := struct {
+		UUID     string
+		Tarefa   *entidades.Tarefa
+		Usuarios []entidades.Usuario
+	}{
 		UUID:     strUUID,
-		Tarefa:   *tarefa,
-		Usuarios: listaUsuarioView,
+		Tarefa:   tarefa,
+		Usuarios: listaUsuario,
 	}
 
 	apresentacao.ExibirPaginaHTML("tarefa/page-criar-tarefa.html", w, r, viewModel)
@@ -169,14 +199,14 @@ func (m *ManipuladorTarefa) CriarTarefaPost(w http.ResponseWriter, r *http.Reque
 	processoUUID, err := uuid.Parse(r.PostFormValue("ProcessoUUID"))
 
 	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Criar Tarefa: %v", err))
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro ProcessoUUID: %v", err))
 		return
 	}
 
 	responsavelUUID, err := uuid.Parse(r.PostFormValue("ResponsavelUUID"))
 
 	if err != nil {
-		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Criar Tarefa:%v", err))
+		apresentacao.ExibirErro(w, fmt.Sprintf("Erro ResponsavelUUID:%v", err))
 		return
 	}
 
@@ -187,7 +217,7 @@ func (m *ManipuladorTarefa) CriarTarefaPost(w http.ResponseWriter, r *http.Reque
 		Comentarios:     r.PostFormValue("Comentarios"),
 	}
 
-	err = m.cduTarefa.CriarTarefa(tarefa)
+	err = m.servicoTarefa.CriarTarefa(tarefa)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Criar Tarefa: %v", err))
@@ -217,7 +247,7 @@ func (m *ManipuladorTarefa) EditarTarefaPost(w http.ResponseWriter, r *http.Requ
 		Comentarios:     r.PostFormValue("Comentarios"),
 	}
 
-	if err := m.cduTarefa.EditarTarefa(tarefa); err != nil {
+	if err := m.servicoTarefa.EditarTarefa(tarefa); err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Editar Tarefa:%v", err))
 		return
 	}
@@ -234,7 +264,7 @@ func (m *ManipuladorTarefa) DeletarTarefaPost(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = m.cduTarefa.DeletarTarefa(tarefaUUID)
+	err = m.servicoTarefa.DeletarTarefa(tarefaUUID)
 
 	if err != nil {
 		apresentacao.ExibirErro(w, fmt.Sprintf("Erro Deletar Tarefa: %v", err))
